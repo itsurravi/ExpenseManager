@@ -24,8 +24,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
+import com.ravikantsharma.designsystem.ArrowForward
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.LoginIcon
+import com.ravikantsharma.designsystem.components.ExManagerButton
 import com.ravikantsharma.designsystem.components.ExManagerHeadlineTextField
 import com.ravikantsharma.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.ui.ObserveAsEvent
@@ -99,6 +101,19 @@ fun RegisterScreen(
                 hint = stringResource(R.string.login_username)
             )
 
+            ExManagerButton(
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    start = 26.dp,
+                    end = 26.dp
+                ),
+                buttonText = stringResource(R.string.common_next),
+                onClick = {
+
+                },
+                isEnabled = false,
+                icon = ArrowForward
+            )
         }
     }
 }
