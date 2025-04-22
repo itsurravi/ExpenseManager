@@ -9,7 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,7 @@ import com.ravikantsharma.auth.presentation.login.component.ExManagerClickableTe
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.LoginIcon
 import com.ravikantsharma.designsystem.components.ExManagerButton
-import com.ravikantsharma.designsystem.components.ExManagerErrorBanner
+import com.ravikantsharma.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.designsystem.components.ExManagerTextField
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.launch
@@ -51,7 +52,11 @@ fun LoginScreenRoot(
         when (event) {
             LoginEvent.IncorrectCredentials -> {
                 scope.launch {
-                    snackBarHostState.showSnackbar(context.getString(R.string.login_error_username_or_pin_is_incorrect))
+                    snackBarHostState.currentSnackbarData?.dismiss()
+                    snackBarHostState.showSnackbar(
+                        message = context.getString(R.string.login_error_username_or_pin_is_incorrect),
+                        duration = SnackbarDuration.Short
+                    )
                 }
             }
         }
@@ -60,7 +65,7 @@ fun LoginScreenRoot(
     LoginScreen(
         modifier = modifier,
         uiState = uiState,
-        snackbarHostState = snackBarHostState,
+        snackBarHostState = snackBarHostState,
         onAction = viewModel::onAction
     )
 }
@@ -69,17 +74,13 @@ fun LoginScreenRoot(
 fun LoginScreen(
     modifier: Modifier,
     uiState: LoginViewState,
-    snackbarHostState: SnackbarHostState,
+    snackBarHostState: SnackbarHostState,
     onAction: (LoginAction) -> Unit
 ) {
     Scaffold(
         containerColor = Color.Transparent,
         snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) { data ->
-                ExManagerErrorBanner(
-                    text = data.visuals.message
-                )
-            }
+            ExManagerSnackBarHost(snackBarHostState)
         }
     ) { contentPadding ->
         Column(
@@ -89,7 +90,7 @@ fun LoginScreen(
                 .padding(contentPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.padding(24.dp))
+            Spacer(modifier = Modifier.padding(12.dp))
             Image(
                 imageVector = LoginIcon,
                 contentDescription = stringResource(R.string.login_button_content_description)
@@ -107,7 +108,10 @@ fun LoginScreen(
             )
 
             ExManagerTextField(
-                state = uiState.username,
+                value = uiState.username,
+                onValueChange = {
+                    onAction(LoginAction.OnUsernameUpdate(it))
+                },
                 hint = stringResource(R.string.login_username),
                 modifier = Modifier.padding(
                     start = 16.dp,
@@ -117,9 +121,16 @@ fun LoginScreen(
             )
 
             ExManagerTextField(
-                state = uiState.pin,
+                value = uiState.pin,
+                onValueChange = {
+                    onAction(LoginAction.OnPinChange(it))
+                },
                 hint = stringResource(R.string.login_pin),
                 keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done,
+                onDone = {
+                    onAction(LoginAction.OnLoginClick)
+                },
                 modifier = Modifier.padding(
                     start = 16.dp,
                     end = 16.dp,
