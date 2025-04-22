@@ -21,4 +21,11 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ExpenseManager"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 include(":app")
+include(":core:data")
+include(":core:domain")
+
+include(":core:presentation:ui")
+include(":core:presentation:designsystem")
