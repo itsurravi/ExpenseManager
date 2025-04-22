@@ -16,13 +16,29 @@ fun NavGraphBuilder.authGraph(
         composable<LoginRoute> {
             LoginScreenRoot(
                 onRegisterClick = {
-                    navController.navigate(RegisterRoute)
+                    navController.navigate(RegisterRoute) {
+                        popUpTo<LoginRoute> {
+                            inclusive = true
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
                 }
             )
         }
 
         composable<RegisterRoute> {
-            RegisterScreenRoot()
+            RegisterScreenRoot(
+                onAlreadyHaveAnAccountClick = {
+                    navController.navigate(LoginRoute) {
+                        popUpTo<RegisterRoute> {
+                            inclusive = true
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }
+            )
         }
     }
 }
