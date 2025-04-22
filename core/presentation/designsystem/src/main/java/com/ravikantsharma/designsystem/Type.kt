@@ -65,7 +65,8 @@ val Typography = Typography(
     bodyMedium = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        lineHeight = 24.sp
+        lineHeight = 24.sp,
+        color = ExManagerDarkGrey
     ),
     bodySmall = TextStyle(
         fontWeight = FontWeight.Normal,
