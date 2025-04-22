@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.ravikantsharma.auth.presentation.login.LoginScreenRoot
-import com.ravikantsharma.auth.presentation.register.RegisterScreen
+import com.ravikantsharma.auth.presentation.register.RegisterScreenRoot
 
 fun NavGraphBuilder.authGraph(
     navController: NavHostController
@@ -16,13 +16,13 @@ fun NavGraphBuilder.authGraph(
         composable<LoginRoute> {
             LoginScreenRoot(
                 onRegisterClick = {
-
+                    navController.navigate(RegisterRoute)
                 }
             )
         }
 
         composable<RegisterRoute> {
-            RegisterScreen()
+            RegisterScreenRoot()
         }
     }
 }

@@ -17,7 +17,8 @@ val Typography = Typography(
     displayMedium = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 36.sp,
-        lineHeight = 44.sp
+        lineHeight = 44.sp,
+        color = ExManagerBlack
     ),
 
     // 📰 Headline

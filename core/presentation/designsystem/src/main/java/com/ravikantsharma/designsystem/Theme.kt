@@ -14,7 +14,8 @@ private val ColorScheme = darkColorScheme(
     onSurface = ExManagerBlack,
     onSurfaceVariant = ExManagerDarkGrey,
     error = ExManagerRed,
-    onBackground = ExManagerPaleLavender
+    background = ExManagerPaleLavender,
+    onBackground = ExManagerLightGrey
 )
 
 @Composable
