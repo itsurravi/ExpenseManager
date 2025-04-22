@@ -16,10 +16,12 @@ android {
 dependencies {
     // Use the Compose bundle
     implementation(libs.bundles.compose)
+    implementation(libs.androidx.navigation.compose)
 
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.material.icons.extended)
 
     // Crypto
     implementation(libs.androidx.security.crypto.ktx)
@@ -35,4 +37,16 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    implementation(libs.bundles.koin)
+
+    // Implement local modules
+    implementation(projects.auth.domain)
+    implementation(projects.auth.data)
+    implementation(projects.auth.presentation)
+
+    implementation(projects.core.domain)
+    implementation(projects.core.data)
+    implementation(projects.core.presentation.designsystem)
+    implementation(projects.core.presentation.ui)
 }
