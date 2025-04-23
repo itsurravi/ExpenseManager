@@ -1,6 +1,7 @@
 package com.ravikantsharma.expensemanager
 
 import android.app.Application
+import com.ravikantsharma.auth.di.authDataModule
 import com.ravikantsharma.auth.presentation.di.authViewModelModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -23,7 +24,8 @@ class ExpenseManagerApp : Application() {
             androidLogger()
             androidContext(this@ExpenseManagerApp)
             modules(
-                authViewModelModule
+                authViewModelModule,
+                authDataModule
             )
 
         }
