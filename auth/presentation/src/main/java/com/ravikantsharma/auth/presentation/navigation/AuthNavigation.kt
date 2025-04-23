@@ -4,6 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.ravikantsharma.auth.presentation.create_pin.CreatePinScreenRoot
 import com.ravikantsharma.auth.presentation.login.LoginScreenRoot
 import com.ravikantsharma.auth.presentation.register.RegisterScreenRoot
 
@@ -16,7 +17,7 @@ fun NavGraphBuilder.authGraph(
         composable<LoginRoute> {
             LoginScreenRoot(
                 onRegisterClick = {
-                    navController.navigate(RegisterRoute) {
+                    navController.navigateToRegisterScreen {
                         popUpTo<LoginRoute> {
                             inclusive = true
                             saveState = true
@@ -30,15 +31,24 @@ fun NavGraphBuilder.authGraph(
         composable<RegisterRoute> {
             RegisterScreenRoot(
                 onAlreadyHaveAnAccountClick = {
-                    navController.navigate(LoginRoute) {
+                    navController.navigateToLoginRoute {
                         popUpTo<RegisterRoute> {
                             inclusive = true
                             saveState = true
                         }
                         restoreState = true
                     }
+                },
+                onNavigateToPinScreen = {
+                    navController.navigateToCreatePinScreen {
+                        restoreState = false
+                    }
                 }
             )
+        }
+
+        composable<CreatePinRoute> {
+            CreatePinScreenRoot()
         }
     }
 }
