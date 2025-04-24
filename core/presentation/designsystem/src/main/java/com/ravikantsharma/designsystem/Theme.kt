@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -16,24 +17,28 @@ private val ColorScheme = darkColorScheme(
     error = ExManagerRed,
     background = ExManagerPaleLavender,
     onBackground = ExManagerLightGrey,
-    primaryContainer = ExManagerPrimaryFixed
+    primaryContainer = ExManagerPrimaryFixed,
+    onPrimaryContainer = ExManagerOnPrimaryFixed,
+    surfaceContainerLowest = ExManagerSurfaceContainerLowest,
+    surfaceContainerLow = ExManagerSurfaceContainerLow,
+    inversePrimary = ExManagerInversePrimary,
+    secondaryContainer = ExManagerSecondaryContainer,
+    onSecondaryContainer = ExManagerOnSecondaryContainer,
+    tertiaryContainer = ExManagerTertiaryContainer
 )
+
+data class StatusBarAppearance(
+    val isDarkStatusBarIcons: Boolean = true
+)
+
+val LocalStatusBarAppearance = compositionLocalOf { StatusBarAppearance() }
 
 @Composable
 fun ExpenseManagerTheme(
     content: @Composable () -> Unit
 ) {
-    val colorScheme = ColorScheme
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-        }
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = ColorScheme,
         typography = Typography,
         content = content
     )
