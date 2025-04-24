@@ -19,4 +19,6 @@
     <string name="register_create_unique_username">Create unique username</string>
     <string name="register_already_have_an_account">Already have an account?</string>
 
+    <string name="create_pin_headline">Create PIN</string>
+    <string name="create_pin_sub_headline">Use PIN to login to your account  </string>
 </resources>
