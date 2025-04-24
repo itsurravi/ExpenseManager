@@ -7,8 +7,10 @@ import androidx.navigation.compose.navigation
 import com.ravikantsharma.auth.presentation.create_pin.ConfirmPinScreenRoot
 import com.ravikantsharma.auth.presentation.create_pin.CreatePinScreenRoot
 import com.ravikantsharma.auth.presentation.login.LoginScreenRoot
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinData
+import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
+import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.auth.presentation.register.RegisterScreenRoot
+import com.ravikantsharma.auth.presentation.user_preference.PreferencesScreenRoot
 import com.ravikantsharma.ui.SerializableNavType
 import kotlinx.serialization.serializer
 import kotlin.reflect.typeOf
@@ -53,7 +55,7 @@ fun NavGraphBuilder.authGraph(
         }
 
         composable<CreatePinRoute>(
-            typeMap = mapOf(typeOf<CreatePinData>() to SerializableNavType.create(serializer<CreatePinData>()))
+            typeMap = mapOf(typeOf<CreatePinScreenData>() to SerializableNavType.create(serializer<CreatePinScreenData>()))
         ) {
             CreatePinScreenRoot(
                 onNavigateToConfirmScreen = {
@@ -72,7 +74,7 @@ fun NavGraphBuilder.authGraph(
         }
 
         composable<ConfirmPinRoute>(
-            typeMap = mapOf(typeOf<CreatePinData>() to SerializableNavType.create(serializer<CreatePinData>()))
+            typeMap = mapOf(typeOf<CreatePinScreenData>() to SerializableNavType.create(serializer<CreatePinScreenData>()))
         ) {
             ConfirmPinScreenRoot(
                 onNavigateToRegisterScreen = {
@@ -82,6 +84,12 @@ fun NavGraphBuilder.authGraph(
 
                 }
             )
+        }
+
+        composable<PreferencesRoute>(
+            typeMap = mapOf(typeOf<PreferencesScreenData>() to SerializableNavType.create(serializer<PreferencesScreenData>()))
+        ) {
+            PreferencesScreenRoot()
         }
     }
 }

@@ -79,7 +79,7 @@ fun ExManagerHeadlineTextField(
                 )
             ) {
                 Box(modifier = Modifier.weight(1f)) {
-                    if (value.isEmpty()) {
+                    if (value.isEmpty() && !isFocused) {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
                             text = hint.toLowerCase(Locale.current),
