@@ -8,14 +8,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 
 @Composable
-fun PreferencesScreenRoot(
+fun OnboardingPreferencesScreenRoot(
     modifier: Modifier = Modifier
 ) {
-    PreferencesScreen()
+    OnboardingPreferencesScreen()
 }
 
 @Composable
-fun PreferencesScreen(
+fun OnboardingPreferencesScreen(
     modifier: Modifier = Modifier
 ) {
 
@@ -23,10 +23,10 @@ fun PreferencesScreen(
 
 @Preview
 @Composable
-fun PreviewPreferencesScreen() {
+fun PreviewOnboardingPreferencesScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            PreferencesScreen()
+            OnboardingPreferencesScreen()
         }
     }
 }

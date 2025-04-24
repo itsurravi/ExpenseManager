@@ -10,7 +10,7 @@ import com.ravikantsharma.auth.presentation.login.LoginScreenRoot
 import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.auth.presentation.register.RegisterScreenRoot
-import com.ravikantsharma.auth.presentation.user_preference.PreferencesScreenRoot
+import com.ravikantsharma.auth.presentation.user_preference.OnboardingPreferencesScreenRoot
 import com.ravikantsharma.ui.SerializableNavType
 import kotlinx.serialization.serializer
 import kotlin.reflect.typeOf
@@ -89,7 +89,7 @@ fun NavGraphBuilder.authGraph(
         composable<PreferencesRoute>(
             typeMap = mapOf(typeOf<PreferencesScreenData>() to SerializableNavType.create(serializer<PreferencesScreenData>()))
         ) {
-            PreferencesScreenRoot()
+            OnboardingPreferencesScreenRoot()
         }
     }
 }
