@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
+import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.LoginIcon
 import com.ravikantsharma.designsystem.components.ExManagerEnterPin
@@ -35,7 +36,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CreatePinScreenRoot(
     modifier: Modifier = Modifier,
-    onNavigateToConfirmScreen: () -> Unit,
+    onNavigateToConfirmScreen: (String) -> Unit,
     onNavigateToRegisterScreen: () -> Unit,
     viewModel: CreatePinViewModel = koinViewModel()
 ) {
@@ -44,86 +45,20 @@ fun CreatePinScreenRoot(
 
     ObserveAsEvent(viewModel.events) { event ->
         when (event) {
-            CreatePinEvent.NavigateToConfirmPinScreen -> onNavigateToConfirmScreen()
+            is CreatePinEvent.NavigateToConfirmPinScreen -> onNavigateToConfirmScreen(event.createdPin)
             CreatePinEvent.NavigateToRegisterScreen -> onNavigateToRegisterScreen()
+            else -> Unit
         }
     }
 
-    CreatePinScreen(
+    CreatePinScreenComponent(
         modifier = modifier,
+        headlineResId = R.string.create_pin_headline,
+        subHeadlineResId = R.string.create_pin_sub_headline,
+        snackbarHostState = snackBarHostState,
         uiState = uiState,
-        snackBarHostState = snackBarHostState,
-        onAction = viewModel::onAction
+        onAction = viewModel::onAction,
     )
-
-}
-
-@Composable
-fun CreatePinScreen(
-    modifier: Modifier = Modifier,
-    uiState: CreatePinState,
-    snackBarHostState: SnackbarHostState,
-    onAction: (CreatePinAction) -> Unit
-) {
-    Scaffold(
-        containerColor = Color.Transparent,
-        snackbarHost = {
-            ExManagerSnackBarHost(snackBarHostState)
-        },
-        topBar = {
-            ExManagerTopBar(
-                onStartIconClick = {
-                    onAction(CreatePinAction.OnBackPressed)
-                }
-            )
-        }
-    ) { contentPadding ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    imageVector = LoginIcon,
-                    contentDescription = stringResource(R.string.login_button_content_description)
-                )
-                Text(
-                    text = stringResource(R.string.create_pin_headline),
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-                Text(
-                    text = stringResource(R.string.create_pin_sub_headline),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-                ExManagerEnterPin(
-                    pin = uiState.pin,
-                    modifier = Modifier.padding(
-                        top = 36.dp,
-                        start = 46.dp,
-                        end = 46.dp
-                    )
-                )
-
-                ExManagerPinPad(
-                    modifier = Modifier.padding(top = 32.dp),
-                    hasBiometricButton = true,
-                    onNumberPressedClicked = {
-                        onAction(CreatePinAction.OnNumberPressed(it))
-                    },
-                    onDeletePressedClicked = {
-                        onAction(CreatePinAction.OnDeletePressed)
-                    }
-                )
-            }
-        }
-    }
 }
 
 @Composable
@@ -131,10 +66,12 @@ fun CreatePinScreen(
 fun PreviewCreatePinScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            CreatePinScreen(
+            CreatePinScreenComponent(
                 uiState = CreatePinState(),
-                snackBarHostState = SnackbarHostState(),
-                onAction = {}
+                snackbarHostState = SnackbarHostState(),
+                onAction = {},
+                headlineResId = R.string.create_pin_headline,
+                subHeadlineResId = R.string.create_pin_sub_headline,
             )
         }
     }
