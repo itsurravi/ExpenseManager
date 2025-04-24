@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.login.component.ExManagerClickableText
+import com.ravikantsharma.auth.presentation.navigation.model.CreatePinData
 import com.ravikantsharma.designsystem.ArrowForward
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.LoginIcon
@@ -44,7 +45,7 @@ fun RegisterScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: RegisterViewModel = koinViewModel(),
     onAlreadyHaveAnAccountClick: () -> Unit,
-    onNavigateToPinScreen: () -> Unit
+    onNavigateToPinScreen: (CreatePinData) -> Unit
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -74,9 +75,9 @@ fun RegisterScreenRoot(
                 }
             }
 
-            RegisterEvent.NavigateToPinScreen -> {
+            is RegisterEvent.NavigateToPinScreen -> {
                 keyboardController?.hide()
-                onNavigateToPinScreen()
+                onNavigateToPinScreen(event.screenData)
             }
         }
     }

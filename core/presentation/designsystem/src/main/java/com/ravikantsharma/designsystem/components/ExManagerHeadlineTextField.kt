@@ -62,7 +62,7 @@ fun ExManagerHeadlineTextField(
         modifier = modifier
             .fillMaxWidth()
             .onFocusChanged { isFocused = it.isFocused }
-            .defaultMinSize(minHeight = 48.dp)
+            .defaultMinSize(minHeight = 64.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(
                 MaterialTheme.colorScheme.onBackground.copy(
@@ -73,7 +73,10 @@ fun ExManagerHeadlineTextField(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                modifier = Modifier.padding(
+                    horizontal = 16.dp,
+                    vertical = 10.dp
+                )
             ) {
                 Box(modifier = Modifier.weight(1f)) {
                     if (value.isEmpty()) {

@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
+import com.ravikantsharma.auth.presentation.navigation.model.CreatePinData
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.LoginIcon
 import com.ravikantsharma.designsystem.components.ExManagerEnterPin
@@ -36,7 +37,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CreatePinScreenRoot(
     modifier: Modifier = Modifier,
-    onNavigateToConfirmScreen: (String) -> Unit,
+    onNavigateToConfirmScreen: (CreatePinData) -> Unit,
     onNavigateToRegisterScreen: () -> Unit,
     viewModel: CreatePinViewModel = koinViewModel()
 ) {
@@ -45,7 +46,7 @@ fun CreatePinScreenRoot(
 
     ObserveAsEvent(viewModel.events) { event ->
         when (event) {
-            is CreatePinEvent.NavigateToConfirmPinScreen -> onNavigateToConfirmScreen(event.createdPin)
+            is CreatePinEvent.NavigateToConfirmPinScreen -> onNavigateToConfirmScreen(event.screenData)
             CreatePinEvent.NavigateToRegisterScreen -> onNavigateToRegisterScreen()
             else -> Unit
         }

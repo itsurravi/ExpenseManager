@@ -3,6 +3,8 @@ package com.ravikantsharma.auth.presentation.create_pin
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ravikantsharma.auth.presentation.navigation.model.CreatePinData
+import com.ravikantsharma.ui.getRouteData
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +22,7 @@ class CreatePinViewModel(
     private val _eventChannel = Channel<CreatePinEvent>()
     val events = _eventChannel.receiveAsFlow()
 
-    private val enteredPin = savedStateHandle.get<String>("createdPin")
+    private val createPinData = savedStateHandle.getRouteData<CreatePinData>("screenData")
 
     fun onAction(action: CreatePinAction) {
         viewModelScope.launch {
@@ -50,9 +52,16 @@ class CreatePinViewModel(
                     }
                     val updatedPin = _uiState.value.pin
                     if (updatedPin.length == 5) {
-                        if (enteredPin == null) {
-                            _eventChannel.send(CreatePinEvent.NavigateToConfirmPinScreen(updatedPin))
-                        } else if (updatedPin.equals(enteredPin, true)) {
+                        if (createPinData?.pin == null) {
+                            _eventChannel.send(
+                                CreatePinEvent.NavigateToConfirmPinScreen(
+                                    CreatePinData(
+                                        username = createPinData?.username ?: "",
+                                        pin = updatedPin
+                                    )
+                                )
+                            )
+                        } else if (updatedPin.equals(createPinData.pin, true)) {
                             _eventChannel.send(CreatePinEvent.NavigateToPreferencesScreen)
                         } else {
                             _eventChannel.send(CreatePinEvent.PinsDoNotMatch)
