@@ -3,6 +3,7 @@ package com.ravikantsharma.auth.presentation.user_preference
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases
 import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.ui.getRouteData
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 
 class OnboardingPreferencesViewModel(
     savedStateHandle: SavedStateHandle,
-    private val onboardingPreferenceUseCases: OnboardingPreferenceUseCases
+    private val onboardingPreferenceUseCases: OnboardingPreferenceUseCases,
+    private val encryptionUseCases: EncryptionUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingPreferencesViewState())
@@ -35,6 +37,7 @@ class OnboardingPreferencesViewModel(
 
                 OnboardingPreferencesAction.OnStartClicked -> {
                     eventChannel.send(OnboardingPreferencesEvent.NavigateToDashboardScreen)
+
                 }
 
                 is OnboardingPreferencesAction.OnCurrencyUpdate -> {

@@ -1,9 +1,12 @@
 package com.ravikantsharma.auth.di
 
+import com.ravikantsharma.auth.domain.usecase.DecryptPinUseCase
+import com.ravikantsharma.auth.domain.usecase.EncryptPinUseCase
+import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases
 import com.ravikantsharma.auth.domain.usecase.FormatExampleUseCase
-import com.ravikantsharma.auth.domain.usecase.LoginUseCases
 import com.ravikantsharma.auth.domain.usecase.IsUsernameDuplicateUseCase
 import com.ravikantsharma.auth.domain.usecase.IsUsernameValidUseCase
+import com.ravikantsharma.auth.domain.usecase.LoginUseCases
 import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
 import com.ravikantsharma.auth.domain.usecase.ValidateSelectedPreferences
 import org.koin.dsl.module
@@ -16,4 +19,8 @@ val authDataModule = module {
     factory { ValidateSelectedPreferences() }
     factory { FormatExampleUseCase(get()) }
     single { OnboardingPreferenceUseCases(get(), get()) }
+
+    factory { EncryptPinUseCase(get()) }
+    factory { DecryptPinUseCase(get()) }
+    single { EncryptionUseCases(get(), get()) }
 }
