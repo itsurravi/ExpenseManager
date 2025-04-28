@@ -35,6 +35,10 @@
             <option value="$PROJECT_DIR$/core/presentation" />
             <option value="$PROJECT_DIR$/core/presentation/designsystem" />
             <option value="$PROJECT_DIR$/core/presentation/ui" />
+            <option value="$PROJECT_DIR$/dashboard" />
+            <option value="$PROJECT_DIR$/dashboard/data" />
+            <option value="$PROJECT_DIR$/dashboard/domain" />
+            <option value="$PROJECT_DIR$/dashboard/presentation" />
           </set>
         </option>
       </GradleProjectSettings>
