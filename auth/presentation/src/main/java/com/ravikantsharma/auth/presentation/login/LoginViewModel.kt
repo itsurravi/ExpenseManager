@@ -2,7 +2,7 @@ package com.ravikantsharma.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ravikantsharma.auth.domain.usecase.AuthUseCases
+import com.ravikantsharma.auth.domain.usecase.LoginUseCases
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val authUseCases: AuthUseCases) : ViewModel() {
+class LoginViewModel(private val loginUseCases: LoginUseCases) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginViewState())
     val uiState = _uiState.asStateFlow()
@@ -25,7 +25,7 @@ class LoginViewModel(private val authUseCases: AuthUseCases) : ViewModel() {
                     val username = _uiState.value.username.trim()
                     val pin = _uiState.value.pin.trim()
 
-                    if (!authUseCases.isUsernameValidUseCase(username) || pin.length < MIN_PIN_LENGTH) {
+                    if (!loginUseCases.isUsernameValidUseCase(username) || pin.length < MIN_PIN_LENGTH) {
                         eventChannel.send(LoginEvent.IncorrectCredentials)
                     } else {
                         // Proceed with login logic

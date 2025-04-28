@@ -3,6 +3,7 @@ package com.ravikantsharma.expensemanager
 import android.app.Application
 import com.ravikantsharma.auth.di.authDataModule
 import com.ravikantsharma.auth.presentation.di.authViewModelModule
+import com.ravikantsharma.data.coreDataModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
@@ -25,7 +26,8 @@ class ExpenseManagerApp : Application() {
             androidContext(this@ExpenseManagerApp)
             modules(
                 authViewModelModule,
-                authDataModule
+                authDataModule,
+                coreDataModule
             )
 
         }
