@@ -1,5 +1,6 @@
 package com.ravikantsharma.domain.formatting
 
+import com.ravikantsharma.domain.model.Currency
 import com.ravikantsharma.domain.model.DecimalSeparator
 import com.ravikantsharma.domain.model.ExpenseFormat
 import com.ravikantsharma.domain.model.ThousandsSeparator
@@ -12,28 +13,45 @@ object NumberFormatter {
         expenseFormat: ExpenseFormat,
         decimalSeparator: DecimalSeparator,
         thousandsSeparator: ThousandsSeparator,
-        currencySymbol: String
+        currency: Currency
     ): String {
         val isNegative = amount < 0
         val absoluteAmount = abs(amount)
 
+        // Format number using US Locale (default is dot as decimal separator, comma for thousands)
         var formattedNumber = String.format(Locale.US, "%,.2f", absoluteAmount)
 
-        formattedNumber = when (decimalSeparator) {
-            DecimalSeparator.DOT -> formattedNumber
-            DecimalSeparator.COMMA -> formattedNumber.replace(".", ",")
-        }
-
+        // Step 1: Convert thousands separator to a temporary placeholder
         formattedNumber = when (thousandsSeparator) {
-            ThousandsSeparator.DOT -> formattedNumber.replace(".", ",")
-            ThousandsSeparator.COMMA -> formattedNumber
-            ThousandsSeparator.SPACE -> formattedNumber.replace(",", "")
+            ThousandsSeparator.DOT -> formattedNumber.replace(',', '¤')  // Use ¤ (temp char)
+            ThousandsSeparator.COMMA -> formattedNumber  // No change (US default)
+            ThousandsSeparator.SPACE -> formattedNumber.replace(',', ' ') // 1,000 → 1 000
         }
 
+        // Step 2: Convert decimal separator (Ensure it doesn't overwrite thousands)
+        formattedNumber = when (decimalSeparator) {
+            DecimalSeparator.DOT -> formattedNumber.replace('.', '.')  // No change needed
+            DecimalSeparator.COMMA -> formattedNumber.replace(
+                '.',
+                ','
+            ) // 1.000 → 1,000 OR 1¤000 → 1¤000
+        }
+
+        // Step 3: Convert the temporary placeholder back to the correct thousands separator
+        formattedNumber = when (thousandsSeparator) {
+            ThousandsSeparator.DOT -> formattedNumber.replace(
+                '¤',
+                '.'
+            )  // Restore dot for thousands
+            ThousandsSeparator.COMMA -> formattedNumber  // No change
+            ThousandsSeparator.SPACE -> formattedNumber  // Already handled
+        }
+
+        // Step 4: Apply expense format with currency
         return when {
-            isNegative && expenseFormat == ExpenseFormat.MINUS_PREFIX -> "-$currencySymbol$formattedNumber"
-            isNegative && expenseFormat == ExpenseFormat.BRACKETS -> "($currencySymbol$formattedNumber)"
-            else -> "$currencySymbol$formattedNumber"
+            isNegative && expenseFormat == ExpenseFormat.MINUS_PREFIX -> "-${currency.symbol}$formattedNumber"
+            isNegative && expenseFormat == ExpenseFormat.BRACKETS -> "(${currency.symbol}$formattedNumber)"
+            else -> "${currency.symbol}$formattedNumber"
         }
     }
 }

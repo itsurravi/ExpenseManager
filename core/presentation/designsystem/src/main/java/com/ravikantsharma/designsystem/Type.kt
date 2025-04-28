@@ -55,7 +55,8 @@ val Typography = Typography(
     labelMedium = TextStyle(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp,
-        lineHeight = 24.sp
+        lineHeight = 24.sp,
+        color = ExManagerBlack
     ),
     labelSmall = TextStyle(
         fontWeight = FontWeight.Medium,

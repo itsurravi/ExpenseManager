@@ -7,14 +7,22 @@ enum class ThousandsSeparator : PreferenceOption {
     COMMA,
     SPACE;
 
-    override fun displayText(number: Double): String {
+    override fun displayText(number: Double, currency: Currency?, keepDecimal: Boolean): String {
         val locale = Locale.US
-        val formatterNumber = String.format(locale, "%,.2f", number)
+
+        // Determine decimal format based on `keepDecimal`
+        val format = if (keepDecimal) {
+            "%,.2f" // Always 2 decimal places
+        } else {
+            if (number % 1.0 == 0.0) "%,.0f" else "%,.2f" // Remove decimals if whole
+        }
+
+        val formattedNumber = String.format(locale, format, number)
 
         return when (this) {
-            DOT -> formatterNumber.replace(',', '.')
-            COMMA -> formatterNumber
-            SPACE -> formatterNumber.replace(',', ' ')
+            DOT -> formattedNumber.replace(",", ".")
+            COMMA -> formattedNumber
+            SPACE -> formattedNumber.replace(",", " ")
         }
     }
 

@@ -89,7 +89,16 @@ fun NavGraphBuilder.authGraph(
         composable<PreferencesRoute>(
             typeMap = mapOf(typeOf<PreferencesScreenData>() to SerializableNavType.create(serializer<PreferencesScreenData>()))
         ) {
-            OnboardingPreferencesScreenRoot()
+            OnboardingPreferencesScreenRoot(
+                onNavigateToRegisterScreen = {
+                    navController.navigateToRegisterScreen {
+                        popUpTo<RegisterRoute>()
+                    }
+                },
+                onNavigateToDashboardScreen = {
+
+                }
+            )
         }
     }
 }

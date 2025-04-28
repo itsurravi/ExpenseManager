@@ -105,7 +105,7 @@ private fun PinPadButton(
             Text(
                 text = it,
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    color = ExManagerOnPrimaryFixed
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
         }

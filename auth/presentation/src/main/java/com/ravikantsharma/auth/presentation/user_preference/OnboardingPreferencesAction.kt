@@ -1,10 +1,16 @@
 package com.ravikantsharma.auth.presentation.user_preference
 
+import com.ravikantsharma.domain.model.Currency
+import com.ravikantsharma.domain.model.DecimalSeparator
+import com.ravikantsharma.domain.model.ExpenseFormat
+import com.ravikantsharma.domain.model.ThousandsSeparator
+
 sealed interface OnboardingPreferencesAction {
-    data class OnExpenseFormatUpdate(val format: String) : OnboardingPreferencesAction
-    data class OnCurrencyUpdate(val format: String) : OnboardingPreferencesAction
-    data class OnDecimalSeparatorUpdate(val format: String) : OnboardingPreferencesAction
-    data class OnThousandSeparatorUpdate(val format: String) : OnboardingPreferencesAction
+    data class OnExpenseFormatUpdate(val format: ExpenseFormat) : OnboardingPreferencesAction
+    data class OnCurrencyUpdate(val currency: Currency) : OnboardingPreferencesAction
+    data class OnDecimalSeparatorUpdate(val format: DecimalSeparator) : OnboardingPreferencesAction
+    data class OnThousandsSeparatorUpdate(val format: ThousandsSeparator) :
+        OnboardingPreferencesAction
     data object OnBackClicked : OnboardingPreferencesAction
     data object OnStartClicked : OnboardingPreferencesAction
 }
