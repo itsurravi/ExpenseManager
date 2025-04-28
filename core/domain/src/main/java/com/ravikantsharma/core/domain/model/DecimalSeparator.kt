@@ -1,4 +1,4 @@
-package com.ravikantsharma.domain.model
+package com.ravikantsharma.core.domain.model
 
 import java.util.Locale
 

@@ -1,4 +1,4 @@
-package com.ravikantsharma.domain.model
+package com.ravikantsharma.core.domain.model
 
 enum class Currency(val symbol: String, val title:String) {
     USD("$", "US Dollar (USD)"),

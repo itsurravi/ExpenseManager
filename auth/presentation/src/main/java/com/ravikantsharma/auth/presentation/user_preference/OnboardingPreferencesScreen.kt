@@ -34,10 +34,10 @@ import com.ravikantsharma.designsystem.components.ExManagerButton
 import com.ravikantsharma.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.designsystem.components.SegmentedSelector
-import com.ravikantsharma.domain.model.Currency
-import com.ravikantsharma.domain.model.DecimalSeparator
-import com.ravikantsharma.domain.model.ExpenseFormat
-import com.ravikantsharma.domain.model.ThousandsSeparator
+import com.ravikantsharma.core.domain.model.Currency
+import com.ravikantsharma.core.domain.model.DecimalSeparator
+import com.ravikantsharma.core.domain.model.ExpenseFormat
+import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.ui.ObserveAsEvent
 import org.koin.androidx.compose.koinViewModel
 

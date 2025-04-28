@@ -1,9 +1,9 @@
-package com.ravikantsharma.domain.formatting
+package com.ravikantsharma.core.domain.formatting
 
-import com.ravikantsharma.domain.model.Currency
-import com.ravikantsharma.domain.model.DecimalSeparator
-import com.ravikantsharma.domain.model.ExpenseFormat
-import com.ravikantsharma.domain.model.ThousandsSeparator
+import com.ravikantsharma.core.domain.model.Currency
+import com.ravikantsharma.core.domain.model.DecimalSeparator
+import com.ravikantsharma.core.domain.model.ExpenseFormat
+import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import java.util.Locale
 import kotlin.math.abs
 

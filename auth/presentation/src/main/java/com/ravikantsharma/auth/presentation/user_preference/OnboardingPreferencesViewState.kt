@@ -1,10 +1,10 @@
 package com.ravikantsharma.auth.presentation.user_preference
 
-import com.ravikantsharma.domain.formatting.NumberFormatter
-import com.ravikantsharma.domain.model.Currency
-import com.ravikantsharma.domain.model.DecimalSeparator
-import com.ravikantsharma.domain.model.ExpenseFormat
-import com.ravikantsharma.domain.model.ThousandsSeparator
+import com.ravikantsharma.core.domain.formatting.NumberFormatter
+import com.ravikantsharma.core.domain.model.Currency
+import com.ravikantsharma.core.domain.model.DecimalSeparator
+import com.ravikantsharma.core.domain.model.ExpenseFormat
+import com.ravikantsharma.core.domain.model.ThousandsSeparator
 
 data class OnboardingPreferencesViewState(
     val expenseFormat: ExpenseFormat = ExpenseFormat.MINUS_PREFIX,
