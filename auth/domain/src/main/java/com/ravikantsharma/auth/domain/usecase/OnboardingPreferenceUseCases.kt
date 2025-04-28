@@ -5,10 +5,15 @@ import com.ravikantsharma.core.domain.model.Currency
 import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
+import com.ravikantsharma.core.domain.preference.model.UserPreferences
+import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
+import com.ravikantsharma.core.domain.utils.DataError
+import com.ravikantsharma.core.domain.utils.Result
 
 data class OnboardingPreferenceUseCases(
     val validateSelectedPreferences: ValidateSelectedPreferences,
-    val formatExampleUseCase: FormatExampleUseCase
+    val formatExampleUseCase: FormatExampleUseCase,
+    val setPreferencesUseCase: SetPreferencesUseCase
 )
 
 class ValidateSelectedPreferences {
@@ -39,5 +44,13 @@ class FormatExampleUseCase(private val numberFormatter: NumberFormatter) {
             thousandsSeparator = thousandsSeparator,
             currency = currency
         )
+    }
+}
+
+class SetPreferencesUseCase(
+    private val userPreferencesRepository: UserPreferencesRepository
+) {
+    suspend operator fun invoke(userPreferences: UserPreferences): Result<Unit, DataError> {
+        return userPreferencesRepository.insertPreference(userPreferences)
     }
 }

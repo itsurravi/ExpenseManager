@@ -5,18 +5,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases
 import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
+import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
+import com.ravikantsharma.core.domain.auth.model.UserInfo
+import com.ravikantsharma.core.domain.preference.model.UserPreferences
+import com.ravikantsharma.core.domain.utils.DataError
+import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.ui.getRouteData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OnboardingPreferencesViewModel(
     savedStateHandle: SavedStateHandle,
     private val onboardingPreferenceUseCases: OnboardingPreferenceUseCases,
+    private val registerUseCases: RegisterUseCases,
     private val encryptionUseCases: EncryptionUseCases
 ) : ViewModel() {
 
@@ -36,7 +44,7 @@ class OnboardingPreferencesViewModel(
                 }
 
                 OnboardingPreferencesAction.OnStartClicked -> {
-                    eventChannel.send(OnboardingPreferencesEvent.NavigateToDashboardScreen)
+                    handleOnStartClicked()
 
                 }
 
@@ -65,6 +73,67 @@ class OnboardingPreferencesViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun handleOnStartClicked() {
+        val (encryptedPin, iv) = encryptionUseCases.encryptPinUseCase(screenData?.pin.orEmpty())
+        val userInfo = UserInfo(
+            username = screenData?.username.orEmpty(),
+            encryptedPin = encryptedPin,
+            iv = iv
+        )
+
+        val userIdResult = withContext(Dispatchers.IO) {
+            registerUseCases.registerUserUseCase(userInfo)
+        }
+
+        when (userIdResult) {
+            is Result.Error -> {
+                handleRegistrationError(userIdResult.error)
+                return
+            }
+
+            is Result.Success -> Unit
+        }
+
+        val userPreferences = UserPreferences(
+            userId = userIdResult.data,
+            expenseFormat = uiState.value.expenseFormat,
+            currency = uiState.value.currency,
+            decimalSeparator = uiState.value.decimalSeparator,
+            thousandsSeparator = uiState.value.thousandsSeparator,
+        )
+
+        val preferencesResult = withContext(Dispatchers.IO) {
+            onboardingPreferenceUseCases.setPreferencesUseCase(userPreferences)
+        }
+
+        when (preferencesResult) {
+            is Result.Error -> {
+                handlePreferenceError(preferencesResult.error)
+                return
+            }
+
+            is Result.Success -> Unit
+        }
+
+        eventChannel.send(OnboardingPreferencesEvent.NavigateToDashboardScreen)
+    }
+
+    private suspend fun handleRegistrationError(error: DataError) {
+        val event = when (error) {
+            DataError.Local.DUPLICATE_USER_ERROR -> OnboardingPreferencesEvent.Error.DuplicateEntry
+            else -> OnboardingPreferencesEvent.Error.Generic
+        }
+        eventChannel.send(event)
+    }
+
+    private suspend fun handlePreferenceError(error: DataError) {
+        val event = when (error) {
+            DataError.Local.PREFERENCE_FETCH_ERROR -> OnboardingPreferencesEvent.Error.Generic
+            else -> OnboardingPreferencesEvent.Error.Generic
+        }
+        eventChannel.send(event)
     }
 
     /**

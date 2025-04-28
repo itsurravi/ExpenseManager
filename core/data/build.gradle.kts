@@ -12,4 +12,5 @@ dependencies {
     implementation(libs.androidx.security.crypto)
 
     implementation(projects.core.domain)
+    implementation(projects.core.database)
 }

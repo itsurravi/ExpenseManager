@@ -3,8 +3,8 @@ package com.ravikantsharma.auth.domain.usecase
 import com.ravikantsharma.core.domain.security.EncryptionService
 
 data class EncryptionUseCases(
-    val encryptPin: EncryptPinUseCase,
-    val decryptPin: DecryptPinUseCase
+    val encryptPinUseCase: EncryptPinUseCase,
+    val decryptPinUseCase: DecryptPinUseCase
 )
 
 class EncryptPinUseCase(private val encryptionService: EncryptionService) {

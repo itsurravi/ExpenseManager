@@ -11,34 +11,38 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
+import com.ravikantsharma.core.domain.model.Currency
+import com.ravikantsharma.core.domain.model.DecimalSeparator
+import com.ravikantsharma.core.domain.model.ExpenseFormat
+import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.components.CurrencySelector
 import com.ravikantsharma.designsystem.components.ExManagerButton
 import com.ravikantsharma.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.designsystem.components.SegmentedSelector
-import com.ravikantsharma.core.domain.model.Currency
-import com.ravikantsharma.core.domain.model.DecimalSeparator
-import com.ravikantsharma.core.domain.model.ExpenseFormat
-import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.ui.ObserveAsEvent
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -48,6 +52,8 @@ fun OnboardingPreferencesScreenRoot(
     onNavigateToDashboardScreen: () -> Unit,
     onNavigateToRegisterScreen: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -59,6 +65,28 @@ fun OnboardingPreferencesScreenRoot(
 
             OnboardingPreferencesEvent.NavigateToRegisterScreen -> {
                 onNavigateToRegisterScreen()
+            }
+
+            is OnboardingPreferencesEvent.Error -> {
+                snackBarHostState.currentSnackbarData?.dismiss()
+                when(event) {
+                    OnboardingPreferencesEvent.Error.DuplicateEntry -> {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = context.getString(R.string.common_error_username_taken),
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                    OnboardingPreferencesEvent.Error.Generic -> {
+                        scope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = context.getString(R.string.common_error_something_went_wrong),
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -79,7 +107,8 @@ fun OnboardingPreferencesScreen(
     onAction: (OnboardingPreferencesAction) -> Unit
 ) {
 
-    Scaffold(containerColor = Color.Transparent,
+    Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             ExManagerTopBar(
                 onStartIconClick = {
