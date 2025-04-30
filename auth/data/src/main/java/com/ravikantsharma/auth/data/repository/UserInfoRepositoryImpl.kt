@@ -14,8 +14,8 @@ class UserInfoRepositoryImpl(
         return localUserInfoDataSource.upsertUser(userInfo)
     }
 
-    override suspend fun getUser(userId: Long): Result<UserInfo, DataError> {
-        return localUserInfoDataSource.getUser(userId)
+    override suspend fun getUser(username: String): Result<UserInfo, DataError> {
+        return localUserInfoDataSource.getUser(username)
     }
 
     override fun getAllUsers(): Flow<Result<List<UserInfo>, DataError>> {

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface UserInfoRepository {
     suspend fun registerUser(userInfo: UserInfo): Result<Long, DataError>
 
-    suspend fun getUser(userId: Long): Result<UserInfo, DataError>
+    suspend fun getUser(username: String): Result<UserInfo, DataError>
 
     fun getAllUsers(): Flow<Result<List<UserInfo>, DataError>>
 }

@@ -6,7 +6,8 @@ import com.ravikantsharma.auth.domain.usecase.DecryptPinUseCase
 import com.ravikantsharma.auth.domain.usecase.EncryptPinUseCase
 import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases
 import com.ravikantsharma.auth.domain.usecase.FormatExampleUseCase
-import com.ravikantsharma.auth.domain.usecase.IsUsernameDuplicateUseCase
+import com.ravikantsharma.auth.domain.usecase.InitiateLoginUseCase
+import com.ravikantsharma.auth.domain.usecase.IsUserNameDuplicateUseCase
 import com.ravikantsharma.auth.domain.usecase.IsUsernameValidUseCase
 import com.ravikantsharma.auth.domain.usecase.LoginUseCases
 import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
@@ -20,7 +21,7 @@ import org.koin.dsl.module
 
 val authDataModule = module {
     single { IsUsernameValidUseCase() }
-    single { IsUsernameDuplicateUseCase() }
+    single { InitiateLoginUseCase(get(), get()) }
     single { LoginUseCases(get(), get()) }
 
     factory { ValidateSelectedPreferences() }
@@ -32,7 +33,8 @@ val authDataModule = module {
     factory { DecryptPinUseCase(get()) }
     single { EncryptionUseCases(get(), get()) }
 
-    singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
     factory { RegisterUserUseCase(get()) }
-    single { RegisterUseCases(get()) }
+    factory { IsUserNameDuplicateUseCase(get()) }
+    single { RegisterUseCases(get(), get()) }
+    singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
 }
