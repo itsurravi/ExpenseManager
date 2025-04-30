@@ -1,7 +1,4 @@
 plugins {
-//    alias(libs.plugins.android.application)
-//    alias(libs.plugins.jetbrainsKotlinAndroid) apply false
-//    alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.expensemanager.android.application.compose)
 }
 
