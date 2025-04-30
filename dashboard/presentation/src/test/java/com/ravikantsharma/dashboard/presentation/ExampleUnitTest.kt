@@ -1,4 +1,4 @@
-package com.ravikantsharma.dashboard.core
+package com.ravikantsharma.dashboard.presentation
 
 import org.junit.Test
 
