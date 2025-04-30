@@ -8,6 +8,7 @@ android {
 
 dependencies {
     implementation(libs.bundles.koin)
+    implementation(libs.androidx.datastore.preference)
 
     implementation(projects.core.domain)
     implementation(projects.sessionManagement.domain)

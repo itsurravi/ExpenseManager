@@ -14,4 +14,5 @@ dependencies {
 
     implementation(projects.core.domain)
     implementation(projects.dashboard.domain)
+    api(projects.sessionManagement.presentation)
 }

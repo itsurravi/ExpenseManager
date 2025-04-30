@@ -66,7 +66,7 @@ fun <T> SegmentedSelector(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = LocalIndication.current
                         )
-                        .padding(vertical = 12.dp),
+                        .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
