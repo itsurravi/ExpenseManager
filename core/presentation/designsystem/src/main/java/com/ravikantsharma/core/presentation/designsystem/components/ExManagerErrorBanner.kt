@@ -1,4 +1,4 @@
-package com.ravikantsharma.designsystem.components
+package com.ravikantsharma.core.presentation.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ravikantsharma.designsystem.ExManagerWhite
+import com.ravikantsharma.core.presentation.designsystem.ExManagerWhite
 
 @Composable
 fun ExManagerErrorBanner(

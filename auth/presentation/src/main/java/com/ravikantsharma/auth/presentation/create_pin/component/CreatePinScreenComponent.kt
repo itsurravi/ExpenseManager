@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.dp
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.CreatePinAction
 import com.ravikantsharma.auth.presentation.create_pin.CreatePinState
-import com.ravikantsharma.designsystem.LoginIcon
-import com.ravikantsharma.designsystem.components.ExManagerEnterPin
-import com.ravikantsharma.designsystem.components.ExManagerPinPad
-import com.ravikantsharma.designsystem.components.ExManagerSnackBarHost
-import com.ravikantsharma.designsystem.components.ExManagerTopBar
+import com.ravikantsharma.core.presentation.designsystem.LoginIcon
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerEnterPin
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerPinPad
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 
 @Composable
 fun CreatePinScreenComponent(

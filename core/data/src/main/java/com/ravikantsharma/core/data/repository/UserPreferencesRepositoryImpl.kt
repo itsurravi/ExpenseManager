@@ -1,4 +1,4 @@
-package com.ravikantsharma.data.repository
+package com.ravikantsharma.core.data.repository
 
 import com.ravikantsharma.core.domain.preference.data_source.LocalPreferencesDataSource
 import com.ravikantsharma.core.domain.preference.model.UserPreferences

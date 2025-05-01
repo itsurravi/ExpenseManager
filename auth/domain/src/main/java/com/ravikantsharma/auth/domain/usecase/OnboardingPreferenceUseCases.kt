@@ -5,10 +5,6 @@ import com.ravikantsharma.core.domain.model.Currency
 import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
-import com.ravikantsharma.core.domain.preference.model.UserPreferences
-import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
-import com.ravikantsharma.core.domain.utils.DataError
-import com.ravikantsharma.core.domain.utils.Result
 
 data class OnboardingPreferenceUseCases(
     val validateSelectedPreferences: ValidateSelectedPreferences,

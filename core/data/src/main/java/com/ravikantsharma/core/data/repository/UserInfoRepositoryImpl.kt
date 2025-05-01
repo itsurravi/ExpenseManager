@@ -1,4 +1,4 @@
-package com.ravikantsharma.data.repository
+package com.ravikantsharma.core.data.repository
 
 import com.ravikantsharma.core.domain.auth.data_source.LocalUserInfoDataSource
 import com.ravikantsharma.core.domain.auth.model.UserInfo

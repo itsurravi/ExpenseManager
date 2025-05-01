@@ -1,4 +1,4 @@
-package com.ravikantsharma.designsystem.components
+package com.ravikantsharma.core.presentation.designsystem.components
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background

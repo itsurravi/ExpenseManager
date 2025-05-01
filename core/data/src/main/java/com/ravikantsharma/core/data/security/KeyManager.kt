@@ -1,4 +1,4 @@
-package com.ravikantsharma.data.security
+package com.ravikantsharma.core.data.security
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties

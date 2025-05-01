@@ -12,7 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
 import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
-import com.ravikantsharma.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.ui.ObserveAsEvent
 import org.koin.androidx.compose.koinViewModel
 

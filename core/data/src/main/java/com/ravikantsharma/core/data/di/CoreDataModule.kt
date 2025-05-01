@@ -1,4 +1,4 @@
-package com.ravikantsharma.data.di
+package com.ravikantsharma.core.data.di
 
 import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
 import com.ravikantsharma.core.domain.auth.usecases.GetUserInfoUseCase
@@ -9,10 +9,10 @@ import com.ravikantsharma.core.domain.preference.usecase.GetPreferencesUseCase
 import com.ravikantsharma.core.domain.preference.usecase.SetPreferencesUseCase
 import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
 import com.ravikantsharma.core.domain.security.EncryptionService
-import com.ravikantsharma.data.repository.UserInfoRepositoryImpl
-import com.ravikantsharma.data.repository.UserPreferencesRepositoryImpl
-import com.ravikantsharma.data.security.AesEncryptionService
-import com.ravikantsharma.data.security.KeyManager
+import com.ravikantsharma.core.data.repository.UserInfoRepositoryImpl
+import com.ravikantsharma.core.data.repository.UserPreferencesRepositoryImpl
+import com.ravikantsharma.core.data.security.AesEncryptionService
+import com.ravikantsharma.core.data.security.KeyManager
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module

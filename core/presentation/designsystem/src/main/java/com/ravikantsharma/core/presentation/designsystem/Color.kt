@@ -1,4 +1,4 @@
-package com.ravikantsharma.designsystem
+package com.ravikantsharma.core.presentation.designsystem
 
 import androidx.compose.ui.graphics.Color
 

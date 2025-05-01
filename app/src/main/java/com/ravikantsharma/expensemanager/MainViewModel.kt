@@ -15,7 +15,6 @@ class MainViewModel(
 ) : ViewModel() {
 
     val state = MutableStateFlow(MainState(isSessionExpired = false))
-        private set
 
     init {
         viewModelScope.launch {

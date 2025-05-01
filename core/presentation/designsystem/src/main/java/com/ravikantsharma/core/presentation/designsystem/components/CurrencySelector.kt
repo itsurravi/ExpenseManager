@@ -1,4 +1,4 @@
-package com.ravikantsharma.designsystem.components
+package com.ravikantsharma.core.presentation.designsystem.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -33,7 +33,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ravikantsharma.designsystem.TickIcon
+import com.ravikantsharma.core.presentation.designsystem.TickIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

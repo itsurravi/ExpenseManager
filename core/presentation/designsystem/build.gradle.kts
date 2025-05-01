@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.ravikantsharma.designsystem"
+    namespace = "com.ravikantsharma.presentation.designsystem"
 }
 
 dependencies {

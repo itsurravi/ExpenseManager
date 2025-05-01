@@ -1,6 +1,5 @@
-package com.ravikantsharma.designsystem.components
+package com.ravikantsharma.core.presentation.designsystem.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,9 +23,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ravikantsharma.designsystem.BackDelete
-import com.ravikantsharma.designsystem.ExpenseManagerTheme
-import com.ravikantsharma.designsystem.FingerPrint
+import com.ravikantsharma.core.presentation.designsystem.BackDelete
+import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.FingerPrint
 
 @Composable
 fun ExManagerPinPad(

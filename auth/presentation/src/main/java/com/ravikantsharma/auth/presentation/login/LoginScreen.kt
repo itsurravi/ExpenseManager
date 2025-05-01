@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.login.component.ExManagerClickableText
-import com.ravikantsharma.designsystem.ExpenseManagerTheme
-import com.ravikantsharma.designsystem.LoginIcon
-import com.ravikantsharma.designsystem.components.ExManagerButton
-import com.ravikantsharma.designsystem.components.ExManagerSnackBarHost
-import com.ravikantsharma.designsystem.components.ExManagerTextField
+import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.LoginIcon
+import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTextField
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

@@ -1,4 +1,4 @@
-package com.ravikantsharma.designsystem.components
+package com.ravikantsharma.core.presentation.designsystem.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -17,9 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ravikantsharma.designsystem.BackArrow
-import com.ravikantsharma.designsystem.ExitIcon
-import com.ravikantsharma.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.BackArrow
+import com.ravikantsharma.core.presentation.designsystem.ExitIcon
+import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 
 @Composable
 fun ExManagerTopBar(

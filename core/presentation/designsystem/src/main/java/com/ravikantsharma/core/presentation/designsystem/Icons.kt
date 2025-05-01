@@ -1,8 +1,9 @@
-package com.ravikantsharma.designsystem
+package com.ravikantsharma.core.presentation.designsystem
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import com.ravikantsharma.presentation.designsystem.R
 
 val LoginIcon: ImageVector
     @Composable
@@ -24,10 +25,6 @@ val BackArrow: ImageVector
     @Composable
     get() = ImageVector.vectorResource(R.drawable.ic_back)
 
-val DownloadButton: ImageVector
-    @Composable
-    get() = ImageVector.vectorResource(R.drawable.ic_download)
-
 val DropDownButton: ImageVector
     @Composable
     get() = ImageVector.vectorResource(R.drawable.ic_dropdown)
@@ -39,3 +36,19 @@ val TickIcon: ImageVector
 val ExitIcon: ImageVector
     @Composable
     get() = ImageVector.vectorResource(R.drawable.ic_exit)
+
+val NoteIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(R.drawable.ic_note)
+
+val DownloadButton: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(R.drawable.ic_download)
+
+val SettingsButton: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(R.drawable.ic_settings)
+
+val PlusIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(R.drawable.ic_plus)

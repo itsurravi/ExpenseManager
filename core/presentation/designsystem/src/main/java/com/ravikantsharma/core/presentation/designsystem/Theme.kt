@@ -1,24 +1,27 @@
-package com.ravikantsharma.designsystem
+package com.ravikantsharma.core.presentation.designsystem
 
-import android.app.Activity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
+
+val primaryFixed = ExManagerPrimaryFixed
+val onPrimaryFixed = ExManagerOnPrimaryFixed
+val secondaryFixed = ExManagerSecondaryFixed
+val secondaryFixedDim = ExManagerSecondaryFixedDim
+val success = ExManagerSuccess
 
 private val ColorScheme = darkColorScheme(
     primary = ExManagerPurple,
     onPrimary = ExManagerWhite,
+    secondary = ExManagerSecondary,
     onSurface = ExManagerBlack,
     onSurfaceVariant = ExManagerDarkGrey,
     error = ExManagerRed,
     background = ExManagerPaleLavender,
     onBackground = ExManagerLightGrey,
-    primaryContainer = ExManagerPrimaryFixed,
-    onPrimaryContainer = ExManagerOnPrimaryFixed,
+    primaryContainer = ExManagerPrimaryContainer,
+    onPrimaryContainer = ExManagerOnPrimaryContainer,
     surfaceContainerLowest = ExManagerSurfaceContainerLowest,
     surfaceContainerLow = ExManagerSurfaceContainerLow,
     inversePrimary = ExManagerInversePrimary,

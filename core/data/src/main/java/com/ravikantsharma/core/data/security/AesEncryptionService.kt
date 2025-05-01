@@ -1,4 +1,4 @@
-package com.ravikantsharma.data.security
+package com.ravikantsharma.core.data.security
 
 import android.util.Base64
 import com.ravikantsharma.core.domain.security.EncryptionService
