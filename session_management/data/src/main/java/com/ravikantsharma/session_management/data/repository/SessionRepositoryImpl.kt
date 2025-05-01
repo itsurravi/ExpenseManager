@@ -1,9 +1,12 @@
 package com.ravikantsharma.session_management.data.repository
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
+import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
+import com.ravikantsharma.core.domain.utils.Result
+import com.ravikantsharma.session_management.data.SessionPreferences
+import com.ravikantsharma.session_management.data.utils.toDomain
+import com.ravikantsharma.session_management.data.utils.toProto
+import com.ravikantsharma.session_management.domain.model.SessionData
 import com.ravikantsharma.session_management.domain.repository.SessionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -11,59 +14,93 @@ import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.max
 
 class SessionRepositoryImpl(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<SessionPreferences>,
+    private val preferencesRepository: UserPreferencesRepository
 ) : SessionRepository {
 
-    override suspend fun startSession() {
-        val durationMinutes: Long = 1
-        val expirationTime = System.currentTimeMillis() + (durationMinutes * MINUTES_TO_MILLIS)
+    companion object {
+        private const val MINUTES_TO_MILLIS = 1000L
+        private const val TAG = "SessionRepository"
 
-        dataStore.edit { preferences ->
-            preferences[SESSION_EXPIRATION_TIME] = expirationTime
+        // Date formatter for readable logs
+        private val dateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.US)
+
+        private fun formatTime(timestamp: Long): String {
+            return if (timestamp > 0) dateFormat.format(Date(timestamp)) else "N/A"
+        }
+    }
+
+    override suspend fun saveSession(sessionData: SessionData) {
+        val userPreferences = preferencesRepository.getPreferences(sessionData.userId).first()
+        when (userPreferences) {
+            is Result.Success -> {
+                val expirationTime =
+                    System.currentTimeMillis() + (userPreferences.data.sessionDuration.getValueInLong() * MINUTES_TO_MILLIS)
+
+                dataStore.updateData { prefs ->
+                    sessionData.copy(sessionExpiryTime = expirationTime).toProto()
+                }
+            }
+
+            is Result.Error -> Unit
         }
     }
 
     override suspend fun clearSession() {
-        dataStore.edit { preferences ->
-            preferences[SESSION_EXPIRATION_TIME] = 0L
+        // ✅ Reset session data to default
+        dataStore.updateData {
+            SessionPreferences.getDefaultInstance()
+        }
+    }
+
+    private suspend fun setSessionToExpired() {
+        dataStore.updateData { prefs ->
+            prefs.toBuilder().setSessionExpiryTime(0L).build()
+        }
+    }
+
+    override fun getSessionData(): Flow<SessionData> {
+        return dataStore.data.map { prefs ->
+            prefs.toDomain()
         }
     }
 
     override fun isSessionExpired(): Flow<Boolean> {
-        return getRemainingSessionTime().map { remainingTimeMs ->
-            val isExpired = remainingTimeMs <= 0
-
+        return dataStore.data.map { prefs ->
+            val isExpired = System.currentTimeMillis() >= prefs.sessionExpiryTime
+            if (isExpired) {
+                setSessionToExpired()
+            }
             isExpired
         }
     }
 
-    override suspend fun checkAndUpdateSessionExpiry() {
-        if (isSessionExpired().first()) {
-            clearSession()
+    override suspend fun checkAndUpdateSessionExpiry(): Boolean {
+        val isSessionExpired = isSessionExpired().first()
+        if (isSessionExpired) {
+            setSessionToExpired()
         }
+        return isSessionExpired
     }
 
-    private fun getRemainingSessionTime(): Flow<Long> {
-        return dataStore.data.map { preferences ->
-            val expirationTime = preferences[SESSION_EXPIRATION_TIME] ?: 0L
-            val remainingTimeMs = max(0, expirationTime - System.currentTimeMillis())
+    override suspend fun resetSessionExpiry() {
+        dataStore.updateData { prefs ->
+            val userPreference = preferencesRepository.getPreferences(prefs.userId).first()
+            when (userPreference) {
+                is Result.Success -> {
+                    val sessionExpiryDurationMins = userPreference.data.sessionDuration.getValueInLong()
+                    val newExpirationTime = System.currentTimeMillis() + (sessionExpiryDurationMins * MINUTES_TO_MILLIS)
 
-            remainingTimeMs
-        }
-    }
+                    prefs.toBuilder()
+                        .setSessionExpiryTime(newExpirationTime)
+                        .build()
+                }
 
-    companion object {
-        private val SESSION_EXPIRATION_TIME = longPreferencesKey("session_expiration_time")
-        private const val MINUTES_TO_MILLIS = 60 * 1000L
-        private const val TAG = "SessionRepositoryImpl"
+                is Result.Error -> prefs
+            }
 
-        private val dateFormat = SimpleDateFormat("HH:mm:ss dd/MM/yyyy", Locale.US)
-
-        fun formatTime(timestamp: Long): String {
-            return if (timestamp > 0) dateFormat.format(Date(timestamp)) else "N/A"
         }
     }
 }

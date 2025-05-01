@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.auth.domain.usecase.LoginUseCases
 import com.ravikantsharma.core.domain.utils.Result
+import com.ravikantsharma.session_management.domain.model.SessionData
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,8 +40,13 @@ class LoginViewModel(
                         )) {
                             is Result.Error -> eventChannel.send(LoginEvent.IncorrectCredentials)
                             is Result.Success -> {
-                                if (loginResult.data) {
-                                    sessionUseCases.startSessionUseCase()
+                                val sessionData = SessionData(
+                                    userId = loginResult.data,
+                                    userName = username,
+                                    sessionExpiryTime = 0
+                                )
+                                sessionUseCases.saveSessionUseCase(sessionData)
+                                if (loginResult.data > 0L) {
                                     eventChannel.send(LoginEvent.NavigateToDashboardScreen)
                                 } else {
                                     eventChannel.send(LoginEvent.IncorrectCredentials)

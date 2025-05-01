@@ -17,7 +17,7 @@ class MainViewModel(
 
     init {
         viewModelScope.launch {
-            sessionUseCases.startSessionUseCase()
+            sessionUseCases.saveSessionUseCase()
             sessionUseCases.isSessionExpiredUseCase().collectLatest { isExpired ->
                 state.update {
                     it.copy(
@@ -30,7 +30,7 @@ class MainViewModel(
 
     fun startSession() {
         viewModelScope.launch {
-            sessionUseCases.startSessionUseCase()
+            sessionUseCases.saveSessionUseCase()
             state.update {
                 it.copy(
                     isSessionExpired = false

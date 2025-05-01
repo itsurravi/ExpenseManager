@@ -8,9 +8,13 @@ import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
 import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.core.domain.auth.model.UserInfo
+import com.ravikantsharma.core.domain.model.LockoutDuration
+import com.ravikantsharma.core.domain.model.SessionDuration
 import com.ravikantsharma.core.domain.preference.model.UserPreferences
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
+import com.ravikantsharma.session_management.domain.model.SessionData
+import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import com.ravikantsharma.ui.getRouteData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -25,7 +29,8 @@ class OnboardingPreferencesViewModel(
     savedStateHandle: SavedStateHandle,
     private val onboardingPreferenceUseCases: OnboardingPreferenceUseCases,
     private val registerUseCases: RegisterUseCases,
-    private val encryptionUseCases: EncryptionUseCases
+    private val encryptionUseCases: EncryptionUseCases,
+    private val sessionUseCase: SessionUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingPreferencesViewState())
@@ -87,13 +92,17 @@ class OnboardingPreferencesViewModel(
             registerUseCases.registerUserUseCase(userInfo)
         }
 
+        var userId = -1L
+
         when (userIdResult) {
             is Result.Error -> {
                 handleRegistrationError(userIdResult.error)
                 return
             }
 
-            is Result.Success -> Unit
+            is Result.Success -> {
+                userId = userIdResult.data
+            }
         }
 
         val userPreferences = UserPreferences(
@@ -102,6 +111,9 @@ class OnboardingPreferencesViewModel(
             currency = uiState.value.currency,
             decimalSeparator = uiState.value.decimalSeparator,
             thousandsSeparator = uiState.value.thousandsSeparator,
+            isBiometricEnabled = false,
+            sessionDuration = SessionDuration.ONE_MIN,
+            lockOutDuration = LockoutDuration.FIFTEEN_SECONDS
         )
 
         val preferencesResult = withContext(Dispatchers.IO) {
@@ -117,6 +129,12 @@ class OnboardingPreferencesViewModel(
             is Result.Success -> Unit
         }
 
+        val sessionData = SessionData(
+            userId = userId,
+            userName = screenData?.username.orEmpty(),
+            sessionExpiryTime = 0
+        )
+        sessionUseCase.saveSessionUseCase(sessionData)
         eventChannel.send(OnboardingPreferencesEvent.NavigateToDashboardScreen)
     }
 
