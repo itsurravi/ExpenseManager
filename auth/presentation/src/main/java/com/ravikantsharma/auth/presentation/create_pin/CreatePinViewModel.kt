@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
+import com.ravikantsharma.ui.MAX_PIN_LENGTH
 import com.ravikantsharma.ui.getRouteData
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,6 @@ class CreatePinViewModel(
     fun onAction(action: CreatePinAction) {
         viewModelScope.launch {
             when (action) {
-                is CreatePinAction.OnPinUpdate -> Unit
                 CreatePinAction.OnBackPressed -> {
                     _eventChannel.send(CreatePinEvent.NavigateToRegisterScreen)
                 }
@@ -92,9 +92,5 @@ class CreatePinViewModel(
         createPinScreenData = createPinScreenData?.copy(
             pin = ""
         )
-    }
-
-    companion object {
-        private const val MAX_PIN_LENGTH = 5
     }
 }
