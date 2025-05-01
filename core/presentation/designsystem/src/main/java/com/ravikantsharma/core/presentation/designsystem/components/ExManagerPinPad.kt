@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.dp
 import com.ravikantsharma.core.presentation.designsystem.BackDelete
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.FingerPrint
+import com.ravikantsharma.core.presentation.designsystem.onPrimaryFixed
+import com.ravikantsharma.core.presentation.designsystem.primaryFixed
 
 @Composable
 fun ExManagerPinPad(
@@ -101,7 +103,7 @@ private fun PinPadButton(
         modifier = modifier
             .size(108.dp)
             .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = adjustedAlpha))
+            .background(primaryFixed.copy(alpha = adjustedAlpha))
             .clickable(
                 enabled = onClick != null && !isLocked
             ) { onClick?.invoke() },
@@ -111,7 +113,7 @@ private fun PinPadButton(
             Text(
                 text = it,
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = adjustedAlpha)
+                    color = onPrimaryFixed.copy(alpha = adjustedAlpha)
                 )
             )
         }

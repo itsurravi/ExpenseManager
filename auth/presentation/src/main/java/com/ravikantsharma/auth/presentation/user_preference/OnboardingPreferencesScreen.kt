@@ -37,10 +37,10 @@ import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.components.CurrencySelector
-import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
+import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -69,7 +69,7 @@ fun OnboardingPreferencesScreenRoot(
 
             is OnboardingPreferencesEvent.Error -> {
                 snackBarHostState.currentSnackbarData?.dismiss()
-                when(event) {
+                when (event) {
                     OnboardingPreferencesEvent.Error.DuplicateEntry -> {
                         scope.launch {
                             snackBarHostState.showSnackbar(
@@ -78,6 +78,7 @@ fun OnboardingPreferencesScreenRoot(
                             )
                         }
                     }
+
                     OnboardingPreferencesEvent.Error.Generic -> {
                         scope.launch {
                             snackBarHostState.showSnackbar(
@@ -173,8 +174,6 @@ fun OnboardingPreferencesScreen(
                     options = Currency.entries.toTypedArray(),
                     currencyDisplay = { it.symbol },
                     currencyTitleDisplay = { it.title },
-                    currencyMenuDisplay = { it.symbol },
-                    currencyTitleMenuDisplay = { it.title },
                     onItemSelected = {
                         onAction(OnboardingPreferencesAction.OnCurrencyUpdate(it))
                     }

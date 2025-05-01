@@ -54,10 +54,6 @@ fun NavigationRoot(
         })
     }
 
-    if (startDestination == null) {
-        return
-    }
-
     // TODO: End - Clean up and improve pin navigation
 
     LaunchedEffect(state.isSessionExpired) {
