@@ -8,7 +8,7 @@ import com.ravikantsharma.session_management.data.SessionPreferences
 import com.ravikantsharma.session_management.data.repository.SessionRepositoryImpl
 import com.ravikantsharma.session_management.data.utils.SessionSerializer
 import com.ravikantsharma.session_management.domain.repository.SessionRepository
-import com.ravikantsharma.session_management.domain.usecases.CheckSessionExpiryUseCase
+import com.ravikantsharma.session_management.domain.usecases.SetSessionExpiredUseCase
 import com.ravikantsharma.session_management.domain.usecases.ClearSessionUseCase
 import com.ravikantsharma.session_management.domain.usecases.GetSessionDataUseCase
 import com.ravikantsharma.session_management.domain.usecases.GetSessionStatusUseCase
@@ -37,9 +37,9 @@ val sessionModule = module {
     factory { SaveSessionUseCase(get()) }
     factory { GetSessionStatusUseCase(get()) }
     factory { ClearSessionUseCase(get()) }
-    factory { CheckSessionExpiryUseCase(get()) }
     factory { GetSessionDataUseCase(get()) }
     factory { ResetSessionExpiryUseCase(get()) }
+    factory { SetSessionExpiredUseCase(get()) }
     single { SessionUseCases(get(), get(), get(), get(), get(), get()) }
 
     singleOf(::SessionRepositoryImpl).bind<SessionRepository>()

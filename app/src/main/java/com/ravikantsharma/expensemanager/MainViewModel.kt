@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -18,7 +19,7 @@ class MainViewModel(
 
     init {
         viewModelScope.launch {
-            sessionUseCases.resetSessionExpiryUseCase()
+            sessionUseCases.setSessionExpiredUseCase()
         }
         sessionUseCases.isSessionExpiredUseCase().onEach { isExpired ->
             state.update {
@@ -31,7 +32,7 @@ class MainViewModel(
 
     fun startSession() {
         viewModelScope.launch {
-            sessionUseCases.saveSessionUseCase()
+            sessionUseCases.resetSessionExpiryUseCase()
             state.update {
                 it.copy(
                     isSessionExpired = false
@@ -46,5 +47,16 @@ class MainViewModel(
                 isSessionExpired = isExpired
             )
         }
+    }
+
+    fun setSessionToExpired() {
+        viewModelScope.launch {
+            sessionUseCases.setSessionExpiredUseCase()
+        }
+    }
+
+    suspend fun isUserIdPresent(): Boolean {
+        return sessionUseCases.getSessionDataUseCase()
+            .firstOrNull()?.userId?.let { it > 0L } == true
     }
 }
