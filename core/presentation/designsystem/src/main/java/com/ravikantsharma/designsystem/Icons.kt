@@ -35,3 +35,7 @@ val DropDownButton: ImageVector
 val TickIcon: ImageVector
     @Composable
     get() = ImageVector.vectorResource(R.drawable.ic_tick)
+
+val ExitIcon: ImageVector
+    @Composable
+    get() = ImageVector.vectorResource(R.drawable.ic_exit)

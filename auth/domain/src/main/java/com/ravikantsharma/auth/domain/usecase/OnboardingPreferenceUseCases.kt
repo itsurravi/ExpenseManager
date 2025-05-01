@@ -12,8 +12,7 @@ import com.ravikantsharma.core.domain.utils.Result
 
 data class OnboardingPreferenceUseCases(
     val validateSelectedPreferences: ValidateSelectedPreferences,
-    val formatExampleUseCase: FormatExampleUseCase,
-    val setPreferencesUseCase: SetPreferencesUseCase
+    val formatExampleUseCase: FormatExampleUseCase
 )
 
 class ValidateSelectedPreferences {
@@ -45,13 +44,5 @@ class FormatExampleUseCase(private val numberFormatter: NumberFormatter) {
             thousandsSeparator = thousandsSeparator,
             currency = currency
         )
-    }
-}
-
-class SetPreferencesUseCase(
-    private val userPreferencesRepository: UserPreferencesRepository
-) {
-    suspend operator fun invoke(userPreferences: UserPreferences): Result<Unit, DataError> {
-        return userPreferencesRepository.insertPreference(userPreferences)
     }
 }

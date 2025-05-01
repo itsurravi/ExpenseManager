@@ -1,8 +1,8 @@
-package com.ravikantsharma.auth.data.repository
+package com.ravikantsharma.data.repository
 
-import com.ravikantsharma.auth.domain.repository.UserInfoRepository
 import com.ravikantsharma.core.domain.auth.data_source.LocalUserInfoDataSource
 import com.ravikantsharma.core.domain.auth.model.UserInfo
+import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
 import kotlinx.coroutines.flow.Flow

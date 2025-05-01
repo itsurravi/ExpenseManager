@@ -9,8 +9,10 @@ import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.core.domain.auth.model.UserInfo
 import com.ravikantsharma.core.domain.model.LockoutDuration
+import com.ravikantsharma.core.domain.model.PinAttempts
 import com.ravikantsharma.core.domain.model.SessionDuration
 import com.ravikantsharma.core.domain.preference.model.UserPreferences
+import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.session_management.domain.model.SessionData
@@ -30,7 +32,8 @@ class OnboardingPreferencesViewModel(
     private val onboardingPreferenceUseCases: OnboardingPreferenceUseCases,
     private val registerUseCases: RegisterUseCases,
     private val encryptionUseCases: EncryptionUseCases,
-    private val sessionUseCase: SessionUseCases
+    private val sessionUseCase: SessionUseCases,
+    private val settingsPreferenceUseCase: SettingsPreferenceUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingPreferencesViewState())
@@ -113,11 +116,12 @@ class OnboardingPreferencesViewModel(
             thousandsSeparator = uiState.value.thousandsSeparator,
             isBiometricEnabled = false,
             sessionDuration = SessionDuration.ONE_MIN,
-            lockOutDuration = LockoutDuration.FIFTEEN_SECONDS
+            lockOutDuration = LockoutDuration.FIFTEEN_SECONDS,
+            allowedPinAttempts = PinAttempts.THREE
         )
 
         val preferencesResult = withContext(Dispatchers.IO) {
-            onboardingPreferenceUseCases.setPreferencesUseCase(userPreferences)
+            settingsPreferenceUseCase.setPreferencesUseCase(userPreferences)
         }
 
         when (preferencesResult) {

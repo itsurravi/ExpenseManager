@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.ravikantsharma.auth.presentation.navigation.AuthBaseRoute
 import com.ravikantsharma.auth.presentation.navigation.authGraph
+import com.ravikantsharma.auth.presentation.navigation.navigateToLoginRoute
 import com.ravikantsharma.dashboard.presentation.navigation.dashboardNavGraph
 import com.ravikantsharma.dashboard.presentation.navigation.navigateToDashboardScreen
 import com.ravikantsharma.expensemanager.MainViewModel
@@ -54,6 +55,11 @@ fun NavigationRoot(
             onVerificationSuccess = {
                 mainViewModel.startSession()
                 navController.popBackStack()
+            },
+            onLogout = {
+                navController.navigateToLoginRoute {
+                    popUpTo<AuthBaseRoute>()
+                }
             }
         )
     }

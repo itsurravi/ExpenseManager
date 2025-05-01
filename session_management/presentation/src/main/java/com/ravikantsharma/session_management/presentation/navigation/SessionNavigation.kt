@@ -8,14 +8,16 @@ import com.ravikantsharma.session_management.presentation.pin_prompt.PinPromptSc
 
 fun NavGraphBuilder.sessionNavGraph(
     navController: NavController,
-    onVerificationSuccess: () -> Unit
+    onVerificationSuccess: () -> Unit,
+    onLogout: () -> Unit,
 ) {
     navigation<SessionBaseRoute>(
         startDestination = PinPromptScreenRoute
     ) {
         composable<PinPromptScreenRoute> {
             PinPromptScreenRoot(
-                onSuccessClick = onVerificationSuccess
+                onSuccessClick = onVerificationSuccess,
+                onLogout = onLogout
             )
         }
     }

@@ -1,7 +1,12 @@
 package com.ravikantsharma.session_management.presentation.pin_prompt
 
+import com.ravikantsharma.core.domain.model.LockoutDuration
+
 data class PinPromptState(
+    val username: String = "",
     val pin: String = "",
-    val isTooManyFailedAttempts: Boolean = false,
-    val retryCountdownInSeconds: Int = 0
+    val lockoutDuration: LockoutDuration = LockoutDuration.FIFTEEN_SECONDS,
+    val remainingPinAttempts: Long = 3,
+    val isExceededFailedAttempts: Boolean = false,
+    val lockoutTimeRemaining: Long = 0L,
 )

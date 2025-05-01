@@ -11,6 +11,7 @@ import com.ravikantsharma.core.domain.model.Currency
 import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.LockoutDuration
+import com.ravikantsharma.core.domain.model.PinAttempts
 import com.ravikantsharma.core.domain.model.SessionDuration
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
 
@@ -35,5 +36,6 @@ data class UserPreferenceEntity(
     val thousandsSeparator: ThousandsSeparator,
     val isBiometricEnabled: Boolean,
     val sessionDuration: SessionDuration,
-    val lockOutDuration: LockoutDuration
+    val lockOutDuration: LockoutDuration,
+    val allowedPinAttempts: PinAttempts
 )

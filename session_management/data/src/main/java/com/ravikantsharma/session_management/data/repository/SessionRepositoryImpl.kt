@@ -1,5 +1,6 @@
 package com.ravikantsharma.session_management.data.repository
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
 import com.ravikantsharma.core.domain.utils.Result
@@ -38,8 +39,12 @@ class SessionRepositoryImpl(
             is Result.Success -> {
                 val expirationTime =
                     System.currentTimeMillis() + (userPreferences.data.sessionDuration.getValueInLong() * MINUTES_TO_MILLIS)
-
+                Log.d(
+                    TAG,
+                    "Saving session with expiration at ${formatTime(expirationTime)}"
+                )
                 dataStore.updateData { prefs ->
+                    // ✅ Save session data with updated expiration time
                     sessionData.copy(sessionExpiryTime = expirationTime).toProto()
                 }
             }
@@ -49,6 +54,10 @@ class SessionRepositoryImpl(
     }
 
     override suspend fun clearSession() {
+        Log.d(
+            TAG,
+            "Clearing session expiration at ${formatTime(System.currentTimeMillis())}"
+        )
         // ✅ Reset session data to default
         dataStore.updateData {
             SessionPreferences.getDefaultInstance()
@@ -56,6 +65,9 @@ class SessionRepositoryImpl(
     }
 
     private suspend fun setSessionToExpired() {
+        Log.d(TAG, "setSessionToExpired at ${formatTime(System.currentTimeMillis())}")
+
+        // Reset session data to default
         dataStore.updateData { prefs ->
             prefs.toBuilder().setSessionExpiryTime(0L).build()
         }
@@ -63,13 +75,26 @@ class SessionRepositoryImpl(
 
     override fun getSessionData(): Flow<SessionData> {
         return dataStore.data.map { prefs ->
+            Log.d(TAG, "Fetching session data: $prefs")
             prefs.toDomain()
         }
     }
 
     override fun isSessionExpired(): Flow<Boolean> {
         return dataStore.data.map { prefs ->
+            val hasValidUser = prefs.userId > 0L
             val isExpired = System.currentTimeMillis() >= prefs.sessionExpiryTime
+
+            if (!hasValidUser) {
+                Log.d(TAG, "No valid user session found. Returning expired=false.")
+                return@map false
+            }
+
+            Log.d(
+                TAG,
+                "Checking session expired: $isExpired at ${formatTime(System.currentTimeMillis())}"
+            )
+            Log.d(TAG, "Session expires at ${formatTime(prefs.sessionExpiryTime)}")
             if (isExpired) {
                 setSessionToExpired()
             }
@@ -80,6 +105,7 @@ class SessionRepositoryImpl(
     override suspend fun checkAndUpdateSessionExpiry(): Boolean {
         val isSessionExpired = isSessionExpired().first()
         if (isSessionExpired) {
+            Log.d(TAG, "Session expired. Updating DataStore.")
             setSessionToExpired()
         }
         return isSessionExpired
@@ -92,6 +118,11 @@ class SessionRepositoryImpl(
                 is Result.Success -> {
                     val sessionExpiryDurationMins = userPreference.data.sessionDuration.getValueInLong()
                     val newExpirationTime = System.currentTimeMillis() + (sessionExpiryDurationMins * MINUTES_TO_MILLIS)
+
+                    Log.d(
+                        TAG,
+                        "Resetting session expiry to ${formatTime(newExpirationTime)} using stored duration: $sessionExpiryDurationMins mins"
+                    )
 
                     prefs.toBuilder()
                         .setSessionExpiryTime(newExpirationTime)

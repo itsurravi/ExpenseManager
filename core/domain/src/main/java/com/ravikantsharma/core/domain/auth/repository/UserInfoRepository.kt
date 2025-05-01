@@ -1,4 +1,4 @@
-package com.ravikantsharma.auth.domain.repository
+package com.ravikantsharma.core.domain.auth.repository
 
 import com.ravikantsharma.core.domain.auth.model.UserInfo
 import com.ravikantsharma.core.domain.utils.DataError

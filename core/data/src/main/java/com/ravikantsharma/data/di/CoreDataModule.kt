@@ -1,8 +1,15 @@
 package com.ravikantsharma.data.di
 
+import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
+import com.ravikantsharma.core.domain.auth.usecases.GetUserInfoUseCase
+import com.ravikantsharma.core.domain.auth.usecases.UserInfoUseCases
 import com.ravikantsharma.core.domain.formatting.NumberFormatter
 import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
+import com.ravikantsharma.core.domain.preference.usecase.GetPreferencesUseCase
+import com.ravikantsharma.core.domain.preference.usecase.SetPreferencesUseCase
+import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
 import com.ravikantsharma.core.domain.security.EncryptionService
+import com.ravikantsharma.data.repository.UserInfoRepositoryImpl
 import com.ravikantsharma.data.repository.UserPreferencesRepositoryImpl
 import com.ravikantsharma.data.security.AesEncryptionService
 import com.ravikantsharma.data.security.KeyManager
@@ -16,4 +23,13 @@ val coreDataModule = module {
     single<EncryptionService> { AesEncryptionService(get()) }
 
     singleOf(::UserPreferencesRepositoryImpl).bind<UserPreferencesRepository>()
+
+    factory { SetPreferencesUseCase(get()) }
+    factory { GetPreferencesUseCase(get()) }
+    single { SettingsPreferenceUseCase(get(), get()) }
+
+    singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
+
+    factory { GetUserInfoUseCase(get(), get()) }
+    single { UserInfoUseCases(get()) }
 }

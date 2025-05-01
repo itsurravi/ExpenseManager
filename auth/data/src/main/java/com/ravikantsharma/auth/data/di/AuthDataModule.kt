@@ -1,7 +1,7 @@
 package com.ravikantsharma.auth.data.di
 
 import com.ravikantsharma.auth.data.repository.UserInfoRepositoryImpl
-import com.ravikantsharma.auth.domain.repository.UserInfoRepository
+import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
 import com.ravikantsharma.auth.domain.usecase.DecryptPinUseCase
 import com.ravikantsharma.auth.domain.usecase.EncryptPinUseCase
 import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases

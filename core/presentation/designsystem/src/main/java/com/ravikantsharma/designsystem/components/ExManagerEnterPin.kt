@@ -20,6 +20,7 @@ import com.ravikantsharma.designsystem.ExpenseManagerTheme
 fun ExManagerEnterPin(
     modifier: Modifier = Modifier,
     pinMaxLength: Int = 5,
+    isLocked: Boolean = false,
     pin: String
 ) {
     Row(
@@ -28,24 +29,28 @@ fun ExManagerEnterPin(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         List(pinMaxLength) { index ->
-            CirclePin(isEnabled = index < pin.length)
+            CirclePin(
+                isEnabled = index < pin.length,
+                isLocked = isLocked
+            )
         }
     }
 }
 
 @Composable
 private fun CirclePin(
-    isEnabled: Boolean
+    isEnabled: Boolean,
+    isLocked: Boolean
 ) {
     Box(
         modifier = Modifier
             .size(18.dp)
             .clip(CircleShape)
             .background(
-                if (isEnabled) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f)
+                when {
+                    isLocked -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f) // Lighter when locked
+                    isEnabled -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.onBackground.copy(alpha = 0.12f)
                 }
             )
     )
@@ -57,7 +62,8 @@ private fun PreviewEnterPin() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             ExManagerEnterPin(
-                pin = "123"
+                isLocked = true,
+                pin = "123",
             )
         }
     }

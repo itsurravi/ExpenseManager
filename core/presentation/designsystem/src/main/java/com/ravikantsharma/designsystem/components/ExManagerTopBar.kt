@@ -7,13 +7,19 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ravikantsharma.designsystem.BackArrow
+import com.ravikantsharma.designsystem.ExitIcon
+import com.ravikantsharma.designsystem.ExpenseManagerTheme
 
 @Composable
 fun ExManagerTopBar(
@@ -22,6 +28,7 @@ fun ExManagerTopBar(
     startIcon: ImageVector? = BackArrow,
     onStartIconClick: (() -> Unit)? = null,
     endIcon: ImageVector? = null,
+    endIconColor: Color = MaterialTheme.colorScheme.error,
     onEndIconClick: (() -> Unit)? = null
 ) {
     Row(
@@ -54,13 +61,33 @@ fun ExManagerTopBar(
         Spacer(modifier = Modifier.weight(1f))
         endIcon?.let {
             Icon(
+                tint = endIconColor,
                 imageVector = it,
                 contentDescription = "",
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(end = 16.dp)
                     .clickable {
                         onEndIconClick?.invoke()
                     }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewSpendLessTopBar() {
+    ExpenseManagerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            ExManagerTopBar(
+                endIcon = ExitIcon,
+                title = "Hi",
+                onStartIconClick = {
+
+                },
+                onEndIconClick = {
+
+                }
             )
         }
     }

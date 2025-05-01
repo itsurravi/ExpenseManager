@@ -11,9 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -21,11 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ravikantsharma.designsystem.BackDelete
-import com.ravikantsharma.designsystem.ExManagerOnPrimaryFixed
 import com.ravikantsharma.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.designsystem.FingerPrint
 
@@ -33,6 +32,7 @@ import com.ravikantsharma.designsystem.FingerPrint
 fun ExManagerPinPad(
     modifier: Modifier = Modifier,
     hasBiometricButton: Boolean = false,
+    isLocked: Boolean = false,
     onBiometricButtonClicked: (() -> Unit)? = null,
     onNumberPressedClicked: (Int) -> Unit,
     onDeletePressedClicked: () -> Unit,
@@ -50,6 +50,7 @@ fun ExManagerPinPad(
                     val number = row * 3 + col + 1
                     PinPadButton(
                         text = number.toString(),
+                        isLocked = isLocked,
                         onClick = { onNumberPressedClicked(number) }
                     )
                 }
@@ -62,9 +63,8 @@ fun ExManagerPinPad(
             if (hasBiometricButton == true) {
                 PinPadButton(
                     icon = FingerPrint,
-                    onClick = {
-                        onBiometricButtonClicked?.invoke()
-                    },
+                    isLocked = isLocked,
+                    onClick = onBiometricButtonClicked,
                     alpha = 0.3f
                 )
             } else {
@@ -73,11 +73,13 @@ fun ExManagerPinPad(
 
             PinPadButton(
                 text = "0",
+                isLocked = isLocked,
                 onClick = { onNumberPressedClicked(0) }
             )
 
             PinPadButton(
                 icon = BackDelete,
+                isLocked = isLocked,
                 onClick = onDeletePressedClicked,
                 alpha = 0.3f
             )
@@ -90,30 +92,42 @@ private fun PinPadButton(
     modifier: Modifier = Modifier,
     text: String? = null,
     icon: ImageVector? = null,
+    isLocked : Boolean,
     onClick: (() -> Unit)? = null,
     alpha: Float = 1f
 ) {
+    val adjustedAlpha = if (isLocked) alpha * 0.3f else alpha
+
     Box(
         modifier = modifier
             .size(108.dp)
             .clip(RoundedCornerShape(32.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = alpha))
-            .clickable(enabled = onClick != null) { onClick?.invoke() },
+            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = adjustedAlpha))
+            .clickable(
+                enabled = onClick != null && !isLocked
+            ) { onClick?.invoke() },
         contentAlignment = Alignment.Center
     ) {
         text?.let {
             Text(
                 text = it,
                 style = MaterialTheme.typography.headlineLarge.copy(
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = adjustedAlpha)
                 )
             )
         }
 
         icon?.let {
-            Image(
+            Icon(
+                tint = Color.Unspecified.copy(
+                    if (isLocked) {
+                        0.3f
+                    } else {
+                        1f
+                    }
+                ),
                 imageVector = it,
-                contentDescription = null
+                contentDescription = null,
             )
         }
     }

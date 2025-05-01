@@ -1,6 +1,6 @@
 package com.ravikantsharma.auth.domain.usecase
 
-import com.ravikantsharma.auth.domain.repository.UserInfoRepository
+import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
 import com.ravikantsharma.core.domain.auth.model.UserInfo
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
