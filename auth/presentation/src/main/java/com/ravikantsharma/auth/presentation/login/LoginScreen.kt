@@ -34,7 +34,7 @@ import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LoginIcon
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
-import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTextField
+import com.ravikantsharma.core.presentation.designsystem.components.text_field.ExManagerTextField
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
