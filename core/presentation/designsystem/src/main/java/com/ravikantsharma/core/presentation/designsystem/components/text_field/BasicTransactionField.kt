@@ -1,15 +1,9 @@
 package com.ravikantsharma.core.presentation.designsystem.components.text_field
 
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,11 +15,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 
 @Composable
@@ -45,33 +40,39 @@ fun BasicTransactionField(
 
     val textStyle by remember(value, isFocused) {
         derivedStateOf {
-            if (value.isBlank() && !isFocused) emptyStateStyle else nonEmptyStateStyle
+            if (value.isBlank() && !isFocused) emptyStateStyle
+            else nonEmptyStateStyle
         }
     }
 
     BasicTextField(
-        modifier = modifier
-            .width(IntrinsicSize.Max)
-            .widthIn(min = 100.dp),
         value = value,
         onValueChange = onValueChange,
-        textStyle = textStyle,
+        singleLine = true,
+        textStyle = textStyle.copy(
+            textAlign = TextAlign.Center
+        ),
+        modifier = modifier
+            .fillMaxWidth()
+            .focusable()
+            .onFocusChanged { isFocused = it.isFocused },
         decorationBox = { innerTextField ->
             Box(
-                modifier = Modifier
-                    .focusable()
-                    .onFocusChanged { isFocused = it.isFocused }
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
                 if (value.isBlank() && !isFocused) {
                     Text(
                         text = hint,
-                        style = emptyStateStyle
+                        style = emptyStateStyle.copy(
+                            textAlign = TextAlign.Center,
+                        ),
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
                 innerTextField()
             }
         },
-        singleLine = true
     )
 }
 
@@ -83,33 +84,23 @@ fun PreviewBasicTransactionField() {
         var value1 by rememberSaveable { mutableStateOf("") }
 
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    BasicTransactionField(
-                        value = value,
-                        hint = "Sender",
-                        onValueChange = { value = it }
-                    )
-                }
+                BasicTransactionField(
+                    value = value,
+                    hint = "Sender",
+                    onValueChange = { value = it }
+                )
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    BasicTransactionField(
-                        value = value1,
-                        hint = "Sender",
-                        onValueChange = { value1 = it }
-                    )
-                }
+                BasicTransactionField(
+                    value = value1,
+                    hint = "Sender",
+                    onValueChange = { value1 = it }
+                )
             }
         }
     }
