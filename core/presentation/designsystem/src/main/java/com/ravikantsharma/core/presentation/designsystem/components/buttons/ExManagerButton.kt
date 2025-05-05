@@ -89,7 +89,7 @@ fun ExManagerButton(
 
 @Preview
 @Composable
-fun PreviewSpendLessButton() {
+fun PreviewExManagerButton() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             ExManagerButton(

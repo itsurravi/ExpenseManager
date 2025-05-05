@@ -1,4 +1,4 @@
-# 🔐 Encryption in SpendLess Security Module
+# 🔐 Encryption in ExpenseManager Security Module
 
 This document explains how **encryption works** in our app, why we use certain **security techniques
 **.

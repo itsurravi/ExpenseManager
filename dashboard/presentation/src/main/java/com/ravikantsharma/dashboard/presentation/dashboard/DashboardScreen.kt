@@ -18,10 +18,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -40,9 +45,14 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTop
 import com.ravikantsharma.core.presentation.designsystem.components.LargestTransactionView
 import com.ravikantsharma.core.presentation.designsystem.components.PopularCategoryView
 import com.ravikantsharma.core.presentation.designsystem.components.PreviousWeekTotalView
+import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerFloatingActionButton
+import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransactionScreenRoot
 import com.ravikantsharma.ui.ObserveAsEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreenRoot(
     modifier: Modifier = Modifier,
@@ -51,6 +61,9 @@ fun DashboardScreenRoot(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
     val snackBarHostState = remember { SnackbarHostState() }
 
     ObserveAsEvent(viewModel.events) {
@@ -65,17 +78,49 @@ fun DashboardScreenRoot(
         modifier = modifier,
         uiState = uiState,
         snackBarHostState = snackBarHostState,
+        bottomSheetState = bottomSheetState,
+        scope = scope,
         onAction = viewModel::onAction
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     uiState: DashboardState,
     snackBarHostState: SnackbarHostState,
-    onAction: (DashboardAction) -> Unit
+    bottomSheetState: SheetState,
+    scope: CoroutineScope,
+    onAction: (DashboardAction) -> Unit,
 ) {
+    if (uiState.showCreateTransactionSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                onAction(DashboardAction.UpdatedBottomSheet(false))
+            },
+            sheetState = bottomSheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            properties = ModalBottomSheetProperties(
+                shouldDismissOnBackPress = false
+            ),
+            dragHandle = null,
+            modifier = Modifier
+                .fillMaxHeight()
+                .windowInsetsPadding(WindowInsets.statusBars)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                CreateTransactionScreenRoot(
+                    onDismiss = {
+                        onAction(DashboardAction.UpdatedBottomSheet(false))
+                    }
+                )
+            }
+        }
+    }
+
     ExManagerScaffold(
         topAppBar = {
             ExManagerTopBar(
@@ -90,6 +135,15 @@ fun DashboardScreen(
                 endIcon2Color = MaterialTheme.colorScheme.onPrimary,
                 endIcon2BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
                 title = "Sharma Ji",
+            )
+        },
+        floatingActionButton = {
+            ExManagerFloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        onAction(DashboardAction.UpdatedBottomSheet(true))
+                    }
+                }
             )
         }
     ) { contentPadding ->
@@ -200,6 +254,7 @@ fun DashboardScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun PreviewDashboardScreen() {
@@ -209,9 +264,11 @@ fun PreviewDashboardScreen() {
                 modifier = Modifier,
                 uiState = DashboardState(),
                 snackBarHostState = SnackbarHostState(),
+                scope = rememberCoroutineScope(),
                 onAction = {
 
-                }
+                },
+                bottomSheetState = rememberModalBottomSheetState()
             )
         }
     }

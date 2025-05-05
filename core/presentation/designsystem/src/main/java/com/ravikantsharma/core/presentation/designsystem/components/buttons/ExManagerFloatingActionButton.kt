@@ -19,7 +19,7 @@ import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.PlusIcon
 
 @Composable
-fun SpendLessFloatingActionButton(
+fun ExManagerFloatingActionButton(
     modifier: Modifier = Modifier,
     icon: ImageVector = PlusIcon,
     iconColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -49,10 +49,10 @@ fun SpendLessFloatingActionButton(
 
 @Preview
 @Composable
-fun PreviewSpendLessFloatingActionButton() {
+fun PreviewExManagerFloatingActionButton() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
-            SpendLessFloatingActionButton(
+            ExManagerFloatingActionButton(
                 contentDescription = "Add new transaction"
             ) {
             }

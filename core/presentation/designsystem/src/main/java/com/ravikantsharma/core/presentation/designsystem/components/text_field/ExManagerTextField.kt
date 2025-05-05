@@ -93,7 +93,7 @@ fun ExManagerTextField(
 
 @Preview
 @Composable
-fun PreviewSpendLessTextField() {
+fun PreviewExManagerTextField() {
     ExpenseManagerTheme {
         ExManagerTextField(
             value = "",

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.DropdownMenuItem
@@ -27,13 +26,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,16 +42,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.TickIcon
+import com.ravikantsharma.core.presentation.designsystem.model.ExpenseCategoryTypeUI
+import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.primaryFixed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> CurrencySelector(
+fun <T> CategorySelector(
     modifier: Modifier = Modifier,
     title: String? = null,
     selectedOption: T,
     fontStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     showIconBackground: Boolean = false,
+    iconBackgroundColor: Color = primaryFixed,
     showMenuIcon: Boolean = true,
     options: Array<T>,
     currencyDisplay: (T) -> String,
@@ -81,6 +80,7 @@ fun <T> CurrencySelector(
                 expanded = expanded,
                 fontStyle = fontStyle,
                 showIconBackground = showIconBackground,
+                iconBackgroundColor = iconBackgroundColor,
                 selectedOption = selectedOption,
                 currencyDisplay = currencyDisplay,
                 currencyTitleDisplay = currencyTitleDisplay,
@@ -100,6 +100,7 @@ fun <T> CurrencySelector(
                             CurrencyRow(
                                 fontStyle = fontStyle,
                                 showIconBackground = showIconBackground,
+                                iconBackgroundColor = iconBackgroundColor,
                                 currencyCode = currencyDisplay(option),
                                 currencyName = currencyTitleDisplay(option),
                                 showMenuIcon = showMenuIcon,
@@ -127,6 +128,7 @@ private fun <T> ExposedDropdownMenuBoxScope.CurrencySelectorTextField(
     expanded: Boolean,
     fontStyle: TextStyle,
     showIconBackground: Boolean,
+    iconBackgroundColor: Color,
     selectedOption: T,
     currencyDisplay: (T) -> String,
     currencyTitleDisplay: (T) -> String,
@@ -155,6 +157,7 @@ private fun <T> ExposedDropdownMenuBoxScope.CurrencySelectorTextField(
             ) {
                 CurrencyRow(
                     showIconBackground = showIconBackground,
+                    iconBackgroundColor = iconBackgroundColor,
                     currencyCode = currencyDisplay(selectedOption),
                     currencyName = currencyTitleDisplay(selectedOption),
                     fontStyle = fontStyle,
@@ -173,6 +176,7 @@ private fun <T> ExposedDropdownMenuBoxScope.CurrencySelectorTextField(
 @Composable
 private fun CurrencyRow(
     showIconBackground: Boolean,
+    iconBackgroundColor: Color,
     currencyCode: String,
     currencyName: String,
     fontStyle: TextStyle,
@@ -193,7 +197,7 @@ private fun CurrencyRow(
                 modifier = Modifier
                     .background(
                         color = if (showMenuIcon) {
-                            primaryFixed
+                            iconBackgroundColor
                         } else {
                             Color.Transparent
                         },
@@ -236,13 +240,13 @@ private fun CurrencyRow(
 
 @Composable
 @Preview
-fun PreviewCurrencySelector() {
+fun PreviewCategorySelector() {
     ExpenseManagerTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
             Column {
-                CurrencySelector(
+                CategorySelector(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
@@ -254,28 +258,29 @@ fun PreviewCurrencySelector() {
                     onItemSelected = {}
                 )
 
-                CurrencySelector(
+                CategorySelector(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     showIconBackground = true,
                     fontStyle = MaterialTheme.typography.labelMedium,
-                    selectedOption = Expenses.HOME,
-                    options = Expenses.entries.toTypedArray(),
+                    selectedOption = ExpenseCategoryTypeUI.HOME,
+                    options = ExpenseCategoryTypeUI.entries.toTypedArray(),
                     currencyDisplay = { it.symbol },
                     currencyTitleDisplay = { it.title },
                     onItemSelected = {}
                 )
 
-                CurrencySelector(
+                CategorySelector(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     showIconBackground = true,
+                    iconBackgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
                     fontStyle = MaterialTheme.typography.labelMedium,
-                    selectedOption = Recurring.ONE_TIME,
+                    selectedOption = RecurringTypeUI.ONE_TIME,
                     showMenuIcon = false,
-                    options = Recurring.entries.toTypedArray(),
+                    options = RecurringTypeUI.entries.toTypedArray(),
                     currencyDisplay = { it.symbol },
                     currencyTitleDisplay = { it.title },
                     onItemSelected = {}
@@ -289,26 +294,4 @@ enum class FakeCurrency(val symbol: String, val title: String) {
     INR("₹", "Indian Rupee"),
     USD("$", "US Dollar"),
     EUR("€", "Euro")
-}
-
-enum class Expenses(val symbol: String, val title: String) {
-    HOME("\uD83C\uDFE0", "Home"),
-    FOOD("\uD83C\uDF55", "Food & Groceries"),
-    ENTERTAINMENT("\uD83D\uDCBB", "Entertainment"),
-    CLOTHING("\uD83D\uDC54", "Clothing & Accessories"),
-    HEALTH("❤\uFE0F", "Health & Wellness"),
-    PERSONAL_CARE("\uD83D\uDEC1", "Personal Care"),
-    TRANSPORTATION("\uD83D\uDE97", "Transportation"),
-    EDUCATION("\uD83C\uDF93", "Education"),
-    SAVINGS("\uD83D\uDC8E", "Saving & Investments"),
-    OTHER("⚙\uFE0F", "Other")
-}
-
-enum class Recurring(val symbol: String, val title: String) {
-    ONE_TIME("\uD83D\uDD04", "Does not repeat"),
-    DAILY("\uD83D\uDD04", "Daily"),
-    WEEKLY("\uD83D\uDD04", "Weekly"),
-    WEEKLY_ON_THIS_DAY("\uD83D\uDD04", "Weekly on Monday"),
-    MONTHLY_ON_THIS_DAY("\uD83D\uDD04", "Monthly on the 14th"),
-    YEARLY_ON_THIS_DAY("\uD83D\uDD04", "Yearly on Feb 14th")
 }

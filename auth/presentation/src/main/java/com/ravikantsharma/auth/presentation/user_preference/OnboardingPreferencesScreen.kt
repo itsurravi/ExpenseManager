@@ -36,7 +36,7 @@ import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
-import com.ravikantsharma.core.presentation.designsystem.components.CurrencySelector
+import com.ravikantsharma.core.presentation.designsystem.components.CategorySelector
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
@@ -168,7 +168,7 @@ fun OnboardingPreferencesScreen(
                     }
                 )
 
-                CurrencySelector(
+                CategorySelector(
                     modifier = Modifier.padding(top = 16.dp),
                     title = stringResource(R.string.onboarding_preferences_currency_title),
                     selectedOption = uiState.currency,
