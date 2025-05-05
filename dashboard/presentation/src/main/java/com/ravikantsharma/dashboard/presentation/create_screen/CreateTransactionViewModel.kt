@@ -3,13 +3,19 @@ package com.ravikantsharma.dashboard.presentation.create_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
+import com.ravikantsharma.core.domain.transactions.model.Transaction
+import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
+import com.ravikantsharma.core.domain.utils.CalendarUtils
 import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.core.presentation.designsystem.model.ExpenseCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
 import com.ravikantsharma.dashboard.presentation.mapper.toDecimalSeparatorUI
+import com.ravikantsharma.dashboard.presentation.mapper.toExpenseCategory
 import com.ravikantsharma.dashboard.presentation.mapper.toExpenseFormatUI
+import com.ravikantsharma.dashboard.presentation.mapper.toRecurringType
 import com.ravikantsharma.dashboard.presentation.mapper.toThousandsSeparatorUI
+import com.ravikantsharma.dashboard.presentation.mapper.toTransactionType
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,11 +27,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import kotlin.compareTo
 
 class CreateTransactionViewModel(
     private val sessionUseCase: SessionUseCases,
-    private val settingsPreferenceUseCase: SettingsPreferenceUseCase
+    private val settingsPreferenceUseCase: SettingsPreferenceUseCase,
+    private val transactionsUseCases: TransactionUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(initialUiState())
@@ -47,6 +53,7 @@ class CreateTransactionViewModel(
                 if (result is Result.Success) {
                     _uiState.update {
                         it.copy(
+                            userId = result.data.userId,
                             currency = result.data.currency,
                             expenseFormat = result.data.expenseFormat.toExpenseFormatUI(),
                             decimalSeparatorUI = result.data.decimalSeparator.toDecimalSeparatorUI(),
@@ -91,6 +98,7 @@ class CreateTransactionViewModel(
                     showExpenseCategoryType = isExpenseCategoryTypeVisible(action.transactionType)
                 )
             }
+
             is CreateTransactionAction.OnTransactionNameUpdated -> updateState { copy(transactionName = action.transactionName) }
             is CreateTransactionAction.OnAmountUpdated -> updateState { copy(amount = action.amount) }
             is CreateTransactionAction.OnNoteUpdated -> updateState { copy(note = action.note) }
@@ -118,5 +126,33 @@ class CreateTransactionViewModel(
     }
 
     private fun handleCreateTransaction() {
+        viewModelScope.launch {
+            val uiState = _uiState.value
+            uiState.userId?.let {
+                val transaction = Transaction(
+                    transactionId = null,
+                    userId = uiState.userId,
+                    transactionType = uiState.transactionType.toTransactionType(),
+                    transactionName = uiState.transactionName,
+                    amount = if (_uiState.value.transactionType == TransactionTypeUI.INCOME) {
+                        uiState.amount
+                    } else {
+                        uiState.amount.negate()
+                    },
+                    note = uiState.note,
+                    expenseCategory = uiState.expenseCategoryType.toExpenseCategory(),
+                    transactionDate = CalendarUtils.currentEstTime,
+                    recurringTransactionId = null,
+                    recurringType = uiState.recurringType.toRecurringType(),
+                    nextRecurringDate = null,
+                    endDate = null
+                )
+
+                val result = transactionsUseCases.insertTransactionUseCase(transaction)
+                if (result is Result.Success) {
+                    eventChannel.send(CreateTransactionEvent.CloseBottomSheet)
+                }
+            }
+        }
     }
 }
