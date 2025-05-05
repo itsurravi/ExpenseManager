@@ -8,6 +8,7 @@ import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
 import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
 import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.core.domain.auth.model.UserInfo
+import com.ravikantsharma.core.domain.formatting.NumberFormatter
 import com.ravikantsharma.core.domain.model.LockoutDuration
 import com.ravikantsharma.core.domain.model.PinAttempts
 import com.ravikantsharma.core.domain.model.SessionDuration
@@ -182,7 +183,7 @@ class OnboardingPreferencesViewModel(
      * Formats the example number based on current preferences.
      */
     private fun formatExample(state: OnboardingPreferencesViewState): String {
-        return onboardingPreferenceUseCases.formatExampleUseCase(
+        return NumberFormatter.formatAmount(
             amount = state.amount,
             expenseFormat = state.expenseFormat,
             decimalSeparator = state.decimalSeparator,

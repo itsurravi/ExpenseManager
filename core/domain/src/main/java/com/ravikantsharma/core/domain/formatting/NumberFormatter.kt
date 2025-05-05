@@ -4,6 +4,7 @@ import com.ravikantsharma.core.domain.model.Currency
 import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
@@ -12,14 +13,14 @@ import kotlin.math.abs
 
 object NumberFormatter {
     fun formatAmount(
-        amount: Double,
+        amount: BigDecimal,
         expenseFormat: ExpenseFormat,
         decimalSeparator: DecimalSeparator,
         thousandsSeparator: ThousandsSeparator,
         currency: Currency
     ): String {
-        val isNegativeNumber = amount < 0
-        val absoluteAmount = abs(amount)
+        val isNegativeNumber = amount < BigDecimal.ZERO
+        val absoluteAmount = amount.abs()
 
         val numberFormat = NumberFormat.getNumberInstance(Locale.US) as DecimalFormat
         val symbols = DecimalFormatSymbols(Locale.US)

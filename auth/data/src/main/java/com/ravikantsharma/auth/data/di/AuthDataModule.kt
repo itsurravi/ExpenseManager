@@ -24,9 +24,8 @@ val authDataModule = module {
     single { LoginUseCases(get(), get()) }
 
     factory { ValidateSelectedPreferences() }
-    factory { FormatExampleUseCase(get()) }
     factory { SetPreferencesUseCase(get()) }
-    single { OnboardingPreferenceUseCases(get(), get()) }
+    single { OnboardingPreferenceUseCases(get()) }
 
     factory { EncryptPinUseCase(get()) }
     factory { DecryptPinUseCase(get()) }
