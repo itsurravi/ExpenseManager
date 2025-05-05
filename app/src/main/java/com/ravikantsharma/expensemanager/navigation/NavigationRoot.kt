@@ -22,6 +22,8 @@ import com.ravikantsharma.dashboard.presentation.navigation.navigateToDashboardS
 import com.ravikantsharma.expensemanager.MainViewModel
 import com.ravikantsharma.session_management.presentation.navigation.navigateToPinPromptScreen
 import com.ravikantsharma.session_management.presentation.navigation.sessionNavGraph
+import com.ravikantsharma.settings.presentation.navigation.navigateToSettingsHomeScreen
+import com.ravikantsharma.settings.presentation.navigation.settingsNavGraph
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -80,13 +82,26 @@ fun NavigationRoot(
                 }
             }
         )
-        dashboardNavGraph(navController = navController)
+        dashboardNavGraph(
+            navController = navController,
+            onNavigateToSettings = {
+                navController.navigateToSettingsHomeScreen()
+            }
+        )
         sessionNavGraph(
             navController = navController,
             onVerificationSuccess = {
                 mainViewModel.startSession()
                 navController.popBackStack()
             },
+            onLogout = {
+                navController.navigateToLoginRoute {
+                    popUpTo<AuthBaseRoute>()
+                }
+            }
+        )
+        settingsNavGraph(
+            navController = navController,
             onLogout = {
                 navController.navigateToLoginRoute {
                     popUpTo<AuthBaseRoute>()

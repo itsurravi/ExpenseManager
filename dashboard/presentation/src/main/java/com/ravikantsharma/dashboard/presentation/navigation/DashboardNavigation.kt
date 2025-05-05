@@ -7,13 +7,16 @@ import androidx.navigation.navigation
 import com.ravikantsharma.dashboard.presentation.dashboard.DashboardScreenRoot
 
 fun NavGraphBuilder.dashboardNavGraph(
-    navController: NavController
+    navController: NavController,
+    onNavigateToSettings: () -> Unit
 ) {
     navigation<DashboardBaseRoute>(
         startDestination = DashboardScreenRoute
     ) {
         composable<DashboardScreenRoute> {
-            DashboardScreenRoot()
+            DashboardScreenRoot(
+                onNavigateToSettings = onNavigateToSettings
+            )
         }
     }
 }
