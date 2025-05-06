@@ -41,8 +41,11 @@ class RoomTransactionDataSource(
         }
     }
 
-    override fun getTransactionsForUser(userId: Long): Flow<Result<List<Transaction>, DataError>> {
-        return transactionsDao.getTransactionsForUser(userId)
+    override fun getTransactionsForUser(
+        userId: Long,
+        limit: Int?
+    ): Flow<Result<List<Transaction>, DataError>> {
+        return transactionsDao.getTransactionsForUser(userId, limit)
             .map { transactions ->
                 Result.Success(transactions.map { it.toTransaction() }) as Result<List<Transaction>, DataError>
             }
@@ -130,5 +133,14 @@ class RoomTransactionDataSource(
             .catch {
                 emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
             }
+    }
+
+    override suspend fun getTransactionsForDateRange(
+        userId: Long,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
+    ): List<Transaction> {
+        return transactionsDao.getTransactionsForDateRange(userId, startDate, endDate)
+            .map { it.toTransaction() }
     }
 }

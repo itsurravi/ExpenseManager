@@ -4,12 +4,12 @@ import com.ravikantsharma.core.domain.model.Currency
 import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
+import com.ravikantsharma.core.domain.preference.model.UserPreferences
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
-import kotlin.math.abs
 
 object NumberFormatter {
     fun formatAmount(
@@ -39,5 +39,17 @@ object NumberFormatter {
         return if (isNegativeNumber) {
             expenseFormat.toValue(formattedNumberWithCurrency)
         } else formattedNumberWithCurrency
+    }
+
+    fun formatAmount(amount: BigDecimal, preferences: UserPreferences?): String {
+        return preferences?.let {
+            formatAmount(
+                amount = amount,
+                expenseFormat = it.expenseFormat,
+                decimalSeparator = it.decimalSeparator,
+                thousandsSeparator = it.thousandsSeparator,
+                currency = it.currency
+            )
+        } ?: ""
     }
 }

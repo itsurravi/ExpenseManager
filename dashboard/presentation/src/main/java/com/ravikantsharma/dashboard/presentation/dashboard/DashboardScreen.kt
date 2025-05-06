@@ -34,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +51,9 @@ import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.DownloadButton
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.LocalStatusBarAppearance
 import com.ravikantsharma.core.presentation.designsystem.SettingsButton
+import com.ravikantsharma.core.presentation.designsystem.StatusBarAppearance
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.LargestTransactionView
@@ -91,14 +94,18 @@ fun DashboardScreenRoot(
         }
     }
 
-    DashboardScreen(
-        modifier = modifier,
-        uiState = uiState,
-        snackBarHostState = snackBarHostState,
-        bottomSheetState = bottomSheetState,
-        scope = scope,
-        onAction = viewModel::onAction
-    )
+    CompositionLocalProvider(
+        LocalStatusBarAppearance provides StatusBarAppearance(isDarkStatusBarIcons = false)
+    ) {
+        DashboardScreen(
+            modifier = modifier,
+            uiState = uiState,
+            snackBarHostState = snackBarHostState,
+            bottomSheetState = bottomSheetState,
+            scope = scope,
+            onAction = viewModel::onAction
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

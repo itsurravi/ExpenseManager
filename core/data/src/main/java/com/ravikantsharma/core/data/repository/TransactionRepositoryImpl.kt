@@ -18,8 +18,11 @@ class TransactionRepositoryImpl(
         return localTransactionDataSource.upsertTransaction(transaction)
     }
 
-    override fun getTransactionsForUser(userId: Long): Flow<Result<List<Transaction>, DataError>> {
-        return localTransactionDataSource.getTransactionsForUser(userId)
+    override fun getTransactionsForUser(
+        userId: Long,
+        limit: Int?
+    ): Flow<Result<List<Transaction>, DataError>> {
+        return localTransactionDataSource.getTransactionsForUser(userId, limit)
     }
 
     override fun getRecurringTransactionSeries(recurringId: Long): Flow<Result<List<Transaction>, DataError>> {
@@ -44,5 +47,19 @@ class TransactionRepositoryImpl(
 
     override fun getPreviousWeekTotal(userId: Long): Flow<Result<BigDecimal, DataError>> {
         return localTransactionDataSource.getPreviousWeekTotal(userId)
+    }
+
+    override suspend fun getTransactionsForDateRange(
+        userId: Long,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
+    ): Result<List<Transaction>, DataError> {
+        return try {
+            val transactions =
+                localTransactionDataSource.getTransactionsForDateRange(userId, startDate, endDate)
+            Result.Success(transactions)
+        } catch (e: Exception) {
+            Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
+        }
     }
 }

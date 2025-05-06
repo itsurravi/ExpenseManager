@@ -12,7 +12,10 @@ interface TransactionRepository {
 
     suspend fun insertTransaction(transaction: Transaction): Result<Unit, DataError>
 
-    fun getTransactionsForUser(userId: Long): Flow<Result<List<Transaction>, DataError>>
+    fun getTransactionsForUser(
+        userId: Long,
+        limit: Int? = null
+    ): Flow<Result<List<Transaction>, DataError>>
 
     fun getRecurringTransactionSeries(recurringId: Long): Flow<Result<List<Transaction>, DataError>>
 
@@ -25,4 +28,10 @@ interface TransactionRepository {
     fun getLargestTransaction(userId: Long): Flow<Result<Transaction?, DataError>>
 
     fun getPreviousWeekTotal(userId: Long): Flow<Result<BigDecimal, DataError>>
+
+    suspend fun getTransactionsForDateRange(
+        userId: Long,
+        startDate: LocalDateTime,
+        endDate: LocalDateTime
+    ): Result<List<Transaction>, DataError>
 }

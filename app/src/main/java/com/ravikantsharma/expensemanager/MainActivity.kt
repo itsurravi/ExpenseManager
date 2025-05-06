@@ -22,6 +22,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             ExpenseManagerTheme {
                 Surface(
@@ -29,18 +30,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        contentWindowInsets = WindowInsets(0.dp) // **Removes extra insets**
-                    ) { contentPadding ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(contentPadding)
-                        ) {
-                            NavigationRoot(navController = navController)
-                        }
-                    }
+                    NavigationRoot(navController = navController)
                 }
             }
         }

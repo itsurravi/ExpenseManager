@@ -37,6 +37,7 @@ import com.ravikantsharma.core.domain.model.Currency
 import com.ravikantsharma.core.domain.model.DecimalSeparator
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
+import com.ravikantsharma.core.presentation.designsystem.DownloadButton
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.TransactionItemView
@@ -45,6 +46,7 @@ import com.ravikantsharma.core.presentation.designsystem.model.TransactionCatego
 import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransactionScreenRoot
 import com.ravikantsharma.dashboard.presentation.dashboard.TransactionGroupUIItem
 import com.ravikantsharma.dashboard.presentation.dashboard.TransactionUIItem
+import com.ravikantsharma.dashboard.presentation.export.ExportTransactionsScreenRoot
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -62,7 +64,10 @@ fun AllTransactionsScreenRoot(
 ) {
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val bottomSheetState = rememberModalBottomSheetState(
+    val createBottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val exportBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
 
@@ -75,7 +80,8 @@ fun AllTransactionsScreenRoot(
     AllTransactionsScreen(
         modifier = modifier,
         uiState = uiState,
-        bottomSheetState = bottomSheetState,
+        createBottomSheetState = createBottomSheetState,
+        exportBottomSheetState = exportBottomSheetState,
         scope = scope,
         onAction = viewModel::onAction
     )
@@ -86,16 +92,17 @@ fun AllTransactionsScreenRoot(
 private fun AllTransactionsScreen(
     modifier: Modifier = Modifier,
     uiState: AllTransactionsViewState,
-    bottomSheetState: SheetState,
+    createBottomSheetState: SheetState,
+    exportBottomSheetState: SheetState,
     scope: CoroutineScope,
     onAction: (AllTransactionsAction) -> Unit,
 ) {
     if (uiState.showCreateTransactionsSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                onAction(AllTransactionsAction.UpdatedBottomSheet(false))
+                onAction(AllTransactionsAction.UpdateCreateBottomSheet(false))
             },
-            sheetState = bottomSheetState,
+            sheetState = createBottomSheetState,
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             properties = ModalBottomSheetProperties(
                 shouldDismissOnBackPress = false
@@ -110,7 +117,35 @@ private fun AllTransactionsScreen(
             ) {
                 CreateTransactionScreenRoot(
                     onDismiss = {
-                        onAction(AllTransactionsAction.UpdatedBottomSheet(false))
+                        onAction(AllTransactionsAction.UpdateCreateBottomSheet(false))
+                    }
+                )
+            }
+        }
+    }
+
+    if (uiState.showExportTransactionsSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                onAction(AllTransactionsAction.UpdateExportBottomSheet(false))
+            },
+            sheetState = exportBottomSheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            properties = ModalBottomSheetProperties(
+                shouldDismissOnBackPress = false
+            ),
+            dragHandle = null,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.75f)
+            ) {
+                ExportTransactionsScreenRoot(
+                    onDismiss = {
+                        onAction(AllTransactionsAction.UpdateExportBottomSheet(false))
                     }
                 )
             }
@@ -128,6 +163,12 @@ private fun AllTransactionsScreen(
                 titleColor = MaterialTheme.colorScheme.onSurface,
                 onStartIconClick = {
                     onAction(AllTransactionsAction.OnClickBackButton)
+                },
+                endIcon2 = DownloadButton,
+                endIcon2Color = MaterialTheme.colorScheme.onSurface,
+                endIcon2BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
+                onEndIcon2Click = {
+                    onAction(AllTransactionsAction.UpdateExportBottomSheet(true))
                 }
             )
         },
@@ -135,7 +176,7 @@ private fun AllTransactionsScreen(
             ExManagerFloatingActionButton(
                 onClick = {
                     scope.launch {
-                        onAction(AllTransactionsAction.UpdatedBottomSheet(true))
+                        onAction(AllTransactionsAction.UpdateCreateBottomSheet(true))
                     }
                 }
             )
@@ -274,7 +315,8 @@ private fun PreviewAllTransactionsScreen() {
                 onAction = {
 
                 },
-                bottomSheetState = rememberModalBottomSheetState(),
+                createBottomSheetState = rememberModalBottomSheetState(),
+                exportBottomSheetState = rememberModalBottomSheetState(),
             )
         }
     }

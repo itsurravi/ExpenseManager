@@ -3,12 +3,14 @@ package com.ravikantsharma.auth.presentation.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -19,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -32,8 +33,9 @@ import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.login.component.ExManagerClickableText
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LoginIcon
-import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
+import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ExManagerTextField
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.launch
@@ -91,8 +93,7 @@ fun LoginScreen(
     snackBarHostState: SnackbarHostState,
     onAction: (LoginAction) -> Unit
 ) {
-    Scaffold(
-        containerColor = Color.Transparent,
+    ExManagerScaffold(
         snackbarHost = {
             ExManagerSnackBarHost(snackBarHostState)
         }
@@ -101,7 +102,8 @@ fun LoginScreen(
             modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(contentPadding),
+                .padding(contentPadding)
+                .windowInsetsPadding(WindowInsets.systemBars),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.padding(12.dp))

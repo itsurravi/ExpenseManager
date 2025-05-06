@@ -1,5 +1,6 @@
 package com.ravikantsharma.core.data.di
 
+import com.ravikantsharma.core.data.export.repository.ExportRepositoryImpl
 import com.ravikantsharma.core.data.repository.TransactionRepositoryImpl
 import com.ravikantsharma.core.data.repository.UserInfoRepositoryImpl
 import com.ravikantsharma.core.data.repository.UserPreferencesRepositoryImpl
@@ -8,6 +9,9 @@ import com.ravikantsharma.core.data.security.KeyManager
 import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
 import com.ravikantsharma.core.domain.auth.usecases.GetUserInfoUseCase
 import com.ravikantsharma.core.domain.auth.usecases.UserInfoUseCases
+import com.ravikantsharma.core.domain.export.repository.ExportRepository
+import com.ravikantsharma.core.domain.export.usecases.ExportTransactionUseCase
+import com.ravikantsharma.core.domain.export.usecases.ExportTransactionsUseCases
 import com.ravikantsharma.core.domain.formatting.NumberFormatter
 import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
 import com.ravikantsharma.core.domain.preference.usecase.GetPreferencesUseCase
@@ -58,4 +62,8 @@ val coreDataModule = module {
     factory { GetTransactionsGroupedByDateUseCase() }
     single { TransactionUseCases(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     singleOf(::TransactionRepositoryImpl).bind<TransactionRepository>()
+
+    singleOf(::ExportRepositoryImpl).bind<ExportRepository>()
+    factory { ExportTransactionUseCase(get(), get()) }
+    single { ExportTransactionsUseCases(get()) }
 }
