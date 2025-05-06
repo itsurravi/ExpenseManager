@@ -118,12 +118,6 @@ fun DashboardScreenRoot(
                         }
                     }
 
-                    DashboardAction.OnSettingsClicked -> {
-                        authActionHandler?.invoke {
-                            viewModel.onAction(action)
-                        }
-                    }
-
                     else -> viewModel.onAction(action)
                 }
             }

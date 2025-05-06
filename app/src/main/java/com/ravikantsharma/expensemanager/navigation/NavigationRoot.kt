@@ -9,9 +9,12 @@ import com.ravikantsharma.auth.presentation.navigation.authGraph
 import com.ravikantsharma.dashboard.presentation.navigation.dashboardNavGraph
 import com.ravikantsharma.session_management.presentation.navigation.sessionNavGraph
 import com.ravikantsharma.settings.presentation.navigation.settingsNavGraph
+import com.ravikantsharma.ui.AppNavRoute
 import com.ravikantsharma.ui.LocalAuthActionHandler
+import com.ravikantsharma.ui.LocalAuthNavigationHandler
 import com.ravikantsharma.ui.NavigationRequestHandler
 import com.ravikantsharma.ui.navigation.AuthBaseRoute
+import com.ravikantsharma.ui.navigation.SettingsHomeScreenRoute
 import com.ravikantsharma.ui.navigation.navigateToDashboardScreen
 import com.ravikantsharma.ui.navigation.navigateToSettingsHomeScreen
 
@@ -26,6 +29,9 @@ fun NavigationRoot(
     CompositionLocalProvider(
         LocalAuthActionHandler provides { onVerified: () -> Unit ->
             navigationRequestHandler.runWithAuthCheck(onVerified)
+        },
+        LocalAuthNavigationHandler provides { appNavRoute: AppNavRoute ->
+            navigationRequestHandler.navigateWithAuthCheck(appNavRoute)
         }
     ) {
         NavHost(
@@ -42,10 +48,13 @@ fun NavigationRoot(
                 }
             )
             dashboardNavGraph(
-                navigationRequestHandler = navigationRequestHandler,
                 navController = navController,
                 onNavigateToSettings = {
-                    navController.navigateToSettingsHomeScreen()
+                    navigationRequestHandler.navigateWithAuthCheck(
+                        AppNavRoute(
+                            pendingRoute = SettingsHomeScreenRoute
+                        )
+                    )
                 }
             )
             sessionNavGraph(

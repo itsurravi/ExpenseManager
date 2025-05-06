@@ -7,24 +7,24 @@ import androidx.navigation.navigation
 import com.ravikantsharma.dashboard.presentation.all_transactions.AllTransactionsScreenRoot
 import com.ravikantsharma.dashboard.presentation.dashboard.DashboardScreenRoot
 import com.ravikantsharma.ui.AppNavRoute
-import com.ravikantsharma.ui.NavigationRequestHandler
+import com.ravikantsharma.ui.LocalAuthNavigationHandler
 import com.ravikantsharma.ui.navigation.AllTransactionsScreenRoute
 import com.ravikantsharma.ui.navigation.DashboardBaseRoute
 import com.ravikantsharma.ui.navigation.DashboardScreenRoute
 
 fun NavGraphBuilder.dashboardNavGraph(
     navController: NavController,
-    onNavigateToSettings: () -> Unit,
-    navigationRequestHandler: NavigationRequestHandler
+    onNavigateToSettings: () -> Unit
 ) {
     navigation<DashboardBaseRoute>(
         startDestination = DashboardScreenRoute
     ) {
         composable<DashboardScreenRoute> {
+            val authNavigationHandler = LocalAuthNavigationHandler.current
             DashboardScreenRoot(
                 onNavigateToSettings = onNavigateToSettings,
                 onNavigateToAllTransactions = {
-                    navigationRequestHandler.navigateWithAuthCheck(
+                    authNavigationHandler?.invoke(
                         AppNavRoute(
                             pendingRoute = AllTransactionsScreenRoute
                         )
