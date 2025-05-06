@@ -3,8 +3,8 @@ package com.ravikantsharma.auth.presentation.create_pin
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
-import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
+import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import com.ravikantsharma.ui.MAX_PIN_LENGTH
 import com.ravikantsharma.ui.getRouteData
 import kotlinx.coroutines.channels.Channel

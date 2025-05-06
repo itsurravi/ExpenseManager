@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases
 import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
 import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
-import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
 import com.ravikantsharma.core.domain.auth.model.UserInfo
 import com.ravikantsharma.core.domain.formatting.NumberFormatter
 import com.ravikantsharma.core.domain.model.LockoutDuration
@@ -19,6 +18,7 @@ import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.session_management.domain.model.SessionData
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import com.ravikantsharma.ui.getRouteData
+import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

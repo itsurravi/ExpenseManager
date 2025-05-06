@@ -7,11 +7,21 @@ import androidx.navigation.compose.navigation
 import com.ravikantsharma.auth.presentation.create_pin.ConfirmPinScreenRoot
 import com.ravikantsharma.auth.presentation.create_pin.CreatePinScreenRoot
 import com.ravikantsharma.auth.presentation.login.LoginScreenRoot
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
-import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
+import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import com.ravikantsharma.auth.presentation.register.RegisterScreenRoot
 import com.ravikantsharma.auth.presentation.user_preference.OnboardingPreferencesScreenRoot
 import com.ravikantsharma.ui.SerializableNavType
+import com.ravikantsharma.ui.navigation.AuthBaseRoute
+import com.ravikantsharma.ui.navigation.ConfirmPinRoute
+import com.ravikantsharma.ui.navigation.CreatePinRoute
+import com.ravikantsharma.ui.navigation.LoginRoute
+import com.ravikantsharma.ui.navigation.PreferencesRoute
+import com.ravikantsharma.ui.navigation.RegisterRoute
+import com.ravikantsharma.ui.navigation.navigateToConfirmPinScreen
+import com.ravikantsharma.ui.navigation.navigateToCreatePinScreen
+import com.ravikantsharma.ui.navigation.navigateToLoginRoute
+import com.ravikantsharma.ui.navigation.navigateToRegisterScreen
 import kotlinx.serialization.serializer
 import kotlin.reflect.typeOf
 

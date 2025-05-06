@@ -1,7 +1,7 @@
 package com.ravikantsharma.auth.presentation.create_pin
 
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
-import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
+import com.ravikantsharma.ui.navigation.PreferencesScreenData
 
 sealed interface CreatePinEvent {
     data class NavigateToConfirmPinScreen(val screenData: CreatePinScreenData) : CreatePinEvent

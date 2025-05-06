@@ -81,7 +81,7 @@ fun PinPromptScreenRoot(
 }
 
 @Composable
-fun PinPromptScreen(
+private fun PinPromptScreen(
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState,
     uiState: PinPromptState,
@@ -197,7 +197,7 @@ fun LockoutCountdownText(lockoutTimeRemaining: Long) {
 
 @Composable
 @Preview
-fun PreviewPinPromptScreen() {
+private fun PreviewPinPromptScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             PinPromptScreen(

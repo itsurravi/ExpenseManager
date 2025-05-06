@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.auth.domain.usecase.LoginUseCases
 import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

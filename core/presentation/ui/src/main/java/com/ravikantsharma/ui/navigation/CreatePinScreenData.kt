@@ -1,9 +1,9 @@
-package com.ravikantsharma.auth.presentation.navigation.model
+package com.ravikantsharma.ui.navigation
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PreferencesScreenData(
+data class CreatePinScreenData(
     val username: String,
     val pin: String? = null
 )

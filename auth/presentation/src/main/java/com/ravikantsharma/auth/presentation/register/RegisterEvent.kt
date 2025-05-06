@@ -1,6 +1,6 @@
 package com.ravikantsharma.auth.presentation.register
 
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
 
 sealed interface RegisterEvent {
     data object UsernameTaken : RegisterEvent

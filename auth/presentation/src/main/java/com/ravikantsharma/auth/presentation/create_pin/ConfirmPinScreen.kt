@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
-import com.ravikantsharma.auth.presentation.navigation.model.PreferencesScreenData
+import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

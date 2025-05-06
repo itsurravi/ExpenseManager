@@ -1,14 +1,14 @@
-package com.ravikantsharma.session_management.presentation.navigation
+package com.ravikantsharma.ui.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object SessionBaseRoute
+data object SessionBaseRoute: AppRoute
 
 @Serializable
-data object PinPromptScreenRoute
+data object PinPromptScreenRoute: AppRoute
 
 fun NavController.navigateToPinPromptScreen(
     navOptions: NavOptionsBuilder.() -> Unit = {}

@@ -5,6 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.ravikantsharma.session_management.presentation.pin_prompt.PinPromptScreenRoot
+import com.ravikantsharma.ui.navigation.PinPromptScreenRoute
+import com.ravikantsharma.ui.navigation.SessionBaseRoute
 
 fun NavGraphBuilder.sessionNavGraph(
     navController: NavController,

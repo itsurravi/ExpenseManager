@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.login.component.ExManagerClickableText
-import com.ravikantsharma.auth.presentation.navigation.model.CreatePinScreenData
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import com.ravikantsharma.core.presentation.designsystem.ArrowForward
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LoginIcon

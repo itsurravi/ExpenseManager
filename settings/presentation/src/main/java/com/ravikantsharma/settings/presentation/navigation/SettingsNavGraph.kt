@@ -7,6 +7,12 @@ import androidx.navigation.navigation
 import com.ravikantsharma.settings.presentation.home.SettingsHomeScreenRoot
 import com.ravikantsharma.settings.presentation.preference.SettingsPreferenceScreenRoot
 import com.ravikantsharma.settings.presentation.security.SettingsSecurityScreenRoot
+import com.ravikantsharma.ui.navigation.SettingsBaseRoute
+import com.ravikantsharma.ui.navigation.SettingsHomeScreenRoute
+import com.ravikantsharma.ui.navigation.SettingsPreferenceScreenRoute
+import com.ravikantsharma.ui.navigation.SettingsSecurityScreenRoute
+import com.ravikantsharma.ui.navigation.navigateToSettingsPreferenceScreen
+import com.ravikantsharma.ui.navigation.navigateToSettingsSecurityScreen
 
 
 fun NavGraphBuilder.settingsNavGraph(
