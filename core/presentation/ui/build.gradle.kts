@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.ravikantsharma.ui"
+    namespace = "com.ravikantsharma.core.ui"
 }
 
 dependencies {
