@@ -42,7 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.TickIcon
-import com.ravikantsharma.core.presentation.designsystem.model.ExpenseCategoryTypeUI
+import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.primaryFixed
 
@@ -264,8 +264,8 @@ fun PreviewCategorySelector() {
                         .padding(16.dp),
                     showIconBackground = true,
                     fontStyle = MaterialTheme.typography.labelMedium,
-                    selectedOption = ExpenseCategoryTypeUI.HOME,
-                    options = ExpenseCategoryTypeUI.entries.toTypedArray(),
+                    selectedOption = TransactionCategoryTypeUI.HOME,
+                    options = TransactionCategoryTypeUI.entries.toTypedArray(),
                     currencyDisplay = { it.symbol },
                     currencyTitleDisplay = { it.title },
                     onItemSelected = {}

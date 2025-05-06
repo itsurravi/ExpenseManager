@@ -16,9 +16,14 @@ import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCa
 import com.ravikantsharma.core.domain.preference.usecase.ValidateSelectedPreferences
 import com.ravikantsharma.core.domain.security.EncryptionService
 import com.ravikantsharma.core.domain.transactions.repository.TransactionRepository
+import com.ravikantsharma.core.domain.transactions.usecases.GetAccountBalanceUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetDueRecurringTransactionsUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.GetLargestTransactionUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.GetMostPopularExpenseCategoryUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.GetPreviousWeekTotalUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetRecurringTransactionSeriesUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsForUserUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsGroupedByDateUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.InsertTransactionUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
 import org.koin.core.module.dsl.singleOf
@@ -46,6 +51,11 @@ val coreDataModule = module {
     factory { GetTransactionsForUserUseCase(get()) }
     factory { GetRecurringTransactionSeriesUseCase(get()) }
     factory { GetDueRecurringTransactionsUseCase(get()) }
-    single { TransactionUseCases(get(), get(), get(), get()) }
+    factory { GetAccountBalanceUseCase(get()) }
+    factory { GetMostPopularExpenseCategoryUseCase(get()) }
+    factory { GetLargestTransactionUseCase(get()) }
+    factory { GetPreviousWeekTotalUseCase(get()) }
+    factory { GetTransactionsGroupedByDateUseCase() }
+    single { TransactionUseCases(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     singleOf(::TransactionRepositoryImpl).bind<TransactionRepository>()
 }

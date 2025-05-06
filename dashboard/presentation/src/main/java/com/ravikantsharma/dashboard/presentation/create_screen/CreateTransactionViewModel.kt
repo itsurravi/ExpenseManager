@@ -2,13 +2,14 @@ package com.ravikantsharma.dashboard.presentation.create_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
 import com.ravikantsharma.core.domain.utils.CalendarUtils
 import com.ravikantsharma.core.domain.utils.Result
-import com.ravikantsharma.core.presentation.designsystem.model.ExpenseCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
+import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
 import com.ravikantsharma.dashboard.presentation.mapper.toDecimalSeparatorUI
 import com.ravikantsharma.dashboard.presentation.mapper.toExpenseCategory
@@ -74,7 +75,7 @@ class CreateTransactionViewModel(
             amount = BigDecimal.ZERO,
             noteHint = "Add Note",
             note = "",
-            expenseCategoryType = ExpenseCategoryTypeUI.OTHER,
+            transactionCategoryType = TransactionCategoryTypeUI.OTHER,
             showExpenseCategoryType = isExpenseCategoryTypeVisible(transactionType),
             recurringType = RecurringTypeUI.ONE_TIME,
             isCreateButtonEnabled = false
@@ -89,7 +90,12 @@ class CreateTransactionViewModel(
 
     fun onAction(action: CreateTransactionAction) {
         when (action) {
-            is CreateTransactionAction.OnExpenseCategoryUpdated -> updateState { copy(expenseCategoryType = action.category) }
+            is CreateTransactionAction.OnTransactionCategoryUpdated -> updateState {
+                copy(
+                    transactionCategoryType = action.category
+                )
+            }
+
             is CreateTransactionAction.OnFrequencyUpdated -> updateState { copy(recurringType = action.frequency) }
             is CreateTransactionAction.OnTransactionTypeChanged -> updateState {
                 copy(
@@ -99,7 +105,12 @@ class CreateTransactionViewModel(
                 )
             }
 
-            is CreateTransactionAction.OnTransactionNameUpdated -> updateState { copy(transactionName = action.transactionName) }
+            is CreateTransactionAction.OnTransactionNameUpdated -> updateState {
+                copy(
+                    transactionName = action.transactionName
+                )
+            }
+
             is CreateTransactionAction.OnAmountUpdated -> updateState { copy(amount = action.amount) }
             is CreateTransactionAction.OnNoteUpdated -> updateState { copy(note = action.note) }
             CreateTransactionAction.OnCreateClicked -> handleCreateTransaction()
@@ -140,7 +151,11 @@ class CreateTransactionViewModel(
                         uiState.amount.negate()
                     },
                     note = uiState.note,
-                    expenseCategory = uiState.expenseCategoryType.toExpenseCategory(),
+                    transactionCategory = if (uiState.transactionType == TransactionTypeUI.INCOME) {
+                        TransactionCategory.INCOME
+                    } else {
+                        uiState.transactionCategoryType.toTransactionCategory()
+                    },
                     transactionDate = CalendarUtils.currentEstTime,
                     recurringTransactionId = null,
                     recurringType = uiState.recurringType.toRecurringType(),
@@ -151,8 +166,27 @@ class CreateTransactionViewModel(
                 val result = transactionsUseCases.insertTransactionUseCase(transaction)
                 if (result is Result.Success) {
                     eventChannel.send(CreateTransactionEvent.CloseBottomSheet)
+                    resetScreen()
                 }
             }
+        }
+    }
+
+    private fun resetScreen() {
+        val transactionType = TransactionTypeUI.EXPENSE
+        _uiState.update {
+            it.copy(
+                transactionType = transactionType,
+                transactionName = "",
+                transactionNameHint = getTransactionHint(transactionType),
+                amount = BigDecimal.ZERO,
+                noteHint = "Add Note",
+                note = "",
+                transactionCategoryType = TransactionCategoryTypeUI.OTHER,
+                showExpenseCategoryType = isExpenseCategoryTypeVisible(transactionType),
+                recurringType = RecurringTypeUI.ONE_TIME,
+                isCreateButtonEnabled = false
+            )
         }
     }
 }

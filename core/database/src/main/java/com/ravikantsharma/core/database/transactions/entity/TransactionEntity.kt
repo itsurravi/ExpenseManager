@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.ravikantsharma.core.database.auth.entity.UserInfoEntity
 import com.ravikantsharma.core.database.transactions.utils.TransactionConverters
-import com.ravikantsharma.core.domain.model.ExpenseCategory
+import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.model.RecurringType
 import com.ravikantsharma.core.domain.model.TransactionType
 import java.math.BigDecimal
@@ -34,7 +34,7 @@ data class TransactionEntity(
     val transactionName: String,
     val amount: BigDecimal,
     val note: String?,
-    val expenseCategory: ExpenseCategory,
+    val transactionCategory: TransactionCategory,
     val transactionDate: LocalDateTime,
     val recurringTransactionId: Long?,
     val recurringType: RecurringType,

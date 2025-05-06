@@ -1,7 +1,7 @@
 package com.ravikantsharma.dashboard.presentation.mapper
 
 import com.ravikantsharma.core.domain.model.DecimalSeparator
-import com.ravikantsharma.core.domain.model.ExpenseCategory
+import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.RecurringType
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
@@ -9,7 +9,7 @@ import com.ravikantsharma.core.domain.model.TransactionType
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.DecimalSeparatorUI
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ExpenseFormatUI
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ThousandsSeparatorUI
-import com.ravikantsharma.core.presentation.designsystem.model.ExpenseCategoryTypeUI
+import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
 
@@ -64,18 +64,35 @@ fun ThousandsSeparatorUI.toThousandsSeparator(): ThousandsSeparator {
     }
 }
 
-fun ExpenseCategoryTypeUI.toExpenseCategory(): ExpenseCategory {
+fun TransactionCategoryTypeUI.toTransactionCategory(): TransactionCategory {
     return when (this) {
-        ExpenseCategoryTypeUI.HOME -> ExpenseCategory.HOME
-        ExpenseCategoryTypeUI.FOOD -> ExpenseCategory.FOOD
-        ExpenseCategoryTypeUI.ENTERTAINMENT -> ExpenseCategory.ENTERTAINMENT
-        ExpenseCategoryTypeUI.CLOTHING -> ExpenseCategory.CLOTHING
-        ExpenseCategoryTypeUI.HEALTH -> ExpenseCategory.HEALTH
-        ExpenseCategoryTypeUI.PERSONAL_CARE -> ExpenseCategory.PERSONAL_CARE
-        ExpenseCategoryTypeUI.TRANSPORTATION -> ExpenseCategory.TRANSPORTATION
-        ExpenseCategoryTypeUI.EDUCATION -> ExpenseCategory.EDUCATION
-        ExpenseCategoryTypeUI.SAVINGS -> ExpenseCategory.SAVINGS
-        ExpenseCategoryTypeUI.OTHER -> ExpenseCategory.OTHER
+        TransactionCategoryTypeUI.HOME -> TransactionCategory.HOME
+        TransactionCategoryTypeUI.FOOD -> TransactionCategory.FOOD
+        TransactionCategoryTypeUI.ENTERTAINMENT -> TransactionCategory.ENTERTAINMENT
+        TransactionCategoryTypeUI.CLOTHING -> TransactionCategory.CLOTHING
+        TransactionCategoryTypeUI.HEALTH -> TransactionCategory.HEALTH
+        TransactionCategoryTypeUI.PERSONAL_CARE -> TransactionCategory.PERSONAL_CARE
+        TransactionCategoryTypeUI.TRANSPORTATION -> TransactionCategory.TRANSPORTATION
+        TransactionCategoryTypeUI.EDUCATION -> TransactionCategory.EDUCATION
+        TransactionCategoryTypeUI.SAVINGS -> TransactionCategory.SAVINGS
+        TransactionCategoryTypeUI.OTHER -> TransactionCategory.OTHER
+        TransactionCategoryTypeUI.INCOME -> TransactionCategory.INCOME
+    }
+}
+
+fun TransactionCategory.toTransactionCategoryUI(): TransactionCategoryTypeUI {
+    return when (this) {
+        TransactionCategory.HOME -> TransactionCategoryTypeUI.HOME
+        TransactionCategory.FOOD -> TransactionCategoryTypeUI.FOOD
+        TransactionCategory.ENTERTAINMENT -> TransactionCategoryTypeUI.ENTERTAINMENT
+        TransactionCategory.CLOTHING -> TransactionCategoryTypeUI.CLOTHING
+        TransactionCategory.HEALTH -> TransactionCategoryTypeUI.HEALTH
+        TransactionCategory.PERSONAL_CARE -> TransactionCategoryTypeUI.PERSONAL_CARE
+        TransactionCategory.TRANSPORTATION -> TransactionCategoryTypeUI.TRANSPORTATION
+        TransactionCategory.EDUCATION -> TransactionCategoryTypeUI.EDUCATION
+        TransactionCategory.SAVINGS -> TransactionCategoryTypeUI.SAVINGS
+        TransactionCategory.OTHER -> TransactionCategoryTypeUI.OTHER
+        TransactionCategory.INCOME -> TransactionCategoryTypeUI.INCOME
     }
 }
 

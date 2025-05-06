@@ -1,6 +1,6 @@
 package com.ravikantsharma.core.domain.transactions.model
 
-import com.ravikantsharma.core.domain.model.ExpenseCategory
+import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.model.RecurringType
 import com.ravikantsharma.core.domain.model.TransactionType
 import java.math.BigDecimal
@@ -13,7 +13,7 @@ data class Transaction(
     val transactionName: String,
     val amount: BigDecimal,
     val note: String?,
-    val expenseCategory: ExpenseCategory,
+    val transactionCategory: TransactionCategory,
     val transactionDate: LocalDateTime,
     val recurringTransactionId: Long?,
     val recurringType: RecurringType,

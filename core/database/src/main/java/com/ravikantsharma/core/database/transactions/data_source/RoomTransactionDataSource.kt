@@ -1,9 +1,11 @@
 package com.ravikantsharma.core.database.transactions.data_source
 
+import android.util.Log
 import com.ravikantsharma.core.database.transactions.dao.TransactionsDao
 import com.ravikantsharma.core.database.transactions.utils.toTransaction
 import com.ravikantsharma.core.database.transactions.utils.toTransactionEntity
 import com.ravikantsharma.core.domain.model.RecurringType
+import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.transactions.data_source.LocalTransactionDataSource
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import com.ravikantsharma.core.domain.utils.CalendarUtils
@@ -12,6 +14,7 @@ import com.ravikantsharma.core.domain.utils.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class RoomTransactionDataSource(
@@ -41,11 +44,7 @@ class RoomTransactionDataSource(
     override fun getTransactionsForUser(userId: Long): Flow<Result<List<Transaction>, DataError>> {
         return transactionsDao.getTransactionsForUser(userId)
             .map { transactions ->
-                if (transactions.isNotEmpty()) {
-                    Result.Success(transactions.map { it.toTransaction() })
-                } else {
-                    Result.Error(DataError.Local.TRANSACTION_FETCH_ERROR)
-                }
+                Result.Success(transactions.map { it.toTransaction() }) as Result<List<Transaction>, DataError>
             }
             .catch {
                 emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
@@ -80,5 +79,56 @@ class RoomTransactionDataSource(
         } catch (e: Exception) {
             Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
         }
+    }
+
+    override fun getAccountBalance(userId: Long): Flow<Result<BigDecimal, DataError>> {
+        return transactionsDao.getAccountBalance(userId)
+            .map { balanceString ->
+                try {
+                    Result.Success(BigDecimal(balanceString))
+                } catch (e: NumberFormatException) {
+                    Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
+                }
+            }
+            .catch {
+                emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
+            }
+    }
+
+    override fun getMostPopularExpenseCategory(userId: Long): Flow<Result<TransactionCategory?, DataError>> {
+        return transactionsDao.getMostPopularExpenseCategory(userId)
+            .map { category ->
+                Result.Success(category) as Result<TransactionCategory, DataError>
+            }
+            .catch {
+                emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
+            }
+    }
+
+    override fun getLargestTransaction(userId: Long): Flow<Result<Transaction?, DataError>> {
+        return transactionsDao.getLargestTransaction(userId)
+            .map { transactionEntity ->
+                Result.Success(transactionEntity?.toTransaction()) as Result<Transaction?, DataError>
+            }
+            .catch {
+                emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
+            }
+    }
+
+    override fun getPreviousWeekTotal(userId: Long): Flow<Result<BigDecimal, DataError>> {
+        val (startDate, endDate) = CalendarUtils.getPreviousWeekRange()
+        Log.d("ExpenseManager", "Start of previous week: $startDate")
+        Log.d("ExpenseManager", "End of previous week: $endDate")
+        return transactionsDao.getPreviousWeekTotal(userId, startDate, endDate)
+            .map { amount ->
+                try {
+                    Result.Success(amount)
+                } catch (e: NumberFormatException) {
+                    Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
+                }
+            }
+            .catch {
+                emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
+            }
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -44,9 +43,10 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 @Composable
-fun TransactionItem(
+fun TransactionItemView(
     modifier: Modifier = Modifier,
     icon: String,
+    incomeIcon: String = "\uD83D\uDCB0",
     title: String,
     category: String,
     note: String? = null,
@@ -88,11 +88,16 @@ fun TransactionItem(
         .padding(4.dp)
         .padding(end = 2.dp)
 
-    // Using BigDecimal.compareTo for comparison
     val amountColor = if (amount.compareTo(BigDecimal.ZERO) > 0) {
         incomeAmountColor
     } else {
         expenseAmountColor
+    }
+
+    val finalIcon = if (amount.compareTo(BigDecimal.ZERO) > 0) {
+        incomeIcon
+    } else {
+        icon
     }
 
     val expenseIncomeBackgroundColor = if (amount.compareTo(BigDecimal.ZERO) > 0) {
@@ -115,7 +120,7 @@ fun TransactionItem(
         TransactionItemInnerContent(
             modifier = Modifier,
             expenseIncomeBackgroundColor = expenseIncomeBackgroundColor,
-            icon = icon,
+            icon = finalIcon,
             note = note,
             collapsedNoteColor = collapsedNoteColor,
             expandedNoteColor = expandedNoteColor,
@@ -222,11 +227,11 @@ private fun TransactionItemInnerContent(
             }
 
             AnimatedVisibility(
+                modifier = Modifier.padding(top = 6.dp),
                 visible = !note.isNullOrBlank() && !isCollapsed,
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = note.orEmpty(),
                     style = MaterialTheme.typography.bodySmall
@@ -261,7 +266,7 @@ fun PreviewTransactionItem() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // 1) Collapsed with note
-            TransactionItem(
+            TransactionItemView(
                 icon = "🍔",
                 title = "Burger King",
                 category = "Food",
@@ -273,7 +278,7 @@ fun PreviewTransactionItem() {
             )
 
             // 2) Expanded with note
-            TransactionItem(
+            TransactionItemView(
                 icon = "⚽",
                 title = "Football tickets",
                 category = "Sports",
@@ -285,7 +290,7 @@ fun PreviewTransactionItem() {
             )
 
             // 3) Collapsed with no note
-            TransactionItem(
+            TransactionItemView(
                 icon = "🚗",
                 title = "Parking",
                 category = "Transport",
@@ -297,7 +302,7 @@ fun PreviewTransactionItem() {
             )
 
             // 4) Negative amount (expense) with note, collapsed
-            TransactionItem(
+            TransactionItemView(
                 icon = "📱",
                 title = "Phone Bill",
                 category = "Utilities",
@@ -309,7 +314,7 @@ fun PreviewTransactionItem() {
             )
 
             // 5) Negative amount (expense) but expanded
-            TransactionItem(
+            TransactionItemView(
                 icon = "💻",
                 title = "Laptop Payment",
                 category = "Electronics",

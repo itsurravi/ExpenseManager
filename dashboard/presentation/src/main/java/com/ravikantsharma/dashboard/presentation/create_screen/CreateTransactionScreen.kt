@@ -38,7 +38,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.text_field.B
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.DecimalSeparatorUI
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ThousandsSeparatorUI
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.TransactionTextField
-import com.ravikantsharma.core.presentation.designsystem.model.ExpenseCategoryTypeUI
+import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
 import com.ravikantsharma.ui.ObserveAsEvent
@@ -177,12 +177,12 @@ private fun CreateTransactionScreen(
                     .fillMaxWidth(),
                 showIconBackground = true,
                 fontStyle = MaterialTheme.typography.labelMedium,
-                selectedOption = uiState.expenseCategoryType,
-                options = ExpenseCategoryTypeUI.entries.toTypedArray(),
+                selectedOption = uiState.transactionCategoryType,
+                options = TransactionCategoryTypeUI.entries.toTypedArray(),
                 currencyDisplay = { it.symbol },
                 currencyTitleDisplay = { it.title },
                 onItemSelected = {
-                    onAction(CreateTransactionAction.OnExpenseCategoryUpdated(it))
+                    onAction(CreateTransactionAction.OnTransactionCategoryUpdated(it))
                 }
             )
         }
@@ -232,7 +232,7 @@ private fun PreviewCreateTransactionScreenRoot() {
                     amount = BigDecimal.ZERO,
                     noteHint = "Add Note",
                     note = "",
-                    expenseCategoryType = ExpenseCategoryTypeUI.OTHER,
+                    transactionCategoryType = TransactionCategoryTypeUI.OTHER,
                     showExpenseCategoryType = true,
                     recurringType = RecurringTypeUI.ONE_TIME,
                     isCreateButtonEnabled = false
