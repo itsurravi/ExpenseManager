@@ -33,6 +33,8 @@ class SettingsPreferenceViewModel(
     private val eventChannel = Channel<SettingsPreferencesEvent>()
     val events = eventChannel.receiveAsFlow()
 
+    private var userPreferences: UserPreferences? = null
+
     init {
         fetchUserPreferences()
     }
@@ -44,6 +46,7 @@ class SettingsPreferenceViewModel(
             }
             .onEach { result ->
                 if (result is Result.Success) {
+                    userPreferences = result.data
                     updateUiState {
                         it.copy(
                             userId = result.data.userId,
@@ -90,28 +93,31 @@ class SettingsPreferenceViewModel(
 
     private fun handleOnSaveClicked() {
         viewModelScope.launch {
-            val userPreferences = UserPreferences(
-                userId = _uiState.value.userId,
-                expenseFormat = _uiState.value.expenseFormat,
-                currency = _uiState.value.currency,
-                decimalSeparator = _uiState.value.decimalSeparator,
-                thousandsSeparator = _uiState.value.thousandsSeparator,
-                isBiometricEnabled = false,
-                sessionDuration = SessionDuration.ONE_MIN,
-                lockOutDuration = LockoutDuration.FIFTEEN_SECONDS,
-                allowedPinAttempts = PinAttempts.THREE
-            )
+            userPreferences?.let { existingPreference ->
 
-            val preferencesResult = withContext(Dispatchers.IO) {
-                settingsPreferenceUseCase.setPreferencesUseCase(userPreferences)
-            }
-            when (preferencesResult) {
-                is Result.Error -> {
-                    return@launch
+                val userPreferencesUpdated = UserPreferences(
+                    userId = _uiState.value.userId,
+                    expenseFormat = _uiState.value.expenseFormat,
+                    currency = _uiState.value.currency,
+                    decimalSeparator = _uiState.value.decimalSeparator,
+                    thousandsSeparator = _uiState.value.thousandsSeparator,
+                    isBiometricEnabled = existingPreference.isBiometricEnabled,
+                    sessionDuration = existingPreference.sessionDuration,
+                    lockOutDuration = existingPreference.lockOutDuration,
+                    allowedPinAttempts = PinAttempts.THREE
+                )
+
+                val preferencesResult = withContext(Dispatchers.IO) {
+                    settingsPreferenceUseCase.setPreferencesUseCase(userPreferencesUpdated)
                 }
+                when (preferencesResult) {
+                    is Result.Error -> {
+                        return@launch
+                    }
 
-                is Result.Success -> {
-                    eventChannel.send(SettingsPreferencesEvent.PreferencesSaved)
+                    is Result.Success -> {
+                        eventChannel.send(SettingsPreferencesEvent.PreferencesSaved)
+                    }
                 }
             }
         }
