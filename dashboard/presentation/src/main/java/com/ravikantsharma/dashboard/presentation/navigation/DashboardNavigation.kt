@@ -10,7 +10,6 @@ import com.ravikantsharma.ui.NavigationRequestHandler
 import com.ravikantsharma.ui.navigation.AllTransactionsScreenRoute
 import com.ravikantsharma.ui.navigation.DashboardBaseRoute
 import com.ravikantsharma.ui.navigation.DashboardScreenRoute
-import com.ravikantsharma.ui.navigation.navigateToAllTransactionsScreenRoute
 
 fun NavGraphBuilder.dashboardNavGraph(
     navController: NavController,
@@ -29,6 +28,11 @@ fun NavGraphBuilder.dashboardNavGraph(
                             pendingRoute = AllTransactionsScreenRoute
                         )
                     )
+                },
+                onRequestCreateTransaction = { onAuthSuccessCallback ->
+                    navigationRequestHandler.runWithAuthCheck {
+                        onAuthSuccessCallback.invoke()
+                    }
                 }
             )
         }

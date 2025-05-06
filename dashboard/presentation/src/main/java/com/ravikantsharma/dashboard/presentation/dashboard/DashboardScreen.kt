@@ -52,6 +52,7 @@ import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.DownloadButton
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LocalStatusBarAppearance
+import com.ravikantsharma.core.presentation.designsystem.R
 import com.ravikantsharma.core.presentation.designsystem.SettingsButton
 import com.ravikantsharma.core.presentation.designsystem.StatusBarAppearance
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
@@ -63,7 +64,6 @@ import com.ravikantsharma.core.presentation.designsystem.components.TransactionI
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerFloatingActionButton
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransactionScreenRoot
-import com.ravikantsharma.presentation.designsystem.R
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -75,10 +75,11 @@ import java.time.Month
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreenRoot(
+    onNavigateToSettings: () -> Unit,
+    onNavigateToAllTransactions: () -> Unit,
+    onRequestCreateTransaction: (onVerified: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = koinViewModel(),
-    onNavigateToSettings: () -> Unit,
-    onNavigateToAllTransactions: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -91,6 +92,11 @@ fun DashboardScreenRoot(
         when (it) {
             DashboardEvent.NavigateToAllTransactions -> onNavigateToAllTransactions()
             DashboardEvent.NavigateToSettings -> onNavigateToSettings()
+            DashboardEvent.RequestCreateTransaction -> {
+                onRequestCreateTransaction {
+                    viewModel.onAction(DashboardAction.UpdatedBottomSheet(true))
+                }
+            }
         }
     }
 
@@ -168,7 +174,7 @@ fun DashboardScreen(
             ExManagerFloatingActionButton(
                 onClick = {
                     scope.launch {
-                        onAction(DashboardAction.UpdatedBottomSheet(true))
+                        onAction(DashboardAction.OnCreateTransactionClicked)
                     }
                 }
             )
