@@ -2,14 +2,11 @@ package com.ravikantsharma.core.database.transactions.utils
 
 import androidx.room.TypeConverter
 import com.ravikantsharma.core.domain.model.TransactionCategory
+import com.ravikantsharma.core.domain.utils.CalendarUtils
 import java.math.BigDecimal
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 object TransactionConverters {
-    private val zoneId = ZoneId.of("Asia/Kolkata")
-
     @TypeConverter
     fun fromBigDecimal(value: BigDecimal?): String? {
         return value?.toPlainString()
@@ -26,13 +23,13 @@ object TransactionConverters {
 
     @TypeConverter
     fun fromLocalDateTime(value: LocalDateTime?): Long? {
-        return value?.atZone(zoneId)?.toInstant()?.toEpochMilli()
+        return value?.let { CalendarUtils.toEpochMillis(it) }
     }
 
     @TypeConverter
     fun toLocalDateTime(value: Long?): LocalDateTime? {
         return value?.let {
-            Instant.ofEpochMilli(it).atZone(zoneId).toLocalDateTime()
+            CalendarUtils.epochToLocalDateTime(it)
         }
     }
 

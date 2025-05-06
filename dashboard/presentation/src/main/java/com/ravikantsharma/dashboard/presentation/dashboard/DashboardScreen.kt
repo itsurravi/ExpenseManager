@@ -3,6 +3,7 @@ package com.ravikantsharma.dashboard.presentation.dashboard
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,9 +74,9 @@ import java.time.Month
 fun DashboardScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = koinViewModel(),
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToAllTransactions: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bottomSheetState = rememberModalBottomSheetState(
@@ -86,10 +86,7 @@ fun DashboardScreenRoot(
 
     ObserveAsEvent(viewModel.events) {
         when (it) {
-            DashboardEvent.NavigateTest -> {
-
-            }
-
+            DashboardEvent.NavigateToAllTransactions -> onNavigateToAllTransactions()
             DashboardEvent.NavigateToSettings -> onNavigateToSettings()
         }
     }
@@ -307,7 +304,10 @@ private fun LatestTransactionsView(
             text = "Show all",
             style = MaterialTheme.typography.titleMedium.copy(
                 color = MaterialTheme.colorScheme.primary
-            )
+            ),
+            modifier = Modifier.clickable {
+                onAction(DashboardAction.OnShowAllTransactionsClicked)
+            }
         )
     }
 
@@ -377,7 +377,7 @@ private fun LatestTransactionsView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun PreviewDashboardScreen() {
+private fun PreviewDashboardScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             DashboardScreen(
@@ -447,7 +447,7 @@ fun PreviewDashboardScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
-fun PreviewDashboardEmptyScreen() {
+private fun PreviewDashboardEmptyScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             DashboardScreen(

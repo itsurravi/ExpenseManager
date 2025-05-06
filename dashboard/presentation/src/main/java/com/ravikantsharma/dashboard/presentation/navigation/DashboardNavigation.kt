@@ -15,7 +15,10 @@ fun NavGraphBuilder.dashboardNavGraph(
     ) {
         composable<DashboardScreenRoute> {
             DashboardScreenRoot(
-                onNavigateToSettings = onNavigateToSettings
+                onNavigateToSettings = onNavigateToSettings,
+                onNavigateToAllTransactions = {
+                    navController.navigateToAllTransactionsScreenRoute()
+                }
             )
         }
     }

@@ -12,10 +12,10 @@ import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
 import com.ravikantsharma.dashboard.presentation.mapper.toDecimalSeparatorUI
-import com.ravikantsharma.dashboard.presentation.mapper.toExpenseCategory
 import com.ravikantsharma.dashboard.presentation.mapper.toExpenseFormatUI
 import com.ravikantsharma.dashboard.presentation.mapper.toRecurringType
 import com.ravikantsharma.dashboard.presentation.mapper.toThousandsSeparatorUI
+import com.ravikantsharma.dashboard.presentation.mapper.toTransactionCategory
 import com.ravikantsharma.dashboard.presentation.mapper.toTransactionType
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import kotlinx.coroutines.channels.Channel

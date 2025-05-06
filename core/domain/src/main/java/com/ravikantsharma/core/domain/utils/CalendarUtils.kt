@@ -1,6 +1,7 @@
 package com.ravikantsharma.core.domain.utils
 
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -19,6 +20,12 @@ object CalendarUtils {
 
     fun toEpochMillis(localDateTime: LocalDateTime): Long {
         return localDateTime.atZone(zoneId).toInstant().toEpochMilli()
+    }
+
+    fun epochToLocalDateTime(epochMillis: Long): LocalDateTime {
+        return Instant.ofEpochMilli(epochMillis)
+            .atZone(zoneId)
+            .toLocalDateTime()
     }
 
     fun getPreviousWeekRange(): Pair<LocalDateTime, LocalDateTime> {
