@@ -29,12 +29,6 @@ fun NavGraphBuilder.dashboardNavGraph(
                             pendingRoute = AllTransactionsScreenRoute
                         )
                     )
-                },
-                onRequestAuthentication = { onAuthSuccessCallback ->
-                    navigationRequestHandler.runWithAuthCheck {
-                        // This will run after an auth check
-                        onAuthSuccessCallback.invoke()
-                    }
                 }
             )
         }

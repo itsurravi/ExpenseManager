@@ -64,6 +64,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.TransactionI
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerFloatingActionButton
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransactionScreenRoot
+import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -71,16 +72,17 @@ import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.Month
+import kotlin.invoke
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreenRoot(
-    onNavigateToSettings: () -> Unit,
-    onNavigateToAllTransactions: () -> Unit,
-    onRequestAuthentication: (onVerified: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = koinViewModel(),
+    onNavigateToSettings: () -> Unit,
+    onNavigateToAllTransactions: () -> Unit
 ) {
+    val authActionHandler = LocalAuthActionHandler.current
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val bottomSheetState = rememberModalBottomSheetState(
@@ -106,18 +108,18 @@ fun DashboardScreenRoot(
             scope = scope,
             onAction = { action ->
                 when (action) {
-                    DashboardAction.OnSettingsClicked -> {
-                        onRequestAuthentication {
+                    is DashboardAction.UpdatedBottomSheet -> {
+                        if (action.showSheet) {
+                            authActionHandler?.invoke {
+                                viewModel.onAction(action)
+                            }
+                        } else {
                             viewModel.onAction(action)
                         }
                     }
 
-                    is DashboardAction.UpdatedBottomSheet -> {
-                        if (action.showSheet) {
-                            onRequestAuthentication {
-                                viewModel.onAction(action)
-                            }
-                        } else {
+                    DashboardAction.OnSettingsClicked -> {
+                        authActionHandler?.invoke {
                             viewModel.onAction(action)
                         }
                     }

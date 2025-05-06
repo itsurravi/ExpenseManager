@@ -38,9 +38,10 @@ import com.ravikantsharma.core.presentation.designsystem.components.text_field.B
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.DecimalSeparatorUI
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ThousandsSeparatorUI
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.TransactionTextField
-import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
+import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
+import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import com.ravikantsharma.ui.UpdateStatusBarAppearance
 import org.koin.androidx.compose.koinViewModel
@@ -52,6 +53,7 @@ fun CreateTransactionScreenRoot(
     onDismiss: () -> Unit,
     viewModel: CreateTransactionViewModel = koinViewModel()
 ) {
+    val authActionHandler = LocalAuthActionHandler.current
     UpdateStatusBarAppearance(isDarkStatusBarIcons = false)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -69,7 +71,17 @@ fun CreateTransactionScreenRoot(
         modifier = modifier,
         uiState = uiState,
         snackbarHostState = snackBarHostState,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when (action) {
+                CreateTransactionAction.OnCreateClicked -> {
+                    authActionHandler?.invoke {
+                        viewModel.onAction(action)
+                    }
+                }
+
+                else -> viewModel.onAction(action)
+            }
+        }
     )
 }
 
