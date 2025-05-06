@@ -1,5 +1,7 @@
 package com.ravikantsharma.core.domain.preference.usecase
 
+import com.ravikantsharma.core.domain.model.DecimalSeparator
+import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.domain.preference.model.UserPreferences
 import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
 import com.ravikantsharma.core.domain.utils.DataError
@@ -8,7 +10,8 @@ import kotlinx.coroutines.flow.Flow
 
 data class SettingsPreferenceUseCase(
     val setPreferencesUseCase: SetPreferencesUseCase,
-    val getPreferencesUseCase: GetPreferencesUseCase
+    val getPreferencesUseCase: GetPreferencesUseCase,
+    val isValidPreference: ValidateSelectedPreferences,
 )
 
 class SetPreferencesUseCase(private val userPreferencesRepository: UserPreferencesRepository) {
@@ -20,5 +23,19 @@ class SetPreferencesUseCase(private val userPreferencesRepository: UserPreferenc
 class GetPreferencesUseCase(private val userPreferencesRepository: UserPreferencesRepository) {
     operator fun invoke(userId: Long): Flow<Result<UserPreferences, DataError>> {
         return userPreferencesRepository.getPreferences(userId)
+    }
+}
+
+class ValidateSelectedPreferences {
+    operator fun invoke(
+        decimalSeparator: DecimalSeparator,
+        thousandsSeparator: ThousandsSeparator
+    ): Boolean {
+        return when {
+            (decimalSeparator == DecimalSeparator.DOT && thousandsSeparator == ThousandsSeparator.DOT) ||
+                    (decimalSeparator == DecimalSeparator.COMMA && thousandsSeparator == ThousandsSeparator.COMMA) -> false
+
+            else -> true
+        }
     }
 }

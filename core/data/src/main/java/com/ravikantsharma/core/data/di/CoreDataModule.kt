@@ -13,6 +13,7 @@ import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepos
 import com.ravikantsharma.core.domain.preference.usecase.GetPreferencesUseCase
 import com.ravikantsharma.core.domain.preference.usecase.SetPreferencesUseCase
 import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
+import com.ravikantsharma.core.domain.preference.usecase.ValidateSelectedPreferences
 import com.ravikantsharma.core.domain.security.EncryptionService
 import com.ravikantsharma.core.domain.transactions.repository.TransactionRepository
 import com.ravikantsharma.core.domain.transactions.usecases.GetDueRecurringTransactionsUseCase
@@ -33,7 +34,8 @@ val coreDataModule = module {
 
     factory { SetPreferencesUseCase(get()) }
     factory { GetPreferencesUseCase(get()) }
-    single { SettingsPreferenceUseCase(get(), get()) }
+    factory { ValidateSelectedPreferences() }
+    single { SettingsPreferenceUseCase(get(), get(), get()) }
 
     singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
 

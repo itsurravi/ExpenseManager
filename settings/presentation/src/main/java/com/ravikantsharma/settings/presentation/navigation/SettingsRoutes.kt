@@ -1,28 +1,22 @@
 package com.ravikantsharma.settings.presentation.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.navigation
-import com.ravikantsharma.settings.presentation.home.SettingsHomeScreenRoot
+import androidx.navigation.NavController
+import androidx.navigation.NavOptionsBuilder
+import kotlinx.serialization.Serializable
 
-fun NavGraphBuilder.settingsNavGraph(
-    navController: NavHostController,
-    onLogout: () -> Unit
-) {
-    navigation<SettingsBaseRoute>(
-        startDestination = SettingsHomeScreenRoute
-    ) {
-        composable<SettingsHomeScreenRoute> {
-            SettingsHomeScreenRoot(
-                onNavigateToPreference = {
+@Serializable
+data object SettingsBaseRoute
 
-                },
-                onNavigateToSettings = {
+@Serializable
+data object SettingsHomeScreenRoute
 
-                },
-                onLogout = onLogout
-            )
-        }
-    }
-}
+@Serializable
+data object SettingsPreferenceScreenRoute
+
+fun NavController.navigateToSettingsHomeScreen(
+    navOptions: NavOptionsBuilder.() -> Unit = {}
+) = navigate(SettingsHomeScreenRoute, navOptions)
+
+fun NavController.navigateToSettingsPreferenceScreen(
+    navOptions: NavOptionsBuilder.() -> Unit = {}
+) = navigate(SettingsPreferenceScreenRoute, navOptions)

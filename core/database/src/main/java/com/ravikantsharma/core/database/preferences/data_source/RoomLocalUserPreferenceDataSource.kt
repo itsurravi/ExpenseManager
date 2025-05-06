@@ -19,12 +19,7 @@ class RoomLocalUserPreferenceDataSource(
     override suspend fun insertPreference(preferences: UserPreferences): Result<Unit, DataError> {
         return try {
             val result = userPreferenceDao.upsertUserPreference(preferences.toUserPreferenceEntity())
-
-            if (result > 0) {
-                Result.Success(Unit)
-            } else {
-                Result.Error(DataError.Local.INSERT_PREFERENCE_ERROR)
-            }
+            Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
         }
