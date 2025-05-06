@@ -64,6 +64,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.TransactionI
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerFloatingActionButton
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransactionScreenRoot
+import com.ravikantsharma.dashboard.presentation.export.ExportTransactionsScreenRoot
 import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.CoroutineScope
@@ -85,7 +86,10 @@ fun DashboardScreenRoot(
     val authActionHandler = LocalAuthActionHandler.current
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val bottomSheetState = rememberModalBottomSheetState(
+    val createBottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    val exportBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     val snackBarHostState = remember { SnackbarHostState() }
@@ -104,11 +108,22 @@ fun DashboardScreenRoot(
             modifier = modifier,
             uiState = uiState,
             snackBarHostState = snackBarHostState,
-            bottomSheetState = bottomSheetState,
+            createBottomSheetState = createBottomSheetState,
+            exportBottomSheetState = exportBottomSheetState,
             scope = scope,
             onAction = { action ->
                 when (action) {
                     is DashboardAction.UpdatedBottomSheet -> {
+                        if (action.showSheet) {
+                            authActionHandler?.invoke {
+                                viewModel.onAction(action)
+                            }
+                        } else {
+                            viewModel.onAction(action)
+                        }
+                    }
+
+                    is DashboardAction.UpdateExportBottomSheet -> {
                         if (action.showSheet) {
                             authActionHandler?.invoke {
                                 viewModel.onAction(action)
@@ -131,7 +146,8 @@ fun DashboardScreen(
     modifier: Modifier = Modifier,
     uiState: DashboardViewState,
     snackBarHostState: SnackbarHostState,
-    bottomSheetState: SheetState,
+    createBottomSheetState: SheetState,
+    exportBottomSheetState: SheetState,
     scope: CoroutineScope,
     onAction: (DashboardAction) -> Unit,
 ) {
@@ -140,7 +156,7 @@ fun DashboardScreen(
             onDismissRequest = {
                 onAction(DashboardAction.UpdatedBottomSheet(false))
             },
-            sheetState = bottomSheetState,
+            sheetState = createBottomSheetState,
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             properties = ModalBottomSheetProperties(
                 shouldDismissOnBackPress = false
@@ -158,6 +174,34 @@ fun DashboardScreen(
         }
     }
 
+    if (uiState.showExportTransactionSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                onAction(DashboardAction.UpdateExportBottomSheet(false))
+            },
+            sheetState = exportBottomSheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            properties = ModalBottomSheetProperties(
+                shouldDismissOnBackPress = false
+            ),
+            dragHandle = null,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.75f)
+            ) {
+                ExportTransactionsScreenRoot(
+                    onDismiss = {
+                        onAction(DashboardAction.UpdateExportBottomSheet(false))
+                    }
+                )
+            }
+        }
+    }
+
     ExManagerScaffold(
         topAppBar = {
             ExManagerTopBar(
@@ -166,6 +210,9 @@ fun DashboardScreen(
                     .padding(horizontal = 8.dp),
                 startIcon = null,
                 endIcon1 = DownloadButton,
+                onEndIcon1Click = {
+                    onAction(DashboardAction.UpdateExportBottomSheet(true))
+                },
                 endIcon2 = SettingsButton,
                 onEndIcon2Click = {
                     onAction(DashboardAction.OnSettingsClicked)
@@ -458,7 +505,8 @@ private fun PreviewDashboardScreen() {
                 onAction = {
 
                 },
-                bottomSheetState = rememberModalBottomSheetState(),
+                createBottomSheetState = rememberModalBottomSheetState(),
+                exportBottomSheetState = rememberModalBottomSheetState(),
             )
         }
     }
@@ -489,7 +537,8 @@ private fun PreviewDashboardEmptyScreen() {
                 onAction = {
 
                 },
-                bottomSheetState = rememberModalBottomSheetState(),
+                createBottomSheetState = rememberModalBottomSheetState(),
+                exportBottomSheetState = rememberModalBottomSheetState(),
             )
         }
     }

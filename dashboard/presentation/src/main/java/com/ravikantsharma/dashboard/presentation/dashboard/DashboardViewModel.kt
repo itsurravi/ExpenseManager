@@ -137,6 +137,13 @@ class DashboardViewModel(
                     )
                 }
             }
+            is DashboardAction.UpdateExportBottomSheet -> {
+                _uiState.update {
+                    it.copy(
+                        showExportTransactionSheet = action.showSheet
+                    )
+                }
+            }
 
             is DashboardAction.OnCardClicked -> {
                 _uiState.update { currentState ->
