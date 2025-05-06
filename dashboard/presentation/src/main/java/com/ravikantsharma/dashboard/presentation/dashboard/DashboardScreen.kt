@@ -92,11 +92,6 @@ fun DashboardScreenRoot(
         when (it) {
             DashboardEvent.NavigateToAllTransactions -> onNavigateToAllTransactions()
             DashboardEvent.NavigateToSettings -> onNavigateToSettings()
-            DashboardEvent.RequestCreateTransaction -> {
-                onRequestAuthentication {
-                    viewModel.onAction(DashboardAction.UpdatedBottomSheet(true))
-                }
-            }
         }
     }
 
@@ -110,12 +105,23 @@ fun DashboardScreenRoot(
             bottomSheetState = bottomSheetState,
             scope = scope,
             onAction = { action ->
-                when(action) {
+                when (action) {
                     DashboardAction.OnSettingsClicked -> {
                         onRequestAuthentication {
-                            viewModel.onAction(DashboardAction.OnSettingsClicked)
+                            viewModel.onAction(action)
                         }
                     }
+
+                    is DashboardAction.UpdatedBottomSheet -> {
+                        if (action.showSheet) {
+                            onRequestAuthentication {
+                                viewModel.onAction(action)
+                            }
+                        } else {
+                            viewModel.onAction(action)
+                        }
+                    }
+
                     else -> viewModel.onAction(action)
                 }
             }
@@ -148,15 +154,11 @@ fun DashboardScreen(
                 .fillMaxHeight()
                 .windowInsetsPadding(WindowInsets.statusBars)
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                CreateTransactionScreenRoot(
-                    onDismiss = {
-                        onAction(DashboardAction.UpdatedBottomSheet(false))
-                    }
-                )
-            }
+            CreateTransactionScreenRoot(
+                onDismiss = {
+                    onAction(DashboardAction.UpdatedBottomSheet(false))
+                }
+            )
         }
     }
 
@@ -183,7 +185,7 @@ fun DashboardScreen(
             ExManagerFloatingActionButton(
                 onClick = {
                     scope.launch {
-                        onAction(DashboardAction.OnCreateTransactionClicked)
+                        onAction(DashboardAction.UpdatedBottomSheet(true))
                     }
                 }
             )
