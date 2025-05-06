@@ -77,7 +77,7 @@ import java.time.Month
 fun DashboardScreenRoot(
     onNavigateToSettings: () -> Unit,
     onNavigateToAllTransactions: () -> Unit,
-    onRequestCreateTransaction: (onVerified: () -> Unit) -> Unit,
+    onRequestAuthentication: (onVerified: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = koinViewModel(),
 ) {
@@ -93,7 +93,7 @@ fun DashboardScreenRoot(
             DashboardEvent.NavigateToAllTransactions -> onNavigateToAllTransactions()
             DashboardEvent.NavigateToSettings -> onNavigateToSettings()
             DashboardEvent.RequestCreateTransaction -> {
-                onRequestCreateTransaction {
+                onRequestAuthentication {
                     viewModel.onAction(DashboardAction.UpdatedBottomSheet(true))
                 }
             }
@@ -109,7 +109,16 @@ fun DashboardScreenRoot(
             snackBarHostState = snackBarHostState,
             bottomSheetState = bottomSheetState,
             scope = scope,
-            onAction = viewModel::onAction
+            onAction = { action ->
+                when(action) {
+                    DashboardAction.OnSettingsClicked -> {
+                        onRequestAuthentication {
+                            viewModel.onAction(DashboardAction.OnSettingsClicked)
+                        }
+                    }
+                    else -> viewModel.onAction(action)
+                }
+            }
         )
     }
 }

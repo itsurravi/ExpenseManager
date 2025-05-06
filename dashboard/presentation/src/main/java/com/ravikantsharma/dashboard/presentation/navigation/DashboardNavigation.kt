@@ -29,7 +29,7 @@ fun NavGraphBuilder.dashboardNavGraph(
                         )
                     )
                 },
-                onRequestCreateTransaction = { onAuthSuccessCallback ->
+                onRequestAuthentication = { onAuthSuccessCallback ->
                     navigationRequestHandler.runWithAuthCheck {
                         onAuthSuccessCallback.invoke()
                     }
