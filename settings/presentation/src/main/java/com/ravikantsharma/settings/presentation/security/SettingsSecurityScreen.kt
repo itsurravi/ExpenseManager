@@ -26,6 +26,7 @@ import com.ravikantsharma.core.domain.model.BiometricPromptStatus
 import com.ravikantsharma.core.domain.model.LockoutDuration
 import com.ravikantsharma.core.domain.model.SessionDuration
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
@@ -53,6 +54,7 @@ fun SettingsSecurityScreenRoot(
                     "Security Preferences saved successfully!",
                     Toast.LENGTH_SHORT
                 ).show()
+                onNavigateBack()
             }
         }
     }
@@ -80,13 +82,11 @@ fun SettingsSecurityScreen(
     uiState: SettingsSecurityViewState,
     onAction: (SettingsSecurityAction) -> Unit
 ) {
-    Scaffold(
+    ExManagerScaffold(
         containerColor = Color.Transparent,
         topBar = {
             ExManagerTopBar(
-                modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 title = "Security",
                 titleColor = MaterialTheme.colorScheme.onSurface,
                 onStartIconClick = {

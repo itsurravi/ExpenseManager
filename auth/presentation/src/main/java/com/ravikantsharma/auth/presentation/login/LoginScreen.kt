@@ -11,16 +11,18 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -39,7 +41,6 @@ import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExMa
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ExManagerTextField
 import com.ravikantsharma.ui.ObserveAsEvent
 import com.ravikantsharma.ui.showTimedSnackBar
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -91,6 +92,12 @@ fun LoginScreen(
     snackBarHostState: SnackbarHostState,
     onAction: (LoginAction) -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     ExManagerScaffold(
         snackbarHost = {
             ExManagerSnackBarHost(snackBarHostState)
@@ -127,11 +134,13 @@ fun LoginScreen(
                     onAction(LoginAction.OnUsernameUpdate(it))
                 },
                 hint = stringResource(R.string.login_username),
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 36.dp
-                )
+                modifier = Modifier
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 36.dp
+                    )
+                    .focusRequester(focusRequester = focusRequester),
             )
 
             ExManagerTextField(
@@ -181,7 +190,7 @@ fun PreviewLoginScreen() {
             LoginScreen(
                 modifier = Modifier,
                 uiState = LoginViewState(),
-                SnackbarHostState()
+                snackBarHostState = SnackbarHostState()
             ) {
 
             }

@@ -11,6 +11,7 @@ import com.ravikantsharma.session_management.domain.model.SessionData
 import com.ravikantsharma.session_management.domain.repository.SessionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -45,7 +46,7 @@ class SessionRepositoryImpl(
                     "Saving session with expiration at ${formatTime(expirationTime)}"
                 )
                 dataStore.updateData { prefs ->
-                    // ✅ Save session data with updated expiration time
+                    // Save session data with updated expiration time
                     sessionData.copy(sessionExpiryTime = expirationTime).toProto()
                 }
             }
@@ -59,7 +60,7 @@ class SessionRepositoryImpl(
             TAG,
             "Clearing session expiration at ${formatTime(System.currentTimeMillis())}"
         )
-        // ✅ Reset session data to default
+        // Reset session data to default
         dataStore.updateData {
             SessionPreferences.getDefaultInstance()
         }
@@ -81,7 +82,6 @@ class SessionRepositoryImpl(
 
     override fun getSessionData(): Flow<SessionData> {
         return dataStore.data.map { prefs ->
-            Log.d(TAG, "Fetching session data: $prefs")
             prefs.toDomain()
         }
     }
@@ -110,25 +110,28 @@ class SessionRepositoryImpl(
 
     override suspend fun resetSessionExpiry() {
         dataStore.updateData { prefs ->
-            val userPreference = preferencesRepository.getPreferences(prefs.userId).first()
-            when (userPreference) {
-                is Result.Success -> {
-                    val sessionExpiryDurationMins = userPreference.data.sessionDuration.getValueInLong()
-                    val newExpirationTime = System.currentTimeMillis() + (sessionExpiryDurationMins * MINUTES_TO_MILLIS)
-
-                    Log.d(
-                        TAG,
-                        "Resetting session expiry to ${formatTime(newExpirationTime)} using stored duration: $sessionExpiryDurationMins mins"
-                    )
-
-                    prefs.toBuilder()
-                        .setSessionExpiryTime(newExpirationTime)
-                        .build()
-                }
-
-                is Result.Error -> prefs
+            val currentTime = System.currentTimeMillis()
+            val userPreference = preferencesRepository.getPreferences(prefs.userId).firstOrNull()
+            if (userPreference !is Result.Success) {
+                Log.d(TAG, "Failed to fetch user preferences. Keeping old expiry.")
+                return@updateData prefs
             }
 
+            val newSessionExpiryDurationMins = userPreference.data.sessionDuration.getValueInLong()
+            val newExpirationTime = currentTime + (newSessionExpiryDurationMins * MINUTES_TO_MILLIS)
+
+            Log.d(
+                TAG,
+                "Resetting session expiry from ${formatTime(prefs.sessionExpiryTime)} to ${
+                    formatTime(
+                        newExpirationTime
+                    )
+                }"
+            )
+
+            prefs.toBuilder()
+                .setSessionExpiryTime(newExpirationTime)
+                .build()
         }
     }
 }

@@ -34,6 +34,7 @@ import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LoginIcon
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerEnterPin
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerPinPad
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.session_management.presentation.R
@@ -88,7 +89,7 @@ private fun PinPromptScreen(
     uiState: PinPromptState,
     onAction: (PinPromptAction) -> Unit
 ) {
-    Scaffold(
+    ExManagerScaffold(
         containerColor = Color.Transparent,
         snackbarHost = {
             ExManagerSnackBarHost(snackbarHostState)
@@ -151,7 +152,7 @@ private fun PinPromptScreen(
                 ExManagerPinPad(
                     isLocked = uiState.isExceededFailedAttempts,
                     modifier = Modifier.padding(top = 32.dp),
-                    hasBiometricButton = true,
+                    hasBiometricButton = uiState.isBiometricsEnabled,
                     onNumberPressedClicked = {
                         onAction(PinPromptAction.OnNumberPressed(it))
                     },

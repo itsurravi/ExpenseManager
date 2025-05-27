@@ -30,7 +30,7 @@ class CreatePinViewModel(
         viewModelScope.launch {
             when (action) {
                 CreatePinAction.OnBackPressed -> {
-                    _eventChannel.send(CreatePinEvent.NavigateToRegisterScreen)
+                    _eventChannel.send(CreatePinEvent.OnBackClick)
                 }
 
                 CreatePinAction.OnDeletePressed -> {
@@ -54,6 +54,11 @@ class CreatePinViewModel(
                     val updatedPin = _uiState.value.pin
                     if (updatedPin.length == MAX_PIN_LENGTH) {
                         if (createPinScreenData?.pin == null) {
+                            _uiState.update {
+                                it.copy(
+                                    pin = ""
+                                )
+                            }
                             _eventChannel.send(
                                 CreatePinEvent.NavigateToConfirmPinScreen(
                                     CreatePinScreenData(
@@ -75,6 +80,11 @@ class CreatePinViewModel(
                             }
                             resetState()
                         } else {
+                            _uiState.update {
+                                it.copy(
+                                    pin = ""
+                                )
+                            }
                             _eventChannel.send(CreatePinEvent.PinsDoNotMatch)
                         }
                     }

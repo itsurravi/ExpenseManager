@@ -31,6 +31,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.CategorySele
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.UpdateDialogStatusBarAppearance
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -43,6 +44,7 @@ fun ExportTransactionsScreenRoot(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    UpdateDialogStatusBarAppearance(isDarkStatusBarIcons = false)
     ObserveAsEvent(viewModel.events) { event ->
         when (event) {
             ExportTransactionsEvent.CloseBottomSheet -> onDismiss()

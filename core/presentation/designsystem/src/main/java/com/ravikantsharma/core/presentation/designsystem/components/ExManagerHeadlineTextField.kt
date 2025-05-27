@@ -46,6 +46,7 @@ fun ExManagerHeadlineTextField(
 
     BasicTextField(
         value = value,
+        maxLines = 1,
         onValueChange = onValueChange,
         textStyle = MaterialTheme.typography.displayMedium.copy(
             textAlign = TextAlign.Center

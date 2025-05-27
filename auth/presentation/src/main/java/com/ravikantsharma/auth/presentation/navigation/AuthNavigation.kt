@@ -21,6 +21,7 @@ import com.ravikantsharma.ui.navigation.RegisterRoute
 import com.ravikantsharma.ui.navigation.navigateToConfirmPinScreen
 import com.ravikantsharma.ui.navigation.navigateToCreatePinScreen
 import com.ravikantsharma.ui.navigation.navigateToLoginRoute
+import com.ravikantsharma.ui.navigation.navigateToPreferencesScreen
 import com.ravikantsharma.ui.navigation.navigateToRegisterScreen
 import kotlinx.serialization.serializer
 import kotlin.reflect.typeOf
@@ -79,8 +80,12 @@ fun NavGraphBuilder.authGraph(
                         }
                     }
                 },
-                onNavigateToRegisterScreen = {
-                    navController.navigateToRegisterScreen()
+                onBackClick = {
+                    navController.navigateToRegisterScreen {
+                        popUpTo<AuthBaseRoute> {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
@@ -89,11 +94,15 @@ fun NavGraphBuilder.authGraph(
             typeMap = mapOf(typeOf<CreatePinScreenData>() to SerializableNavType.create(serializer<CreatePinScreenData>()))
         ) {
             ConfirmPinScreenRoot(
-                onNavigateToRegisterScreen = {
-                    navController.navigateToRegisterScreen()
+                onBackClick = {
+                    navController.popBackStack()
                 },
                 onNavigateToPreferencesScreen = {
-
+                    navController.navigateToPreferencesScreen(it) {
+                        popUpTo<ConfirmPinRoute> {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
@@ -102,10 +111,8 @@ fun NavGraphBuilder.authGraph(
             typeMap = mapOf(typeOf<PreferencesScreenData>() to SerializableNavType.create(serializer<PreferencesScreenData>()))
         ) {
             OnboardingPreferencesScreenRoot(
-                onNavigateToRegisterScreen = {
-                    navController.navigateToRegisterScreen {
-                        popUpTo<RegisterRoute>()
-                    }
+                onNavigateBack = {
+                    navController.popBackStack()
                 },
                 onNavigateToDashboardScreen = onNavigateToDashboardScreen
             )

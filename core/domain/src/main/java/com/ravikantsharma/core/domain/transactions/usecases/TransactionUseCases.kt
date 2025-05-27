@@ -25,7 +25,9 @@ data class TransactionUseCases(
     val getPreviousWeekTotalUseCase: GetPreviousWeekTotalUseCase,
     val getTransactionsGroupedByDateUseCase: GetTransactionsGroupedByDateUseCase,
     val getNextRecurringDateUseCase: GetNextRecurringDateUseCase,
-    val processRecurringTransactionsUseCase: ProcessRecurringTransactionsUseCase
+    val processRecurringTransactionsUseCase: ProcessRecurringTransactionsUseCase,
+    val validateTransactionNameUseCase: ValidateTransactionNameUseCase,
+    val validateNoteUseCase: ValidateNoteUseCase
 )
 
 class InsertTransactionUseCase(
@@ -153,6 +155,27 @@ class GetNextRecurringDateUseCase {
             RecurringType.YEARLY -> {
                 lastTransactionDate?.plusYears(1) ?: startDate.plusYears(1)
             }
+        }
+    }
+}
+
+class ValidateTransactionNameUseCase {
+    operator fun invoke(input: String, previousValue: String): String {
+        return when {
+            input.isBlank() -> ""
+            input.all { it.isLetterOrDigit() || it.isWhitespace() } -> input
+            else -> previousValue
+        }
+    }
+}
+
+
+class ValidateNoteUseCase {
+    operator fun invoke(input: String, previousValue: String): String {
+        return when {
+            input.isBlank() -> ""
+            input.length <= 100 -> input
+            else -> previousValue
         }
     }
 }

@@ -46,7 +46,7 @@ class DashboardViewModel(
 
     private var preference: UserPreferences? = null
 
-    private val isLaunchedFromWidget =
+    private var isLaunchedFromWidget =
         savedStateHandle.toRoute<DashboardScreenRoute>().isLaunchedFromWidget
 
     init {
@@ -56,20 +56,25 @@ class DashboardViewModel(
     private fun fetchTransactions() {
         viewModelScope.launch {
             val sessionData = sessionUseCases.getSessionDataUseCase().first()
+
             val preferenceFlow = sessionPreferenceUseCase.getPreferencesUseCase(sessionData.userId)
             val transactionFlow = transactionUseCases.getTransactionsForUserUseCase(
                 userId = sessionData.userId,
                 limit = FETCH_TRANSACTIONS_LIMIT
             )
-            val actionBalanceFlow = transactionUseCases.getAccountBalanceUseCase(sessionData.userId)
-            val popularCategoryFlow = transactionUseCases.getMostPopularExpenseCategoryUseCase(sessionData.userId)
-            val largestTransactionFlow = transactionUseCases.getLargestTransactionUseCase(sessionData.userId)
-            val previousWeekTotalFlow = transactionUseCases.getPreviousWeekTotalUseCase(sessionData.userId)
+            val accountBalanceFlow =
+                transactionUseCases.getAccountBalanceUseCase(sessionData.userId)
+            val popularCategoryFlow =
+                transactionUseCases.getMostPopularExpenseCategoryUseCase(sessionData.userId)
+            val largestTransactionFlow =
+                transactionUseCases.getLargestTransactionUseCase(sessionData.userId)
+            val previousWeekTotalFlow =
+                transactionUseCases.getPreviousWeekTotalUseCase(sessionData.userId)
 
             combine(
                 preferenceFlow,
                 transactionFlow,
-                actionBalanceFlow,
+                accountBalanceFlow,
                 popularCategoryFlow,
                 largestTransactionFlow,
                 previousWeekTotalFlow
@@ -81,7 +86,7 @@ class DashboardViewModel(
                     array[2] as Result<BigDecimal, DataError>,
                     array[3] as Result<TransactionCategory?, DataError>,
                     array[4] as Result<Transaction?, DataError>,
-                    array[5] as Result<BigDecimal, DataError>,
+                    array[5] as Result<BigDecimal, DataError>
                 )
             }.onEach { (
                            sessionData: SessionData,
@@ -118,8 +123,9 @@ class DashboardViewModel(
                             showCreateTransactionSheet = isLaunchedFromWidget
                         )
                     }
+                    isLaunchedFromWidget = false
                 }
-            }
+            }.launchIn(viewModelScope)
         }
     }
 

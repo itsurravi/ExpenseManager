@@ -93,7 +93,10 @@ class SettingsSecurityViewModel(
 
             viewModelScope.launch {
                 when (settingsPreferenceUseCase.setPreferencesUseCase(userPreferencesUpdated)) {
-                    is Result.Success -> sendEvent(SettingsSecurityEvent.SecuritySettingsSaved)
+                    is Result.Success -> {
+                        sessionUseCases.resetSessionExpiryUseCase()
+                        sendEvent(SettingsSecurityEvent.SecuritySettingsSaved)
+                    }
                     is Result.Error -> Unit
                 }
             }

@@ -13,13 +13,12 @@ import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreen
 import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import com.ravikantsharma.ui.ObserveAsEvent
 import com.ravikantsharma.ui.showTimedSnackBar
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ConfirmPinScreenRoot(
     modifier: Modifier = Modifier,
-    onNavigateToRegisterScreen: () -> Unit,
+    onBackClick: () -> Unit,
     onNavigateToPreferencesScreen: (PreferencesScreenData) -> Unit,
     viewModel: CreatePinViewModel = koinViewModel()
 ) {
@@ -30,7 +29,7 @@ fun ConfirmPinScreenRoot(
 
     ObserveAsEvent(viewModel.events) { event ->
         when (event) {
-            CreatePinEvent.NavigateToRegisterScreen -> onNavigateToRegisterScreen()
+            CreatePinEvent.OnBackClick -> onBackClick()
             CreatePinEvent.PinsDoNotMatch -> {
                 scope.showTimedSnackBar(
                     snackBarHostState = snackBarHostState,

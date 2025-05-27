@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,16 +27,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.login.component.ExManagerClickableText
-import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import com.ravikantsharma.core.presentation.designsystem.ArrowForward
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LoginIcon
-import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerHeadlineTextField
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
+import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import com.ravikantsharma.ui.showTimedSnackBar
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -102,9 +100,12 @@ fun RegisterScreen(
     snackBarHostState: SnackbarHostState,
     onAction: (RegisterAction) -> Unit
 ) {
-    Scaffold(containerColor = Color.Transparent, snackbarHost = {
-        ExManagerSnackBarHost(snackBarHostState)
-    }) { contentPadding ->
+    ExManagerScaffold(
+        containerColor = Color.Transparent,
+        snackbarHost = {
+            ExManagerSnackBarHost(snackBarHostState)
+        }
+    ) { contentPadding ->
         Column(
             modifier = modifier
                 .fillMaxSize()

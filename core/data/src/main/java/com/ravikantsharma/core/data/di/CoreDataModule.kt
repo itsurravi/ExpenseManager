@@ -31,6 +31,8 @@ import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsGroup
 import com.ravikantsharma.core.domain.transactions.usecases.InsertTransactionUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.ProcessRecurringTransactionsUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
+import com.ravikantsharma.core.domain.transactions.usecases.ValidateNoteUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.ValidateTransactionNameUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -61,9 +63,13 @@ val coreDataModule = module {
     factory { GetPreviousWeekTotalUseCase(get()) }
     factory { GetTransactionsGroupedByDateUseCase() }
     factory { GetNextRecurringDateUseCase() }
+    factory { ValidateTransactionNameUseCase() }
+    factory { ValidateNoteUseCase() }
     factory { ProcessRecurringTransactionsUseCase(get(), get(), get()) }
     single {
         TransactionUseCases(
+            get(),
+            get(),
             get(),
             get(),
             get(),

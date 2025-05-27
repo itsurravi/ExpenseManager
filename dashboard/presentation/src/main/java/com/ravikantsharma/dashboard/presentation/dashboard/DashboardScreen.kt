@@ -73,7 +73,6 @@ import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.Month
-import kotlin.invoke
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,7 +202,7 @@ fun DashboardScreen(
     }
 
     ExManagerScaffold(
-        topAppBar = {
+        topBar = {
             ExManagerTopBar(
                 modifier = Modifier
                     .windowInsetsPadding(WindowInsets.statusBars)

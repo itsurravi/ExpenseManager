@@ -15,6 +15,7 @@ import com.ravikantsharma.ui.navigateToRoute
 import com.ravikantsharma.ui.navigation.AuthBaseRoute
 import com.ravikantsharma.ui.navigation.SessionBaseRoute
 import com.ravikantsharma.ui.navigation.navigateToLoginRoute
+import com.ravikantsharma.ui.navigation.navigateToPinPromptScreen
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -36,8 +37,11 @@ class MainActivity : ComponentActivity() {
                 if (!uiState.isCheckingAuth) {
                     val navController = rememberNavController()
                     LaunchedEffect(uiState.showPinPrompt) {
-                        if (uiState.showPinPrompt) {
-                            navController.navigate(SessionBaseRoute)
+                        navController.navigateToPinPromptScreen {
+                            popUpTo<SessionBaseRoute> {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
                         }
                     }
 
@@ -59,7 +63,9 @@ class MainActivity : ComponentActivity() {
                         },
                         onLogout = {
                             navController.navigateToLoginRoute {
-                                popUpTo<AuthBaseRoute>()
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
                             }
                         },
                         authNavigationDestination = uiState.authNavigationDestination

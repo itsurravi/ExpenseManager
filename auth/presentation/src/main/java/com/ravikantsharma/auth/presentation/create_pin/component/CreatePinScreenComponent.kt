@@ -24,6 +24,7 @@ import com.ravikantsharma.auth.presentation.create_pin.CreatePinState
 import com.ravikantsharma.core.presentation.designsystem.LoginIcon
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerEnterPin
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerPinPad
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 
@@ -36,7 +37,7 @@ fun CreatePinScreenComponent(
     uiState: CreatePinState,
     onAction: (CreatePinAction) -> Unit,
 ) {
-    Scaffold(
+    ExManagerScaffold(
         containerColor = Color.Transparent,
         snackbarHost = {
             ExManagerSnackBarHost(snackbarHostState)

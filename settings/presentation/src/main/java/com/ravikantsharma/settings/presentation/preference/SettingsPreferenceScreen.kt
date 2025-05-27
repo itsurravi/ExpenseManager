@@ -35,6 +35,7 @@ import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.components.CategorySelector
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
@@ -60,6 +61,7 @@ fun SettingsPreferenceScreenRoot(
             SettingsPreferencesEvent.PreferencesSaved -> {
                 Toast.makeText(context, "Preferences saved successfully!", Toast.LENGTH_SHORT)
                     .show()
+                onNavigateBack()
             }
         }
     }
@@ -87,12 +89,11 @@ fun SettingsPreferencesScreen(
     uiState: SettingsPreferencesViewState,
     onAction: (SettingsPreferencesAction) -> Unit
 ) {
-    Scaffold(containerColor = Color.Transparent,
+    ExManagerScaffold(
+        containerColor = Color.Transparent,
         topBar = {
             ExManagerTopBar(
-                modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 title = "Preferences",
                 titleColor = MaterialTheme.colorScheme.onSurface,
                 onStartIconClick = {

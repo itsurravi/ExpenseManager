@@ -36,6 +36,7 @@ import com.ravikantsharma.core.presentation.designsystem.ExitIcon
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LockIcon
 import com.ravikantsharma.core.presentation.designsystem.SettingsButton
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.ui.ObserveAsEvent
 import org.koin.androidx.compose.koinViewModel
@@ -73,12 +74,10 @@ fun SettingsHomeScreen(
     uiState: SettingsHomeViewState,
     onAction: (SettingsHomeAction) -> Unit
 ) {
-    Scaffold(
+    ExManagerScaffold(
         topBar = {
             ExManagerTopBar(
-                modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp),
                 title = "Settings",
                 titleColor = MaterialTheme.colorScheme.onSurface,
                 onStartIconClick = {
