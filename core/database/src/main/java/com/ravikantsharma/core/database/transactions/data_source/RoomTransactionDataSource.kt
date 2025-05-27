@@ -7,11 +7,12 @@ import com.ravikantsharma.core.database.transactions.utils.toTransactionEntity
 import com.ravikantsharma.core.domain.model.RecurringType
 import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.security.EncryptionService
+import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.data_source.LocalTransactionDataSource
 import com.ravikantsharma.core.domain.transactions.model.Transaction
-import com.ravikantsharma.core.domain.utils.CalendarUtils
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
+import com.ravikantsharma.core.domain.utils.getPreviousWeekRange
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -21,7 +22,8 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class RoomTransactionDataSource(
     private val transactionsDao: TransactionsDao,
-    private val encryptionService: EncryptionService
+    private val encryptionService: EncryptionService,
+    private val timeProvider: TimeProvider
 ) : LocalTransactionDataSource {
 
     override suspend fun upsertTransaction(transaction: Transaction): Result<Unit, DataError> {
@@ -133,7 +135,7 @@ class RoomTransactionDataSource(
     }
 
     override fun getPreviousWeekTotal(userId: Long): Flow<Result<BigDecimal, DataError>> {
-        val (startDate, endDate) = CalendarUtils.getPreviousWeekRange()
+        val (startDate, endDate) = timeProvider.currentLocalDateTime.getPreviousWeekRange()
         Log.d("hrishiiii", "Start of previous week: $startDate")
         Log.d("hrishiiii", "End of previous week: $endDate")
         return transactionsDao.getPreviousWeekTransactionAmounts(userId, startDate, endDate)

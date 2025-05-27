@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
+import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
 import com.ravikantsharma.core.domain.utils.CalendarUtils
@@ -32,7 +33,8 @@ import java.math.BigDecimal
 class CreateTransactionViewModel(
     private val sessionUseCase: SessionUseCases,
     private val settingsPreferenceUseCase: SettingsPreferenceUseCase,
-    private val transactionsUseCases: TransactionUseCases
+    private val transactionsUseCases: TransactionUseCases,
+    private val timeProvider: TimeProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(initialUiState())
@@ -78,7 +80,8 @@ class CreateTransactionViewModel(
             transactionCategoryType = TransactionCategoryTypeUI.OTHER,
             showExpenseCategoryType = isExpenseCategoryTypeVisible(transactionType),
             recurringType = RecurringTypeUI.ONE_TIME,
-            isCreateButtonEnabled = false
+            isCreateButtonEnabled = false,
+            currentTime = timeProvider.currentLocalDateTime
         )
     }
 
@@ -177,8 +180,8 @@ class CreateTransactionViewModel(
                     } else {
                         uiState.transactionCategoryType.toTransactionCategory()
                     },
-                    transactionDate = CalendarUtils.currentEstTime,
-                    recurringStartDate = CalendarUtils.currentEstTime,
+                    transactionDate = timeProvider.currentLocalDateTime,
+                    recurringStartDate = timeProvider.currentLocalDateTime,
                     recurringTransactionId = null,
                     recurringType = recurringType,
                     nextRecurringDate = nextRecurringDate,

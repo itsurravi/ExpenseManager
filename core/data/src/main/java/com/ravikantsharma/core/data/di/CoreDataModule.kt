@@ -1,11 +1,15 @@
 package com.ravikantsharma.core.data.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.ravikantsharma.core.data.export.repository.ExportRepositoryImpl
 import com.ravikantsharma.core.data.repository.TransactionRepositoryImpl
 import com.ravikantsharma.core.data.repository.UserInfoRepositoryImpl
 import com.ravikantsharma.core.data.repository.UserPreferencesRepositoryImpl
 import com.ravikantsharma.core.data.security.AesEncryptionService
 import com.ravikantsharma.core.data.security.KeyManager
+import com.ravikantsharma.core.data.time.SystemTimeProvider
+import com.ravikantsharma.core.data.time.TrustedTimeProvider
 import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
 import com.ravikantsharma.core.domain.auth.usecases.GetUserInfoUseCase
 import com.ravikantsharma.core.domain.auth.usecases.UserInfoUseCases
@@ -19,6 +23,7 @@ import com.ravikantsharma.core.domain.preference.usecase.SetPreferencesUseCase
 import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
 import com.ravikantsharma.core.domain.preference.usecase.ValidateSelectedPreferences
 import com.ravikantsharma.core.domain.security.EncryptionService
+import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.repository.TransactionRepository
 import com.ravikantsharma.core.domain.transactions.usecases.GetAccountBalanceUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetDueRecurringTransactionsUseCase
@@ -33,14 +38,28 @@ import com.ravikantsharma.core.domain.transactions.usecases.ProcessRecurringTran
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
 import com.ravikantsharma.core.domain.transactions.usecases.ValidateNoteUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.ValidateTransactionNameUseCase
+import com.ravikantsharma.data.BuildConfig
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import java.time.ZoneId
 
+@RequiresApi(Build.VERSION_CODES.O)
 val coreDataModule = module {
     single { NumberFormatter }
     single { KeyManager.getOrCreateSecretKey() }
     single<EncryptionService> { AesEncryptionService(get()) }
+
+    single { ZoneId.of("Asia/Kolkata") }
+    single<TimeProvider> {
+        val useTrustedTime = BuildConfig.IS_TRUSTED_TIME_ENABLED
+        if (useTrustedTime) {
+            TrustedTimeProvider(androidContext(), get())
+        } else {
+            SystemTimeProvider(get())
+        }
+    }
 
     singleOf(::UserPreferencesRepositoryImpl).bind<UserPreferencesRepository>()
 
@@ -61,11 +80,11 @@ val coreDataModule = module {
     factory { GetMostPopularExpenseCategoryUseCase(get()) }
     factory { GetLargestTransactionUseCase(get()) }
     factory { GetPreviousWeekTotalUseCase(get()) }
-    factory { GetTransactionsGroupedByDateUseCase() }
-    factory { GetNextRecurringDateUseCase() }
+    factory { GetTransactionsGroupedByDateUseCase(get()) }
+    factory { GetNextRecurringDateUseCase(get()) }
     factory { ValidateTransactionNameUseCase() }
     factory { ValidateNoteUseCase() }
-    factory { ProcessRecurringTransactionsUseCase(get(), get(), get()) }
+    factory { ProcessRecurringTransactionsUseCase(get(), get(), get(), get()) }
     single {
         TransactionUseCases(
             get(),

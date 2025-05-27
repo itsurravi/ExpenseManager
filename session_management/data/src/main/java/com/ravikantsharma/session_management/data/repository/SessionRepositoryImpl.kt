@@ -3,7 +3,9 @@ package com.ravikantsharma.session_management.data.repository
 import android.util.Log
 import androidx.datastore.core.DataStore
 import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
+import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.utils.Result
+import com.ravikantsharma.core.domain.utils.toEpochMillis
 import com.ravikantsharma.session_management.data.SessionPreferences
 import com.ravikantsharma.session_management.data.utils.toDomain
 import com.ravikantsharma.session_management.data.utils.toProto
@@ -17,10 +19,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.compareTo
+import kotlin.text.compareTo
 
 class SessionRepositoryImpl(
     private val dataStore: DataStore<SessionPreferences>,
-    private val preferencesRepository: UserPreferencesRepository
+    private val preferencesRepository: UserPreferencesRepository,
+    private val timeProvider: TimeProvider
 ) : SessionRepository {
 
     companion object {
@@ -40,7 +44,7 @@ class SessionRepositoryImpl(
         when (userPreferences) {
             is Result.Success -> {
                 val expirationTime =
-                    System.currentTimeMillis() + (userPreferences.data.sessionDuration.getValueInLong() * MINUTES_TO_MILLIS)
+                    timeProvider.currentLocalDateTime.toEpochMillis() + (userPreferences.data.sessionDuration.getValueInLong() * MINUTES_TO_MILLIS)
                 Log.d(
                     TAG,
                     "Saving session with expiration at ${formatTime(expirationTime)}"
@@ -58,7 +62,7 @@ class SessionRepositoryImpl(
     override suspend fun clearSession() {
         Log.d(
             TAG,
-            "Clearing session expiration at ${formatTime(System.currentTimeMillis())}"
+            "Clearing session expiration at ${formatTime(timeProvider.currentLocalDateTime.toEpochMillis())}"
         )
         // Reset session data to default
         dataStore.updateData {
@@ -75,7 +79,10 @@ class SessionRepositoryImpl(
                 return@updateData prefs
             }
 
-            Log.d(TAG, "setSessionToExpired at ${formatTime(System.currentTimeMillis())}")
+            Log.d(
+                TAG,
+                "setSessionToExpired at ${formatTime(timeProvider.currentLocalDateTime.toEpochMillis())}"
+            )
             prefs.toBuilder().setSessionExpiryTime(0L).build()
         }
     }
@@ -89,7 +96,7 @@ class SessionRepositoryImpl(
     override fun isSessionExpired(): Flow<Boolean> {
         return dataStore.data.map { prefs ->
             val hasValidUser = prefs.userId > 0L
-            val isExpired = System.currentTimeMillis() >= prefs.sessionExpiryTime
+            val isExpired = timeProvider.currentLocalDateTime.toEpochMillis() >= prefs.sessionExpiryTime
 
             if (!hasValidUser) {
                 Log.d(TAG, "No valid user session found. Returning expired=false.")
@@ -98,7 +105,7 @@ class SessionRepositoryImpl(
 
             Log.d(
                 TAG,
-                "Checking session expired: $isExpired at ${formatTime(System.currentTimeMillis())}"
+                "Checking session expired: $isExpired at ${formatTime(timeProvider.currentLocalDateTime.toEpochMillis())}"
             )
             Log.d(TAG, "Session expires at ${formatTime(prefs.sessionExpiryTime)}")
             if (isExpired) {
@@ -110,7 +117,7 @@ class SessionRepositoryImpl(
 
     override suspend fun resetSessionExpiry() {
         dataStore.updateData { prefs ->
-            val currentTime = System.currentTimeMillis()
+            val currentTime = timeProvider.currentLocalDateTime.toEpochMillis()
             val userPreference = preferencesRepository.getPreferences(prefs.userId).firstOrNull()
             if (userPreference !is Result.Success) {
                 Log.d(TAG, "Failed to fetch user preferences. Keeping old expiry.")
