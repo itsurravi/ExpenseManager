@@ -3,12 +3,11 @@ package com.ravikantsharma.core.database.transactions.utils
 import com.ravikantsharma.core.database.transactions.entity.TransactionEntity
 import com.ravikantsharma.core.domain.model.RecurringType
 import com.ravikantsharma.core.domain.model.TransactionCategory
-import com.ravikantsharma.core.domain.security.EncryptionService
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import java.math.BigDecimal
 
 
-fun Transaction.toTransactionEntity(encryptionService: EncryptionService): TransactionEntity {
+fun Transaction.toTransactionEntity(): TransactionEntity {
     return TransactionEntity(
         transactionId = this.transactionId ?: 0L,
         userId = this.userId,
@@ -25,7 +24,7 @@ fun Transaction.toTransactionEntity(encryptionService: EncryptionService): Trans
     )
 }
 
-fun TransactionEntity.toTransaction(encryptionService: EncryptionService): Transaction {
+fun TransactionEntity.toTransaction(): Transaction {
     return Transaction(
         transactionId = this.transactionId,
         userId = this.userId,

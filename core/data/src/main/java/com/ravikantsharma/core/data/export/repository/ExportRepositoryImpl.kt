@@ -16,8 +16,12 @@ import com.ravikantsharma.core.domain.transactions.repository.TransactionReposit
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.core.domain.utils.toISODateString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import kotlin.coroutines.cancellation.CancellationException
 
 class ExportRepositoryImpl(
     private val context: Context,
@@ -49,7 +53,7 @@ class ExportRepositoryImpl(
         userId: Long,
         userPreference: UserPreferences
     ): Result<Boolean, DataError> {
-        fun handleExport(data: List<Transaction>): Result<Boolean, DataError> {
+        suspend fun handleExport(data: List<Transaction>): Result<Boolean, DataError> {
             val exportResult = writeTransactionsToCsv(data, userPreference)
             return if (exportResult) {
                 Result.Success(true)
@@ -76,18 +80,19 @@ class ExportRepositoryImpl(
                 is Result.Error -> Result.Error(transactionsResult.error)
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
         }
     }
 
-    private fun writeTransactionsToCsv(
+    private suspend fun writeTransactionsToCsv(
         transactions: List<Transaction>,
         userPreference: UserPreferences
-    ): Boolean {
+    ): Boolean = withContext(Dispatchers.IO) {
 
         if (transactions.isEmpty()) {
             Timber.tag(EXPORT_TAG).e("No transactions to export!")
-            return false
+            return@withContext false
         }
 
         val csvContent = buildString {
@@ -111,16 +116,19 @@ class ExportRepositoryImpl(
             MediaStore.Files.getContentUri("external")
         }
 
-        return runCatching {
-            resolver.insert(contentUri, contentValues)?.let { uri ->
-                resolver.openOutputStream(uri)?.use { outputStream ->
-                    outputStream.write(csvContent.toByteArray())
-                    Timber.tag(EXPORT_TAG).d("CSV successfully written to $uri")
-                    true
-                }
-            } ?: false
-        }.getOrElse {
-            Timber.tag(EXPORT_TAG).e(it, "Failed to write CSV")
+        return@withContext runCatching {
+            withContext(NonCancellable) {
+                resolver.insert(contentUri, contentValues)?.let { uri ->
+                    resolver.openOutputStream(uri)?.use { outputStream ->
+                        outputStream.write(csvContent.toByteArray())
+                        Timber.tag(EXPORT_TAG).d("CSV successfully written to $uri")
+                        true
+                    }
+                } ?: false
+            }
+        }.getOrElse {exception ->
+            if (exception is CancellationException) throw exception
+            Timber.tag(EXPORT_TAG).e(exception, "Failed to write CSV")
             false
         }
     }
