@@ -1,7 +1,7 @@
 package com.ravikantsharma.core.presentation.designsystem.model
 
 import androidx.annotation.DrawableRes
-import com.ravikantsharma.presentation.designsystem.R
+import com.ravikantsharma.core.presentation.designsystem.R
 
 enum class TransactionTypeUI(@DrawableRes val iconRes: Int) {
     EXPENSE(R.drawable.ic_expense),

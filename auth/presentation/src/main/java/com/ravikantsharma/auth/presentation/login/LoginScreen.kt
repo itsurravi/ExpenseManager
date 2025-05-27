@@ -38,6 +38,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSna
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ExManagerTextField
 import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.showTimedSnackBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -57,13 +58,10 @@ fun LoginScreenRoot(
     ObserveAsEvent(viewModel.events) { event ->
         when (event) {
             LoginEvent.IncorrectCredentials -> {
-                scope.launch {
-                    snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.login_error_username_or_pin_is_incorrect),
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                scope.showTimedSnackBar(
+                    snackBarHostState = snackBarHostState,
+                    message = context.getString(R.string.login_error_username_or_pin_is_incorrect)
+                )
             }
 
             LoginEvent.NavigateToRegisterScreen -> {

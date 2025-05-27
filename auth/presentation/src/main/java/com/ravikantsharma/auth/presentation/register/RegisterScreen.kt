@@ -37,6 +37,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExMa
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerHeadlineTextField
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.showTimedSnackBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -66,13 +67,10 @@ fun RegisterScreenRoot(
             }
 
             RegisterEvent.IncorrectUsername -> {
-                scope.launch {
-                    snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.common_incorrect_username_format),
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                scope.showTimedSnackBar(
+                    snackBarHostState = snackBarHostState,
+                    message = context.getString(R.string.common_incorrect_username_format)
+                )
             }
 
             is RegisterEvent.NavigateToPinScreen -> {
@@ -81,13 +79,10 @@ fun RegisterScreenRoot(
             }
 
             RegisterEvent.DuplicateUsername -> {
-                scope.launch {
-                    snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(
-                        message = context.getString(R.string.common_error_username_taken),
-                        duration = SnackbarDuration.Short
-                    )
-                }
+                scope.showTimedSnackBar(
+                    snackBarHostState = snackBarHostState,
+                    message = context.getString(R.string.common_error_username_taken)
+                )
             }
         }
     }

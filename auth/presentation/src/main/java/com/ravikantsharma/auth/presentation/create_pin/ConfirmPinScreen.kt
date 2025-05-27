@@ -12,6 +12,7 @@ import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
 import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.showTimedSnackBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -31,10 +32,10 @@ fun ConfirmPinScreenRoot(
         when (event) {
             CreatePinEvent.NavigateToRegisterScreen -> onNavigateToRegisterScreen()
             CreatePinEvent.PinsDoNotMatch -> {
-                scope.launch {
-                    snackBarHostState.currentSnackbarData?.dismiss()
-                    snackBarHostState.showSnackbar(context.getString(R.string.confirm_pin_error_pins_do_not_match))
-                }
+                scope.showTimedSnackBar(
+                    snackBarHostState = snackBarHostState,
+                    message = context.getString(R.string.confirm_pin_error_pins_do_not_match)
+                )
             }
 
             is CreatePinEvent.NavigateToPreferencesScreen -> onNavigateToPreferencesScreen(event.screenData)

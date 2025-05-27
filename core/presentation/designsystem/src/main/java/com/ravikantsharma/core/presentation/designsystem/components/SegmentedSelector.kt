@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.onPrimaryFixed
 import com.ravikantsharma.core.presentation.designsystem.primaryFixed
-import com.ravikantsharma.presentation.designsystem.R
+import com.ravikantsharma.core.presentation.designsystem.R
 
 @Composable
 fun <T> SegmentedSelector(

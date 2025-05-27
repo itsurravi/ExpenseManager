@@ -30,7 +30,13 @@ class RoomTransactionDataSource(
 
             val insertedId = transactionsDao.upsertTransaction(transactionEntity)
 
-            if (transactionEntity.recurringType != RecurringType.ONE_TIME && transactionEntity.recurringTransactionId == null) {
+            val decryptedRecurringType = try {
+                RecurringType.valueOf(transactionEntity.recurringType)
+            } catch (e: Exception) {
+                RecurringType.ONE_TIME
+            }
+
+            if (decryptedRecurringType != RecurringType.ONE_TIME && transactionEntity.recurringTransactionId == null) {
                 val updatedEntity = transactionEntity.copy(
                     transactionId = insertedId,
                     recurringTransactionId = insertedId
@@ -60,9 +66,12 @@ class RoomTransactionDataSource(
     override suspend fun getDueRecurringTransactions(currentDate: LocalDateTime): Result<List<Transaction>, DataError> {
         return try {
             val transactions = transactionsDao.getDueRecurringTransactions(currentDate)
+                .map { it.toTransaction(encryptionService) }
 
-            if (transactions.isNotEmpty()) {
-                Result.Success(transactions.map { it.toTransaction(encryptionService) })
+            val recurringTransactions = transactions.filter { it.recurringType != RecurringType.ONE_TIME }
+
+            if (recurringTransactions.isNotEmpty()) {
+                Result.Success(recurringTransactions)
             } else {
                 Result.Error(DataError.Local.TRANSACTION_FETCH_ERROR)
             }
@@ -72,11 +81,15 @@ class RoomTransactionDataSource(
     }
 
     override fun getAccountBalance(userId: Long): Flow<Result<BigDecimal, DataError>> {
-        return transactionsDao.getAccountBalance(userId)
-            .map { balanceString ->
+        return transactionsDao.getAllTransactionAmounts(userId)
+            .map { amounts ->
                 try {
-                    Result.Success(BigDecimal(balanceString))
-                } catch (e: NumberFormatException) {
+                    val total = amounts
+                        .mapNotNull { it.toBigDecimalOrNull() }
+                        .reduceOrNull(BigDecimal::add) ?: BigDecimal.ZERO
+
+                    Result.Success(total)
+                } catch (e: Exception) {
                     Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
                 }
             }
@@ -86,9 +99,19 @@ class RoomTransactionDataSource(
     }
 
     override fun getMostPopularExpenseCategory(userId: Long): Flow<Result<TransactionCategory?, DataError>> {
-        return transactionsDao.getMostPopularExpenseCategory(userId)
-            .map { category ->
-                Result.Success(category) as Result<TransactionCategory?, DataError>
+        return transactionsDao.getExpenseCategories(userId)
+            .map { categoriesStrings ->
+                val categories = categoriesStrings.mapNotNull { category ->
+                    TransactionCategory.entries.find { it.name == category }
+                }
+
+                val mostPopularCategory = categories
+                    .groupingBy { it }
+                    .eachCount()
+                    .maxByOrNull { it.value }
+                    ?.key
+
+                Result.Success(mostPopularCategory) as Result<TransactionCategory?, DataError>
             }
             .catch { exception ->
                 if (exception is CancellationException) throw exception
@@ -97,9 +120,12 @@ class RoomTransactionDataSource(
     }
 
     override fun getLargestTransaction(userId: Long): Flow<Result<Transaction?, DataError>> {
-        return transactionsDao.getLargestTransaction(userId)
-            .map { transactionEntity ->
-                Result.Success(transactionEntity?.toTransaction(encryptionService)) as Result<Transaction?, DataError>
+        return transactionsDao.getAllExpenses(userId)
+            .map { transactions ->
+                val decryptedTransactions = transactions.map { it.toTransaction(encryptionService) }
+                val largestTransaction = decryptedTransactions.minByOrNull { it.amount }
+
+                Result.Success(largestTransaction) as Result<Transaction?, DataError>
             }
             .catch {
                 emit(Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR))
@@ -108,13 +134,16 @@ class RoomTransactionDataSource(
 
     override fun getPreviousWeekTotal(userId: Long): Flow<Result<BigDecimal, DataError>> {
         val (startDate, endDate) = CalendarUtils.getPreviousWeekRange()
-        Log.d("ExpenseManager", "Start of previous week: $startDate")
-        Log.d("ExpenseManager", "End of previous week: $endDate")
-        return transactionsDao.getPreviousWeekTotal(userId, startDate, endDate)
-            .map { amount ->
+        Log.d("hrishiiii", "Start of previous week: $startDate")
+        Log.d("hrishiiii", "End of previous week: $endDate")
+        return transactionsDao.getPreviousWeekTransactionAmounts(userId, startDate, endDate)
+            .map { amounts ->
                 try {
-                    Result.Success(amount)
-                } catch (e: NumberFormatException) {
+                    val total = amounts
+                        .mapNotNull { it.toBigDecimalOrNull() }
+                        .reduceOrNull(BigDecimal::add) ?: BigDecimal.ZERO
+                    Result.Success(total)
+                } catch (e: Exception) {
                     Result.Error(DataError.Local.UNKNOWN_DATABASE_ERROR)
                 }
             }

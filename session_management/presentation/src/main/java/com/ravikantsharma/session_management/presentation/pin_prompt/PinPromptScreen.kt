@@ -39,6 +39,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTop
 import com.ravikantsharma.session_management.presentation.R
 import com.ravikantsharma.ui.ObserveAsEvent
 import com.ravikantsharma.ui.formatToTimeString
+import com.ravikantsharma.ui.showTimedSnackBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -64,10 +65,10 @@ fun PinPromptScreenRoot(
             PinPromptEvent.OnLogout -> onLogout()
             PinPromptEvent.OnSuccessPopBack -> onSuccessClick()
             PinPromptEvent.IncorrectPin -> {
-                snackBarHostState.currentSnackbarData?.dismiss()
-                scope.launch {
-                    snackBarHostState.showSnackbar(context.getString(R.string.error_incorrect_pin))
-                }
+                scope.showTimedSnackBar(
+                    snackBarHostState = snackBarHostState,
+                    message = context.getString(R.string.error_incorrect_pin)
+                )
             }
         }
     }

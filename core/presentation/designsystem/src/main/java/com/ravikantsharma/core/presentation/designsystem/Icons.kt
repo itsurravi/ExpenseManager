@@ -3,7 +3,7 @@ package com.ravikantsharma.core.presentation.designsystem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
-import com.ravikantsharma.presentation.designsystem.R
+import com.ravikantsharma.core.presentation.designsystem.R
 
 val LoginIcon: ImageVector
     @Composable

@@ -26,7 +26,6 @@ import com.ravikantsharma.core.domain.transactions.usecases.GetLargestTransactio
 import com.ravikantsharma.core.domain.transactions.usecases.GetMostPopularExpenseCategoryUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetNextRecurringDateUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetPreviousWeekTotalUseCase
-import com.ravikantsharma.core.domain.transactions.usecases.GetRecurringTransactionSeriesUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsForUserUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsGroupedByDateUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.InsertTransactionUseCase

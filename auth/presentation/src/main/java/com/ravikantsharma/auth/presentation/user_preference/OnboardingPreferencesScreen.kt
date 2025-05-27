@@ -42,6 +42,7 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTop
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.showTimedSnackBar
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
@@ -69,26 +70,16 @@ fun OnboardingPreferencesScreenRoot(
             }
 
             is OnboardingPreferencesEvent.Error -> {
-                snackBarHostState.currentSnackbarData?.dismiss()
-                when (event) {
-                    OnboardingPreferencesEvent.Error.DuplicateEntry -> {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = context.getString(R.string.common_error_username_taken),
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }
+                scope.showTimedSnackBar(
+                    snackBarHostState = snackBarHostState,
+                    message = when (event) {
+                        OnboardingPreferencesEvent.Error.DuplicateEntry ->
+                            context.getString(R.string.common_error_username_taken)
 
-                    OnboardingPreferencesEvent.Error.Generic -> {
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = context.getString(R.string.common_error_something_went_wrong),
-                                duration = SnackbarDuration.Short
-                            )
-                        }
+                        OnboardingPreferencesEvent.Error.Generic ->
+                            context.getString(R.string.common_error_something_went_wrong)
                     }
-                }
+                )
             }
         }
     }
