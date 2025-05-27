@@ -13,7 +13,8 @@ import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
 import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
+import kotlinx.coroutines.flow.Flow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -26,13 +27,11 @@ fun CreatePinScreenRoot(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    ObserveAsEvent(viewModel.events) { event ->
-        when (event) {
-            is CreatePinEvent.NavigateToConfirmPinScreen -> onNavigateToConfirmScreen(event.screenData)
-            CreatePinEvent.OnBackClick -> onBackClick()
-            else -> Unit
-        }
-    }
+    EventHandler(
+        events = viewModel.events,
+        onNavigateToConfirmScreen = onNavigateToConfirmScreen,
+        onBackClick = onBackClick
+    )
 
     CreatePinScreenComponent(
         modifier = modifier,
@@ -45,8 +44,23 @@ fun CreatePinScreenRoot(
 }
 
 @Composable
+private fun EventHandler(
+    events: Flow<CreatePinEvent>,
+    onNavigateToConfirmScreen: (CreatePinScreenData) -> Unit,
+    onBackClick: () -> Unit
+) {
+    ObserveAsEvents(events) { event ->
+        when (event) {
+            is CreatePinEvent.NavigateToConfirmPinScreen -> onNavigateToConfirmScreen(event.screenData)
+            CreatePinEvent.OnBackClick -> onBackClick()
+            else -> Unit
+        }
+    }
+}
+
+@Composable
 @Preview
-fun PreviewCreatePinScreen() {
+private fun PreviewCreatePinScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             CreatePinScreenComponent(

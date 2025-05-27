@@ -1,5 +1,6 @@
 package com.ravikantsharma.auth.presentation.login
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,8 +41,10 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSca
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
 import com.ravikantsharma.core.presentation.designsystem.components.text_field.ExManagerTextField
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
 import com.ravikantsharma.ui.showTimedSnackBar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -56,7 +60,35 @@ fun LoginScreenRoot(
     val snackBarHostState = remember { SnackbarHostState() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    ObserveAsEvent(viewModel.events) { event ->
+    EventHandler(
+        events = viewModel.events,
+        scope = scope,
+        snackBarHostState = snackBarHostState,
+        context = context,
+        keyboardController = keyboardController,
+        onRegisterClick = onRegisterClick,
+        onNavigateToDashboard = onNavigateToDashboard
+    )
+
+    LoginScreen(
+        modifier = modifier,
+        uiState = uiState,
+        snackbarHostState = snackBarHostState,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+private fun EventHandler(
+    events: Flow<LoginEvent>,
+    scope: CoroutineScope,
+    snackBarHostState: SnackbarHostState,
+    context: Context,
+    keyboardController: SoftwareKeyboardController?,
+    onRegisterClick: () -> Unit,
+    onNavigateToDashboard: () -> Unit
+) {
+    ObserveAsEvents(events) { event ->
         when (event) {
             LoginEvent.IncorrectCredentials -> {
                 scope.showTimedSnackBar(
@@ -76,20 +108,13 @@ fun LoginScreenRoot(
             }
         }
     }
-
-    LoginScreen(
-        modifier = modifier,
-        uiState = uiState,
-        snackBarHostState = snackBarHostState,
-        onAction = viewModel::onAction
-    )
 }
 
 @Composable
-fun LoginScreen(
+private fun LoginScreen(
     modifier: Modifier = Modifier,
     uiState: LoginViewState,
-    snackBarHostState: SnackbarHostState,
+    snackbarHostState: SnackbarHostState,
     onAction: (LoginAction) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -99,9 +124,7 @@ fun LoginScreen(
     }
 
     ExManagerScaffold(
-        snackbarHost = {
-            ExManagerSnackBarHost(snackBarHostState)
-        }
+        snackbarHost = { ExManagerSnackBarHost(snackbarHostState) }
     ) { contentPadding ->
         Column(
             modifier = modifier
@@ -111,89 +134,97 @@ fun LoginScreen(
                 .windowInsetsPadding(WindowInsets.systemBars),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.padding(12.dp))
-            Image(
-                imageVector = LoginIcon,
-                contentDescription = stringResource(R.string.login_button_content_description)
+            Spacer(modifier = Modifier.padding(top = 24.dp))
+            LoginWelcomeSection()
+            Spacer(modifier = Modifier.padding(top = 36.dp))
+            LoginFields(
+                uiState = uiState,
+                focusRequester = focusRequester,
+                onAction = onAction
             )
-            Text(
-                modifier = Modifier.padding(top = 20.dp),
-                text = stringResource(R.string.login_welcome_back),
-                style = MaterialTheme.typography.headlineMedium,
-            )
-
-            Text(
-                modifier = Modifier.padding(top = 8.dp),
-                text = stringResource(R.string.login_enter_your_details),
-                style = MaterialTheme.typography.bodyMedium
-            )
-
-            ExManagerTextField(
-                value = uiState.username,
-                onValueChange = {
-                    onAction(LoginAction.OnUsernameUpdate(it))
-                },
-                hint = stringResource(R.string.login_username),
-                modifier = Modifier
-                    .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 36.dp
-                    )
-                    .focusRequester(focusRequester = focusRequester),
-            )
-
-            ExManagerTextField(
-                value = uiState.pin,
-                onValueChange = {
-                    onAction(LoginAction.OnPinChange(it))
-                },
-                hint = stringResource(R.string.login_pin),
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done,
-                onDone = {
-                    onAction(LoginAction.OnLoginClick)
-                },
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 16.dp
-                )
-            )
-
-            ExManagerButton(
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 24.dp
-                ),
-                buttonText = stringResource(R.string.login_log_in)
-            ) {
-                onAction(LoginAction.OnLoginClick)
-            }
-
-            ExManagerClickableText(
-                modifier = Modifier.padding(top = 28.dp),
-                text = stringResource(R.string.login_new_to_spend_less)
-            ) {
-                onAction(LoginAction.OnRegisterClick)
-            }
+            Spacer(modifier = Modifier.padding(top = 24.dp))
+            LoginFooterSection(onAction = onAction)
         }
+    }
+}
+
+@Composable
+private fun LoginWelcomeSection() {
+    Image(
+        imageVector = LoginIcon,
+        contentDescription = stringResource(R.string.login_button_content_description)
+    )
+    Text(
+        modifier = Modifier.padding(top = 20.dp),
+        text = stringResource(R.string.login_welcome_back),
+        style = MaterialTheme.typography.headlineMedium,
+    )
+    Text(
+        modifier = Modifier.padding(top = 8.dp),
+        text = stringResource(R.string.login_enter_your_details),
+        style = MaterialTheme.typography.bodyMedium
+    )
+}
+
+@Composable
+private fun LoginFields(
+    uiState: LoginViewState,
+    focusRequester: FocusRequester,
+    onAction: (LoginAction) -> Unit
+) {
+    ExManagerTextField(
+        value = uiState.username,
+        onValueChange = { onAction(LoginAction.OnUsernameUpdate(it)) },
+        hint = stringResource(R.string.login_username),
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .focusRequester(focusRequester),
+    )
+
+    Spacer(modifier = Modifier.padding(top = 16.dp))
+
+    ExManagerTextField(
+        value = uiState.pin,
+        onValueChange = { onAction(LoginAction.OnPinChange(it)) },
+        hint = stringResource(R.string.login_pin),
+        keyboardType = KeyboardType.Number,
+        imeAction = ImeAction.Done,
+        onDone = { onAction(LoginAction.OnLoginClick) },
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
+}
+
+@Composable
+private fun LoginFooterSection(
+    onAction: (LoginAction) -> Unit
+) {
+    ExManagerButton(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        buttonText = stringResource(R.string.login_log_in),
+    ) {
+        onAction(LoginAction.OnLoginClick)
+    }
+
+    Spacer(modifier = Modifier.padding(top = 28.dp))
+
+    ExManagerClickableText(
+        text = stringResource(R.string.login_new_to_spend_less)
+    ) {
+        onAction(LoginAction.OnRegisterClick)
     }
 }
 
 @Preview
 @Composable
-fun PreviewLoginScreen() {
+private fun PreviewLoginScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             LoginScreen(
                 modifier = Modifier,
                 uiState = LoginViewState(),
-                snackBarHostState = SnackbarHostState()
-            ) {
-
-            }
+                snackbarHostState = SnackbarHostState(),
+                onAction = {}
+            )
         }
     }
 }

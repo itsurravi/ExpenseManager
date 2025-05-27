@@ -12,6 +12,5 @@ val authViewModelModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::RegisterViewModel)
     viewModelOf(::OnboardingPreferencesViewModel)
-
-    viewModel { CreatePinViewModel(get()) }
+    viewModelOf(::CreatePinViewModel)
 }

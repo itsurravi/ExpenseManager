@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,9 +30,11 @@ import com.ravikantsharma.core.presentation.designsystem.CloseIcon
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.components.CategorySelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
+import com.ravikantsharma.dashboard.core.R
 import com.ravikantsharma.ui.LocalAuthActionHandler
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
 import com.ravikantsharma.ui.UpdateDialogStatusBarAppearance
+import kotlinx.coroutines.flow.Flow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -41,23 +44,14 @@ fun ExportTransactionsScreenRoot(
     viewModel: ExportTransactionsViewModel = koinViewModel()
 ) {
     val authActionHandler = LocalAuthActionHandler.current
-    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     UpdateDialogStatusBarAppearance(isDarkStatusBarIcons = false)
-    ObserveAsEvent(viewModel.events) { event ->
-        when (event) {
-            ExportTransactionsEvent.CloseBottomSheet -> onDismiss()
-            is ExportTransactionsEvent.ExportStatus -> {
-                val message = if (event.isExportSuccess) {
-                    "Exported successfully to downloads"
-                } else {
-                    "Export failed"
-                }
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+
+    EventHandler(
+        events = viewModel.events,
+        onDismiss = onDismiss
+    )
 
     ExportTransactionsScreen(
         modifier = modifier,
@@ -65,15 +59,34 @@ fun ExportTransactionsScreenRoot(
         onAction = { action ->
             when (action) {
                 ExportTransactionsAction.OnExportClicked -> {
-                    authActionHandler?.invoke {
-                        viewModel.onAction(action)
-                    }
+                    authActionHandler?.invoke { viewModel.onAction(action) }
                 }
 
                 else -> viewModel.onAction(action)
             }
         }
     )
+}
+
+@Composable
+private fun EventHandler(
+    events: Flow<ExportTransactionsEvent>,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    ObserveAsEvents(events) { event ->
+        when (event) {
+            ExportTransactionsEvent.CloseBottomSheet -> onDismiss()
+            is ExportTransactionsEvent.ExportStatus -> {
+                val message = if (event.isExportSuccess) {
+                    context.getString(R.string.exported_successfully_to_downloads)
+                } else {
+                    context.getString(R.string.export_failed)
+                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
 
 @Composable
@@ -87,58 +100,68 @@ private fun ExportTransactionsScreen(
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-
         Spacer(modifier = Modifier.height(22.dp))
 
-        Row(
-            modifier = Modifier
-                .height(IntrinsicSize.Max)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Export",
-                style = MaterialTheme.typography.titleLarge
-            )
+        HeaderSection(onDismissClicked = { onAction(ExportTransactionsAction.OnDismissClicked) })
 
-            Icon(
-                modifier = Modifier.clickable {
-                    onAction(ExportTransactionsAction.OnDismissClicked)
-                },
-                tint = Color.Unspecified,
-                imageVector = CloseIcon,
-                contentDescription = ""
-            )
-        }
         Text(
-            text = "Export transactions to CSV format",
+            text = stringResource(R.string.export_transactions_to_csv_format),
             style = MaterialTheme.typography.bodySmall
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        CategorySelector(
-            modifier = Modifier.padding(top = 16.dp),
-            title = "Export Range",
+        ExportTypeSelector(
             selectedOption = uiState.exportType,
-            fontStyle = MaterialTheme.typography.labelMedium,
-            options = ExportType.entries.toTypedArray(),
-            currencyDisplay = { "" },
-            currencyTitleDisplay = { it.displayName },
-            onItemSelected = {
-                onAction(ExportTransactionsAction.OnExportTypeUpdated(it))
-            }
+            onOptionSelected = { onAction(ExportTransactionsAction.OnExportTypeUpdated(it)) }
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        ExManagerButton(
-            buttonText = "Export"
-        ) {
+        ExManagerButton(buttonText = stringResource(R.string.export)) {
             onAction(ExportTransactionsAction.OnExportClicked)
         }
     }
+}
+
+@Composable
+private fun HeaderSection(
+    onDismissClicked: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .height(IntrinsicSize.Max)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(R.string.export),
+            style = MaterialTheme.typography.titleLarge
+        )
+        Icon(
+            modifier = Modifier.clickable { onDismissClicked() },
+            tint = Color.Unspecified,
+            imageVector = CloseIcon,
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+private fun ExportTypeSelector(
+    selectedOption: ExportType,
+    onOptionSelected: (ExportType) -> Unit
+) {
+    CategorySelector(
+        title = stringResource(R.string.export_range),
+        selectedOption = selectedOption,
+        fontStyle = MaterialTheme.typography.labelMedium,
+        options = ExportType.entries.toTypedArray(),
+        currencyDisplay = { "" },
+        currencyTitleDisplay = { it.displayName },
+        onItemSelected = onOptionSelected
+    )
 }
 
 @Preview

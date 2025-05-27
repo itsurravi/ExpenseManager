@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,10 +37,9 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSca
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.session_management.presentation.R
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
 import com.ravikantsharma.ui.formatToTimeString
 import com.ravikantsharma.ui.showTimedSnackBar
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -61,7 +59,7 @@ fun PinPromptScreenRoot(
 
     }
 
-    ObserveAsEvent(viewModel.events) { event ->
+    ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             PinPromptEvent.OnLogout -> onLogout()
             PinPromptEvent.OnSuccessPopBack -> onSuccessClick()
@@ -166,7 +164,7 @@ private fun PinPromptScreen(
 }
 
 @Composable
-fun LockoutCountdownText(lockoutTimeRemaining: Long) {
+private fun LockoutCountdownText(lockoutTimeRemaining: Long) {
     val textStyle = MaterialTheme.typography.bodyMedium
 
     Text(

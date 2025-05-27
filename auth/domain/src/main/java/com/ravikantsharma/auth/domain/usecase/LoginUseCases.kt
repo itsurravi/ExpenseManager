@@ -5,9 +5,6 @@ import com.ravikantsharma.core.domain.security.EncryptionService
 import com.ravikantsharma.core.domain.utils.DataError
 import com.ravikantsharma.core.domain.utils.Result
 
-private const val MIN_USERNAME_LENGTH = 3
-private const val MAX_USERNAME_LENGTH = 14
-
 data class LoginUseCases(
     val isUsernameValidUseCase: IsUsernameValidUseCase,
     val initiateLoginUseCase: InitiateLoginUseCase
@@ -18,13 +15,18 @@ class IsUsernameValidUseCase {
         return username.length in MIN_USERNAME_LENGTH..MAX_USERNAME_LENGTH &&
                 username.all { it.isLetterOrDigit() }
     }
+
+    companion object {
+        private const val MIN_USERNAME_LENGTH = 3
+        private const val MAX_USERNAME_LENGTH = 14
+    }
 }
 
 class InitiateLoginUseCase(
     private val userInfoRepository: UserInfoRepository
 ) {
     suspend operator fun invoke(username: String, enteredPin: String): Result<Long, DataError> {
-        return when(val userResult = userInfoRepository.getUser(username)) {
+        return when (val userResult = userInfoRepository.getUser(username)) {
             is Result.Success -> {
                 val storedPin = userResult.data.pin
                 if (enteredPin == storedPin) {
@@ -33,6 +35,7 @@ class InitiateLoginUseCase(
                     Result.Error(DataError.Local.INVALID_CREDENTIALS)
                 }
             }
+
             is Result.Error -> Result.Error(DataError.Local.INVALID_CREDENTIALS)
         }
     }

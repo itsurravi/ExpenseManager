@@ -20,8 +20,8 @@ import com.ravikantsharma.core.domain.formatting.NumberFormatter
 import com.ravikantsharma.core.domain.preference.repository.UserPreferencesRepository
 import com.ravikantsharma.core.domain.preference.usecase.GetPreferencesUseCase
 import com.ravikantsharma.core.domain.preference.usecase.SetPreferencesUseCase
-import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
-import com.ravikantsharma.core.domain.preference.usecase.ValidateSelectedPreferences
+import com.ravikantsharma.core.domain.preference.usecase.PreferenceUseCase
+import com.ravikantsharma.core.domain.preference.usecase.ValidateSelectedPreferenceUseCase
 import com.ravikantsharma.core.domain.security.EncryptionService
 import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.repository.TransactionRepository
@@ -65,8 +65,8 @@ val coreDataModule = module {
 
     factory { SetPreferencesUseCase(get()) }
     factory { GetPreferencesUseCase(get()) }
-    factory { ValidateSelectedPreferences() }
-    single { SettingsPreferenceUseCase(get(), get(), get()) }
+    factory { ValidateSelectedPreferenceUseCase() }
+    single { PreferenceUseCase(get(), get(), get()) }
 
     singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
 

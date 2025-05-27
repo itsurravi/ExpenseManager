@@ -11,13 +11,17 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -29,18 +33,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -52,7 +54,7 @@ import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.DownloadButton
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.LocalStatusBarAppearance
-import com.ravikantsharma.core.presentation.designsystem.R
+import com.ravikantsharma.core.presentation.designsystem.R.drawable
 import com.ravikantsharma.core.presentation.designsystem.SettingsButton
 import com.ravikantsharma.core.presentation.designsystem.StatusBarAppearance
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
@@ -63,12 +65,12 @@ import com.ravikantsharma.core.presentation.designsystem.components.PreviousWeek
 import com.ravikantsharma.core.presentation.designsystem.components.TransactionItemView
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerFloatingActionButton
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
+import com.ravikantsharma.dashboard.core.R
 import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransactionScreenRoot
 import com.ravikantsharma.dashboard.presentation.export.ExportTransactionsScreenRoot
 import com.ravikantsharma.ui.LocalAuthActionHandler
-import com.ravikantsharma.ui.ObserveAsEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import com.ravikantsharma.ui.ObserveAsEvents
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -83,7 +85,6 @@ fun DashboardScreenRoot(
     onNavigateToAllTransactions: () -> Unit
 ) {
     val authActionHandler = LocalAuthActionHandler.current
-    val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val createBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -91,14 +92,8 @@ fun DashboardScreenRoot(
     val exportBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val snackBarHostState = remember { SnackbarHostState() }
 
-    ObserveAsEvent(viewModel.events) {
-        when (it) {
-            DashboardEvent.NavigateToAllTransactions -> onNavigateToAllTransactions()
-            DashboardEvent.NavigateToSettings -> onNavigateToSettings()
-        }
-    }
+    EventHandler(viewModel, onNavigateToAllTransactions, onNavigateToSettings)
 
     CompositionLocalProvider(
         LocalStatusBarAppearance provides StatusBarAppearance(isDarkStatusBarIcons = false)
@@ -106,36 +101,58 @@ fun DashboardScreenRoot(
         DashboardScreen(
             modifier = modifier,
             uiState = uiState,
-            snackBarHostState = snackBarHostState,
             createBottomSheetState = createBottomSheetState,
             exportBottomSheetState = exportBottomSheetState,
-            scope = scope,
             onAction = { action ->
-                when (action) {
-                    is DashboardAction.UpdatedBottomSheet -> {
-                        if (action.showSheet) {
-                            authActionHandler?.invoke {
-                                viewModel.onAction(action)
-                            }
-                        } else {
-                            viewModel.onAction(action)
-                        }
-                    }
-
-                    is DashboardAction.UpdateExportBottomSheet -> {
-                        if (action.showSheet) {
-                            authActionHandler?.invoke {
-                                viewModel.onAction(action)
-                            }
-                        } else {
-                            viewModel.onAction(action)
-                        }
-                    }
-
-                    else -> viewModel.onAction(action)
-                }
+                onActionHandler(action, authActionHandler, viewModel)
             }
         )
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun onActionHandler(
+    action: DashboardAction,
+    authActionHandler: ((() -> Unit) -> Unit)?,
+    viewModel: DashboardViewModel
+) {
+    when (action) {
+        is DashboardAction.UpdatedBottomSheet -> {
+            if (action.showSheet) {
+                authActionHandler?.invoke {
+                    viewModel.onAction(action)
+                }
+            } else {
+                viewModel.onAction(action)
+            }
+        }
+
+        is DashboardAction.UpdateExportBottomSheet -> {
+            if (action.showSheet) {
+                authActionHandler?.invoke {
+                    viewModel.onAction(action)
+                }
+            } else {
+                viewModel.onAction(action)
+            }
+        }
+
+        else -> viewModel.onAction(action)
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+@Composable
+private fun EventHandler(
+    viewModel: DashboardViewModel,
+    onNavigateToAllTransactions: () -> Unit,
+    onNavigateToSettings: () -> Unit
+) {
+    ObserveAsEvents(viewModel.events) {
+        when (it) {
+            DashboardEvent.NavigateToAllTransactions -> onNavigateToAllTransactions()
+            DashboardEvent.NavigateToSettings -> onNavigateToSettings()
+        }
     }
 }
 
@@ -144,11 +161,158 @@ fun DashboardScreenRoot(
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     uiState: DashboardViewState,
-    snackBarHostState: SnackbarHostState,
     createBottomSheetState: SheetState,
     exportBottomSheetState: SheetState,
-    scope: CoroutineScope,
     onAction: (DashboardAction) -> Unit,
+) {
+    DashboardBottomSheets(uiState, onAction, createBottomSheetState, exportBottomSheetState)
+
+    ExManagerScaffold(
+        withGradient = true,
+        topBar = { DashboardTopBar(uiState, onAction) },
+        floatingActionButton = {
+            ExManagerFloatingActionButton(
+                onClick = {
+                    onAction(DashboardAction.UpdatedBottomSheet(true))
+                }
+            )
+        },
+    ) { contentPadding ->
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = contentPadding.calculateTopPadding())
+        ) {
+            Column {
+                DashboardTransactionsContent(uiState)
+
+                Spacer(Modifier.height(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(
+                            color = MaterialTheme.colorScheme.background,
+                            shape = RoundedCornerShape(
+                                topStart = 16.dp,
+                                topEnd = 16.dp
+                            )
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
+                    ) {
+                        if (uiState.transactions.isNullOrEmpty()) {
+                            EmptyTransactionView()
+                        } else {
+                            LatestTransactionsView(uiState, onAction)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DashboardTransactionsContent(uiState: DashboardViewState) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Spacer(modifier = Modifier.height(36.dp))
+        Text(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = uiState.accountBalance,
+            style = MaterialTheme.typography.displayLarge.copy(
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        )
+        Text(
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .align(Alignment.CenterHorizontally),
+            text = stringResource(R.string.account_balance),
+            style = MaterialTheme.typography.bodySmall.copy(
+                color = MaterialTheme.colorScheme.onPrimary.copy(
+                    alpha = 0.80f
+                )
+            )
+        )
+        Spacer(modifier = Modifier.height(46.dp))
+        uiState.mostPopularCategory?.let { popularCategory ->
+            PopularCategoryView(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                icon = popularCategory.symbol,
+                title = popularCategory.title,
+                description = stringResource(R.string.most_popular_category)
+            )
+        }
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 8.dp)
+                .height(IntrinsicSize.Max)
+        ) {
+            LargestTransactionView(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                isEmptyTransactions = uiState.largestTransaction == null,
+                title = uiState.largestTransaction?.name.orEmpty(),
+                description = stringResource(R.string.largest_transaction),
+                amount = uiState.largestTransaction?.amount ?: "",
+                date = uiState.largestTransaction?.date.orEmpty()
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            PreviousWeekTotalView(
+                modifier = Modifier.fillMaxHeight(),
+                amount = uiState.previousWeekTotal,
+                description = stringResource(R.string.previous_week)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DashboardTopBar(
+    uiState: DashboardViewState,
+    onAction: (DashboardAction) -> Unit
+) {
+    ExManagerTopBar(
+        modifier = Modifier
+            .padding(horizontal = 8.dp),
+        startIcon = null,
+        endIcon1 = DownloadButton,
+        onEndIcon1Click = {
+            onAction(DashboardAction.UpdateExportBottomSheet(true))
+        },
+        endIcon2 = SettingsButton,
+        onEndIcon2Click = {
+            onAction(DashboardAction.OnSettingsClicked)
+        },
+        endIcon1Color = MaterialTheme.colorScheme.onPrimary,
+        endIcon1BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
+        endIcon2Color = MaterialTheme.colorScheme.onPrimary,
+        endIcon2BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
+        title = uiState.username,
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun DashboardBottomSheets(
+    uiState: DashboardViewState,
+    onAction: (DashboardAction) -> Unit,
+    createBottomSheetState: SheetState,
+    exportBottomSheetState: SheetState
 ) {
     if (uiState.showCreateTransactionSheet) {
         ModalBottomSheet(
@@ -156,14 +320,16 @@ fun DashboardScreen(
                 onAction(DashboardAction.UpdatedBottomSheet(false))
             },
             sheetState = createBottomSheetState,
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             properties = ModalBottomSheetProperties(
                 shouldDismissOnBackPress = false
             ),
             dragHandle = null,
             modifier = Modifier
                 .fillMaxHeight()
-                .windowInsetsPadding(WindowInsets.statusBars)
+                .windowInsetsPadding(
+                    WindowInsets.statusBars.union(WindowInsets.displayCutout.only(WindowInsetsSides.Top))
+                )
         ) {
             CreateTransactionScreenRoot(
                 onDismiss = {
@@ -200,135 +366,6 @@ fun DashboardScreen(
             }
         }
     }
-
-    ExManagerScaffold(
-        topBar = {
-            ExManagerTopBar(
-                modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(horizontal = 8.dp),
-                startIcon = null,
-                endIcon1 = DownloadButton,
-                onEndIcon1Click = {
-                    onAction(DashboardAction.UpdateExportBottomSheet(true))
-                },
-                endIcon2 = SettingsButton,
-                onEndIcon2Click = {
-                    onAction(DashboardAction.OnSettingsClicked)
-                },
-                endIcon1Color = MaterialTheme.colorScheme.onPrimary,
-                endIcon1BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
-                endIcon2Color = MaterialTheme.colorScheme.onPrimary,
-                endIcon2BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
-                title = uiState.username,
-            )
-        },
-        floatingActionButton = {
-            ExManagerFloatingActionButton(
-                onClick = {
-                    scope.launch {
-                        onAction(DashboardAction.UpdatedBottomSheet(true))
-                    }
-                }
-            )
-        }
-    ) { contentPadding ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(top = contentPadding.calculateTopPadding())
-        ) {
-            Column {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    Spacer(modifier = Modifier.height(36.dp))
-                    Text(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        text = uiState.accountBalance,
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    )
-                    Text(
-                        modifier = Modifier
-                            .padding(top = 2.dp)
-                            .align(Alignment.CenterHorizontally),
-                        text = "Account Balance",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onPrimary.copy(
-                                alpha = 0.80f
-                            )
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(46.dp))
-                    uiState.mostPopularCategory?.let { popularCategory ->
-                        PopularCategoryView(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp),
-                            icon = popularCategory.symbol,
-                            title = popularCategory.title,
-                            description = "Most popular category"
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 8.dp)
-                            .height(IntrinsicSize.Max)
-                    ) {
-                        LargestTransactionView(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            isEmptyTransactions = uiState.largestTransaction == null,
-                            title = uiState.largestTransaction?.name.orEmpty(),
-                            description = "Largest transaction",
-                            amount = uiState.largestTransaction?.amount ?: "",
-                            date = uiState.largestTransaction?.date.orEmpty()
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        PreviousWeekTotalView(
-                            modifier = Modifier.fillMaxHeight(),
-                            amount = uiState.previousWeekTotal,
-                            description = "Previous week"
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .background(
-                            color = MaterialTheme.colorScheme.background,
-                            shape = RoundedCornerShape(
-                                topStart = 16.dp,
-                                topEnd = 16.dp
-                            )
-                        )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp, vertical = 16.dp)
-                    ) {
-                        if (uiState.transactions.isNullOrEmpty()) {
-                            EmptyTransactionView()
-                        } else {
-                            LatestTransactionsView(uiState, onAction)
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -341,12 +378,12 @@ private fun EmptyTransactionView() {
     ) {
         Image(
             modifier = Modifier.size(96.dp),
-            painter = painterResource(R.drawable.ic_money),
+            painter = painterResource(drawable.ic_money),
             contentDescription = ""
         )
         Text(
             modifier = Modifier.padding(top = 4.dp),
-            text = "No transactions to show",
+            text = stringResource(R.string.no_transactions_to_show),
             style = MaterialTheme.typography.titleLarge
         )
     }
@@ -360,20 +397,21 @@ private fun LatestTransactionsView(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Latest Transactions",
+            text = stringResource(R.string.latest_transactions),
             style = MaterialTheme.typography.titleLarge
         )
         Text(
-            text = "Show all",
-            style = MaterialTheme.typography.titleMedium.copy(
-                color = MaterialTheme.colorScheme.primary
-            ),
             modifier = Modifier.clickable {
                 onAction(DashboardAction.OnShowAllTransactionsClicked)
-            }
+            },
+            text = stringResource(R.string.show_all),
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = MaterialTheme.colorScheme.primary
+            )
         )
     }
 
@@ -499,8 +537,6 @@ private fun PreviewDashboardScreen() {
                         )
                     )
                 ),
-                snackBarHostState = SnackbarHostState(),
-                scope = rememberCoroutineScope(),
                 onAction = {
 
                 },
@@ -531,8 +567,6 @@ private fun PreviewDashboardEmptyScreen() {
                     ),
                     transactions = listOf()
                 ),
-                snackBarHostState = SnackbarHostState(),
-                scope = rememberCoroutineScope(),
                 onAction = {
 
                 },

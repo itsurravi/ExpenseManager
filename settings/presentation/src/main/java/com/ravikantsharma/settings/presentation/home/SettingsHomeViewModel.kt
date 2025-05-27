@@ -10,11 +10,8 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class SettingsHomeViewModel(
-    private val sessionUseCase: SessionUseCases
+    private val sessionUseCases: SessionUseCases
 ) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(SettingsHomeViewState())
-    val uiState = _uiState.asStateFlow()
 
     private val eventChannel = Channel<SettingsHomeEvent>()
     val events = eventChannel.receiveAsFlow()
@@ -23,7 +20,7 @@ class SettingsHomeViewModel(
         viewModelScope.launch {
             when (action) {
                 SettingsHomeAction.OnLogoutClick -> {
-                    sessionUseCase.clearSessionUseCase()
+                    sessionUseCases.clearSessionUseCase()
                     eventChannel.send(SettingsHomeEvent.Logout)
                 }
 

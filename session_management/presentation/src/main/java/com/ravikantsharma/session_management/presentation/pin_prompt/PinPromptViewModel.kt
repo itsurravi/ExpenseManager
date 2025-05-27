@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.core.domain.auth.usecases.UserInfoUseCases
 import com.ravikantsharma.core.domain.utils.Result
-import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
+import com.ravikantsharma.core.domain.preference.usecase.PreferenceUseCase
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
 import com.ravikantsharma.ui.MAX_PIN_LENGTH
 import kotlinx.coroutines.Dispatchers
@@ -21,11 +21,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.compareTo
 
 class PinPromptViewModel(
-    private val sessionUseCase: SessionUseCases,
-    private val settingsPreferenceUseCase: SettingsPreferenceUseCase,
+    private val sessionUseCases: SessionUseCases,
+    private val preferenceUseCase: PreferenceUseCase,
     private val userInfoUseCases: UserInfoUseCases
 ) : ViewModel() {
 
@@ -36,12 +35,12 @@ class PinPromptViewModel(
     val events = eventChannel.receiveAsFlow()
 
     init {
-        sessionUseCase.getSessionDataUseCase()
+        sessionUseCases.getSessionDataUseCase()
             .flatMapLatest { sessionData ->
                 _uiState.update {
                     it.copy(username = sessionData.userName)
                 }
-                settingsPreferenceUseCase.getPreferencesUseCase(sessionData.userId)
+                preferenceUseCase.getPreferencesUseCase(sessionData.userId)
             }
             .onEach { preferences ->
                 when (preferences) {
@@ -91,7 +90,7 @@ class PinPromptViewModel(
                         }
 
                         if (userPin == updatedPin) {
-                            sessionUseCase.resetSessionExpiryUseCase()
+                            sessionUseCases.resetSessionExpiryUseCase()
                             eventChannel.send(PinPromptEvent.OnSuccessPopBack)
                             return@launch
                         }
@@ -115,7 +114,7 @@ class PinPromptViewModel(
                 }
 
                 PinPromptAction.OnLogoutClicked -> {
-                    sessionUseCase.clearSessionUseCase()
+                    sessionUseCases.clearSessionUseCase()
                     eventChannel.send(PinPromptEvent.OnLogout)
                 }
             }

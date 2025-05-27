@@ -22,10 +22,6 @@ class IsUserNameDuplicateUseCase(
     private val userInfoRepository: UserInfoRepository
 ) {
     suspend operator fun invoke(userName: String): Boolean {
-        val result = userInfoRepository.getUser(userName)
-        return when (result) {
-            is Result.Success -> true
-            is Result.Error -> false
-        }
+        return userInfoRepository.getUser(userName) is Result.Success
     }
 }

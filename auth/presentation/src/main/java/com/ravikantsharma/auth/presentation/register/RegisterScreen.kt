@@ -1,9 +1,11 @@
 package com.ravikantsharma.auth.presentation.register
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,9 +37,11 @@ import com.ravikantsharma.core.presentation.designsystem.components.ExManagerHea
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerSnackBarHost
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
 import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import com.ravikantsharma.ui.showTimedSnackBar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -52,14 +57,41 @@ fun RegisterScreenRoot(
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
 
-    ObserveAsEvent(viewModel.events) { event ->
+    EventHandler(
+        events = viewModel.events,
+        snackBarHostState = snackBarHostState,
+        scope = scope,
+        context = context,
+        keyboardController = keyboardController,
+        onAlreadyHaveAnAccountClick = onAlreadyHaveAnAccountClick,
+        onNavigateToPinScreen = onNavigateToPinScreen
+    )
+
+    RegisterScreen(
+        modifier = modifier,
+        uiState = uiState,
+        snackBarHostState = snackBarHostState,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+private fun EventHandler(
+    events: Flow<RegisterEvent>,
+    snackBarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    context: Context,
+    keyboardController: SoftwareKeyboardController?,
+    onAlreadyHaveAnAccountClick: () -> Unit,
+    onNavigateToPinScreen: (CreatePinScreenData) -> Unit
+) {
+    ObserveAsEvents(events) { event ->
         when (event) {
             RegisterEvent.SuccessfulRegistration -> {
                 keyboardController?.hide()
             }
-
             RegisterEvent.UsernameTaken -> Unit
-            RegisterEvent.NavigateToRegisterScreen -> {
+            RegisterEvent.NavigateToLoginScreen -> {
                 keyboardController?.hide()
                 onAlreadyHaveAnAccountClick()
             }
@@ -84,17 +116,10 @@ fun RegisterScreenRoot(
             }
         }
     }
-
-    RegisterScreen(
-        modifier = modifier,
-        uiState = uiState,
-        snackBarHostState = snackBarHostState,
-        onAction = viewModel::onAction
-    )
 }
 
 @Composable
-fun RegisterScreen(
+private fun RegisterScreen(
     modifier: Modifier = Modifier,
     uiState: RegisterViewState,
     snackBarHostState: SnackbarHostState,
@@ -102,78 +127,94 @@ fun RegisterScreen(
 ) {
     ExManagerScaffold(
         containerColor = Color.Transparent,
-        snackbarHost = {
-            ExManagerSnackBarHost(snackBarHostState)
-        }
+        snackbarHost = { ExManagerSnackBarHost(snackBarHostState) }
     ) { contentPadding ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(contentPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Spacer(modifier = Modifier.padding(12.dp))
-            Image(
-                imageVector = LoginIcon,
-                contentDescription = stringResource(R.string.login_button_content_description)
-            )
+        RegisterContent(
+            modifier = modifier.padding(contentPadding),
+            uiState = uiState,
+            onAction = onAction
+        )
+    }
+}
 
-            Text(
-                modifier = Modifier.padding(
-                    top = 20.dp, start = 26.dp, end = 26.dp
-                ),
-                text = stringResource(R.string.register_headline),
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center
-            )
+@Composable
+private fun RegisterContent(
+    modifier: Modifier = Modifier,
+    uiState: RegisterViewState,
+    onAction: (RegisterAction) -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 26.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                modifier = Modifier.padding(top = 8.dp),
-                text = stringResource(R.string.register_create_unique_username),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        IntroductionContent()
 
-            ExManagerHeadlineTextField(
-                value = uiState.username,
-                modifier = Modifier.padding(top = 36.dp, start = 26.dp, end = 26.dp),
-                onValueChange = {
-                    onAction(RegisterAction.OnUserNameChanged(it))
-                },
-                hint = stringResource(R.string.login_username)
-            )
+        Spacer(modifier = Modifier.height(36.dp))
 
-            ExManagerButton(
-                modifier = Modifier.padding(
-                    top = 16.dp,
-                    start = 26.dp,
-                    end = 26.dp
-                ),
-                buttonText = stringResource(R.string.common_next),
-                onClick = {
-                    onAction(RegisterAction.OnNextClicked)
-                },
-                isEnabled = uiState.isNextEnabled,
-                icon = ArrowForward
-            )
+        ExManagerHeadlineTextField(
+            value = uiState.username,
+            onValueChange = { onAction(RegisterAction.OnUserNameChanged(it)) },
+            hint = stringResource(R.string.login_username)
+        )
 
-            ExManagerClickableText(
-                modifier = Modifier.padding(
-                    top = 16.dp,
-                    start = 26.dp,
-                    end = 26.dp
-                ),
-                text = stringResource(R.string.register_already_have_an_account)
-            ) {
-                onAction(RegisterAction.OnAlreadyHaveAnAccountClicked)
-            }
-        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        FooterContent(onAction, uiState)
+    }
+}
+
+@Composable
+private fun IntroductionContent() {
+    Image(
+        imageVector = LoginIcon,
+        contentDescription = stringResource(R.string.login_button_content_description)
+    )
+
+    Spacer(modifier = Modifier.height(20.dp))
+
+    Text(
+        text = stringResource(R.string.register_headline),
+        style = MaterialTheme.typography.headlineMedium,
+        textAlign = TextAlign.Center
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Text(
+        text = stringResource(R.string.register_create_unique_username),
+        style = MaterialTheme.typography.bodyMedium
+    )
+}
+
+@Composable
+private fun FooterContent(
+    onAction: (RegisterAction) -> Unit,
+    uiState: RegisterViewState
+) {
+    ExManagerButton(
+        buttonText = stringResource(R.string.common_next),
+        onClick = { onAction(RegisterAction.OnNextClicked) },
+        isEnabled = uiState.isNextEnabled,
+        icon = ArrowForward
+    )
+
+    Spacer(modifier = Modifier.height(28.dp))
+
+    ExManagerClickableText(
+        text = stringResource(R.string.register_already_have_an_account)
+    ) {
+        onAction(RegisterAction.OnAlreadyHaveAnAccountClicked)
     }
 }
 
 @Preview
 @Composable
-fun PreviewRegisterScreen() {
+private fun PreviewRegisterScreen() {
     ExpenseManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {
             RegisterScreen(

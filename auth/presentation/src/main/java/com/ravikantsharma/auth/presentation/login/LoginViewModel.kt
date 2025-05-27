@@ -25,52 +25,48 @@ class LoginViewModel(
     val events = eventChannel.receiveAsFlow()
 
     fun onAction(action: LoginAction) {
-        viewModelScope.launch {
-            when (action) {
-                LoginAction.OnLoginClick -> {
-                    val username = _uiState.value.username.trim()
-                    val pin = _uiState.value.pin.trim()
+        when (action) {
+            LoginAction.OnLoginClick -> handleLogin()
 
-                    if (!loginUseCases.isUsernameValidUseCase(username) || pin.length < MIN_PIN_LENGTH) {
-                        eventChannel.send(LoginEvent.IncorrectCredentials)
-                    } else {
-                        when (val loginResult = loginUseCases.initiateLoginUseCase(
-                            username = username,
-                            enteredPin = pin
-                        )) {
-                            is Result.Error -> eventChannel.send(LoginEvent.IncorrectCredentials)
-                            is Result.Success -> {
-                                val sessionData = SessionData(
-                                    userId = loginResult.data,
-                                    userName = username,
-                                    sessionExpiryTime = 0
-                                )
-                                sessionUseCases.saveSessionUseCase(sessionData)
-                                if (loginResult.data > 0L) {
-                                    eventChannel.send(LoginEvent.NavigateToDashboardScreen)
-                                } else {
-                                    eventChannel.send(LoginEvent.IncorrectCredentials)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                LoginAction.OnRegisterClick -> {
+            LoginAction.OnRegisterClick -> {
+                viewModelScope.launch {
                     eventChannel.send(LoginEvent.NavigateToRegisterScreen)
                 }
+            }
 
-                is LoginAction.OnPinChange -> {
-                    _uiState.update {
-                        it.copy(pin = action.pin)
+            is LoginAction.OnPinChange -> _uiState.update { it.copy(pin = action.pin) }
+
+            is LoginAction.OnUsernameUpdate -> _uiState.update { it.copy(username = action.username) }
+        }
+    }
+
+    private fun handleLogin() {
+        viewModelScope.launch {
+            val username = _uiState.value.username.trim()
+            val pin = _uiState.value.pin.trim()
+
+            if (!loginUseCases.isUsernameValidUseCase(username) || pin.length < MIN_PIN_LENGTH) {
+                eventChannel.send(LoginEvent.IncorrectCredentials)
+                return@launch
+            }
+
+            when (val loginResult = loginUseCases.initiateLoginUseCase(username, pin)) {
+                is Result.Success -> {
+                    if (loginResult.data > 0L) {
+                        sessionUseCases.saveSessionUseCase(
+                            SessionData(
+                                userId = loginResult.data,
+                                userName = username,
+                                sessionExpiryTime = 0
+                            )
+                        )
+                        eventChannel.send(LoginEvent.NavigateToDashboardScreen)
+                    } else {
+                        eventChannel.send(LoginEvent.IncorrectCredentials)
                     }
                 }
 
-                is LoginAction.OnUsernameUpdate -> {
-                    _uiState.update {
-                        it.copy(username = action.username)
-                    }
-                }
+                is Result.Error -> eventChannel.send(LoginEvent.IncorrectCredentials)
             }
         }
     }

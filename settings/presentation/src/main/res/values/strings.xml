@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preferences">Preferences</string>
+    <string name="security">Security</string>
+    <string name="settings">Settings</string>
+    <string name="log_out">Log out</string>
+    <string name="preferences_saved_successfully">Preferences saved successfully!</string>
+    <string name="expense_format">Expense format</string>
+    <string name="currency">Currency</string>
+    <string name="decimal_separator">Decimal separator</string>
+    <string name="thousand_separator">Thousand separator</string>
+    <string name="save">Save</string>
+    <string name="spend_this_month">spend this month</string>
+    <string name="security_preferences_saved_successfully">Security Preferences saved successfully!</string>
+    <string name="biometrics_for_pin_prompt">Biometrics for PIN prompt</string>
+    <string name="session_expiry_duration">Session expiry duration</string>
+    <string name="locked_out_duration">Locked out duration</string>
+</resources>

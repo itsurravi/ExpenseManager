@@ -1,6 +1,8 @@
 package com.ravikantsharma.expensemanager
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.ravikantsharma.auth.data.di.authDataModule
 import com.ravikantsharma.auth.presentation.di.authViewModelModule
 import com.ravikantsharma.core.data.di.coreDataModule
@@ -21,6 +23,7 @@ class ExpenseManagerApp : Application() {
 
     val applicationScope = CoroutineScope(SupervisorJob())
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {

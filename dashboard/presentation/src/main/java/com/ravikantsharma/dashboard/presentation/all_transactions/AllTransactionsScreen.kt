@@ -23,7 +23,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,6 +42,7 @@ import com.ravikantsharma.core.domain.model.ExpenseFormat
 import com.ravikantsharma.core.domain.model.ThousandsSeparator
 import com.ravikantsharma.core.presentation.designsystem.DownloadButton
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
+import com.ravikantsharma.core.presentation.designsystem.components.ExManagerScaffold
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.TransactionItemView
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerFloatingActionButton
@@ -52,7 +52,7 @@ import com.ravikantsharma.dashboard.presentation.dashboard.TransactionGroupUIIte
 import com.ravikantsharma.dashboard.presentation.dashboard.TransactionUIItem
 import com.ravikantsharma.dashboard.presentation.export.ExportTransactionsScreenRoot
 import com.ravikantsharma.ui.LocalAuthActionHandler
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -77,7 +77,7 @@ fun AllTransactionsScreenRoot(
         skipPartiallyExpanded = true
     )
 
-    ObserveAsEvent(viewModel.events) {
+    ObserveAsEvents(viewModel.events) {
         when (it) {
             AllTransactionsEvent.NavigateBack -> onNavigateBack()
         }
@@ -90,31 +90,39 @@ fun AllTransactionsScreenRoot(
         exportBottomSheetState = exportBottomSheetState,
         scope = scope,
         onAction = { action ->
-            when (action) {
-                is AllTransactionsAction.UpdateCreateBottomSheet -> {
-                    if (action.showSheet) {
-                        authActionHandler?.invoke {
-                            viewModel.onAction(action)
-                        }
-                    } else {
-                        viewModel.onAction(action)
-                    }
-                }
-
-                is AllTransactionsAction.UpdateExportBottomSheet -> {
-                    if (action.showSheet) {
-                        authActionHandler?.invoke {
-                            viewModel.onAction(action)
-                        }
-                    } else {
-                        viewModel.onAction(action)
-                    }
-                }
-
-                else -> viewModel.onAction(action)
-            }
+            onActionHandler(action, authActionHandler, viewModel)
         }
     )
+}
+
+private fun onActionHandler(
+    action: AllTransactionsAction,
+    authActionHandler: ((() -> Unit) -> Unit)?,
+    viewModel: AllTransactionsViewModel
+) {
+    when (action) {
+        is AllTransactionsAction.UpdateCreateBottomSheet -> {
+            if (action.showSheet) {
+                authActionHandler?.invoke {
+                    viewModel.onAction(action)
+                }
+            } else {
+                viewModel.onAction(action)
+            }
+        }
+
+        is AllTransactionsAction.UpdateExportBottomSheet -> {
+            if (action.showSheet) {
+                authActionHandler?.invoke {
+                    viewModel.onAction(action)
+                }
+            } else {
+                viewModel.onAction(action)
+            }
+        }
+
+        else -> viewModel.onAction(action)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,6 +134,67 @@ private fun AllTransactionsScreen(
     exportBottomSheetState: SheetState,
     scope: CoroutineScope,
     onAction: (AllTransactionsAction) -> Unit,
+) {
+    AllTransactionsBottomSheets(
+        uiState = uiState,
+        onAction = onAction,
+        createBottomSheetState = createBottomSheetState,
+        exportBottomSheetState = exportBottomSheetState
+    )
+
+    ExManagerScaffold(
+        containerColor = Color.Transparent,
+        topBar = {
+            AllTransactionsTopBar(onAction)
+        },
+        floatingActionButton = {
+            ExManagerFloatingActionButton(
+                onClick = {
+                    scope.launch {
+                        onAction(AllTransactionsAction.UpdateCreateBottomSheet(true))
+                    }
+                }
+            )
+        }
+    ) { contentPadding ->
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = contentPadding.calculateTopPadding())
+                .padding(horizontal = 16.dp)
+        ) {
+            LatestTransactionsView(uiState, onAction)
+        }
+    }
+}
+
+@Composable
+private fun AllTransactionsTopBar(
+    onAction: (AllTransactionsAction) -> Unit
+) {
+    ExManagerTopBar(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        title = "All Transactions",
+        titleColor = MaterialTheme.colorScheme.onSurface,
+        onStartIconClick = {
+            onAction(AllTransactionsAction.OnClickBackButton)
+        },
+        endIcon2 = DownloadButton,
+        endIcon2Color = MaterialTheme.colorScheme.onSurface,
+        endIcon2BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
+        onEndIcon2Click = {
+            onAction(AllTransactionsAction.UpdateExportBottomSheet(true))
+        }
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun AllTransactionsBottomSheets(
+    uiState: AllTransactionsViewState,
+    onAction: (AllTransactionsAction) -> Unit,
+    createBottomSheetState: SheetState,
+    exportBottomSheetState: SheetState
 ) {
     if (uiState.showCreateTransactionsSheet) {
         ModalBottomSheet(
@@ -144,15 +213,11 @@ private fun AllTransactionsScreen(
                     WindowInsets.statusBars.union(WindowInsets.displayCutout.only(WindowInsetsSides.Top))
                 )
         ) {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                CreateTransactionScreenRoot(
-                    onDismiss = {
-                        onAction(AllTransactionsAction.UpdateCreateBottomSheet(false))
-                    }
-                )
-            }
+            CreateTransactionScreenRoot(
+                onDismiss = {
+                    onAction(AllTransactionsAction.UpdateCreateBottomSheet(false))
+                }
+            )
         }
     }
 
@@ -181,46 +246,6 @@ private fun AllTransactionsScreen(
                     }
                 )
             }
-        }
-    }
-
-    Scaffold(
-        containerColor = Color.Transparent,
-        topBar = {
-            ExManagerTopBar(
-                modifier = Modifier
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(horizontal = 8.dp),
-                title = "All Transactions",
-                titleColor = MaterialTheme.colorScheme.onSurface,
-                onStartIconClick = {
-                    onAction(AllTransactionsAction.OnClickBackButton)
-                },
-                endIcon2 = DownloadButton,
-                endIcon2Color = MaterialTheme.colorScheme.onSurface,
-                endIcon2BackgroundColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
-                onEndIcon2Click = {
-                    onAction(AllTransactionsAction.UpdateExportBottomSheet(true))
-                }
-            )
-        },
-        floatingActionButton = {
-            ExManagerFloatingActionButton(
-                onClick = {
-                    scope.launch {
-                        onAction(AllTransactionsAction.UpdateCreateBottomSheet(true))
-                    }
-                }
-            )
-        }
-    ) { contentPadding ->
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(top = contentPadding.calculateTopPadding())
-                .padding(horizontal = 16.dp)
-        ) {
-            LatestTransactionsView(uiState, onAction)
         }
     }
 }

@@ -1,18 +1,25 @@
 package com.ravikantsharma.auth.presentation.create_pin
 
+import android.content.Context
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ravikantsharma.auth.presentation.R
 import com.ravikantsharma.auth.presentation.create_pin.component.CreatePinScreenComponent
+import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.ui.navigation.PreferencesScreenData
-import com.ravikantsharma.ui.ObserveAsEvent
+import com.ravikantsharma.ui.ObserveAsEvents
 import com.ravikantsharma.ui.showTimedSnackBar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -27,7 +34,35 @@ fun ConfirmPinScreenRoot(
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    ObserveAsEvent(viewModel.events) { event ->
+    EventHandler(
+        events = viewModel.events,
+        onBackClick = onBackClick,
+        scope = scope,
+        snackBarHostState = snackBarHostState,
+        context = context,
+        onNavigateToPreferencesScreen = onNavigateToPreferencesScreen
+    )
+
+    CreatePinScreenComponent(
+        modifier = modifier,
+        headlineResId = R.string.confirm_pin_headline,
+        subHeadlineResId = R.string.confirm_pin_sub_headline,
+        snackbarHostState = snackBarHostState,
+        uiState = uiState,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+private fun EventHandler(
+    events: Flow<CreatePinEvent>,
+    onBackClick: () -> Unit,
+    scope: CoroutineScope,
+    snackBarHostState: SnackbarHostState,
+    context: Context,
+    onNavigateToPreferencesScreen: (PreferencesScreenData) -> Unit
+) {
+    ObserveAsEvents(events) { event ->
         when (event) {
             CreatePinEvent.OnBackClick -> onBackClick()
             CreatePinEvent.PinsDoNotMatch -> {
@@ -41,13 +76,20 @@ fun ConfirmPinScreenRoot(
             is CreatePinEvent.NavigateToConfirmPinScreen -> Unit
         }
     }
+}
 
-    CreatePinScreenComponent(
-        modifier = modifier,
-        headlineResId = R.string.confirm_pin_headline,
-        subHeadlineResId = R.string.confirm_pin_sub_headline,
-        snackbarHostState = snackBarHostState,
-        uiState = uiState,
-        onAction = viewModel::onAction
-    )
+@Composable
+@Preview
+private fun PreviewConfirmPinScreenRoot() {
+    ExpenseManagerTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            CreatePinScreenComponent(
+                uiState = CreatePinState(),
+                snackbarHostState = SnackbarHostState(),
+                onAction = {},
+                headlineResId = R.string.confirm_pin_headline,
+                subHeadlineResId = R.string.confirm_pin_sub_headline
+            )
+        }
+    }
 }

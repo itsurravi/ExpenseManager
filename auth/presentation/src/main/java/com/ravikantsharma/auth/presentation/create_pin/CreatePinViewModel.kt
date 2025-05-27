@@ -3,6 +3,7 @@ package com.ravikantsharma.auth.presentation.create_pin
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ravikantsharma.auth.domain.usecase.CreatePinUseCases
 import com.ravikantsharma.ui.navigation.CreatePinScreenData
 import com.ravikantsharma.ui.navigation.PreferencesScreenData
 import com.ravikantsharma.ui.MAX_PIN_LENGTH
@@ -15,92 +16,80 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CreatePinViewModel(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val createPinUseCases: CreatePinUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreatePinState())
     val uiState = _uiState.asStateFlow()
 
-    private val _eventChannel = Channel<CreatePinEvent>()
-    val events = _eventChannel.receiveAsFlow()
+    private val eventChannel = Channel<CreatePinEvent>()
+    val events = eventChannel.receiveAsFlow()
 
-    private var createPinScreenData = savedStateHandle.getRouteData<CreatePinScreenData>("screenData")
+    private val createPinScreenData = savedStateHandle.getRouteData<CreatePinScreenData>("screenData")
 
     fun onAction(action: CreatePinAction) {
+        when (action) {
+            CreatePinAction.OnDeletePressed -> deleteDigit()
+            is CreatePinAction.OnNumberPressed -> appendDigit(action.number.toString())
+            CreatePinAction.OnBackPressed -> emitEvent(CreatePinEvent.OnBackClick)
+        }
+    }
+
+    private fun appendDigit(digit: String) {
         viewModelScope.launch {
-            when (action) {
-                CreatePinAction.OnBackPressed -> {
-                    _eventChannel.send(CreatePinEvent.OnBackClick)
-                }
+            val updatedPin = createPinUseCases.appendDigitUseCase(_uiState.value.pin, digit)
+            _uiState.update { it.copy(pin = updatedPin) }
 
-                CreatePinAction.OnDeletePressed -> {
-                    val pin = _uiState.value.pin
-                    _uiState.update {
-                        it.copy(
-                            pin = pin.dropLast(1)
-                        )
-                    }
-                }
-
-                is CreatePinAction.OnNumberPressed -> {
-                    val pin = _uiState.value.pin
-                    if (pin.length < MAX_PIN_LENGTH) {
-                        _uiState.update {
-                            it.copy(
-                                pin = pin + action.number
-                            )
-                        }
-                    }
-                    val updatedPin = _uiState.value.pin
-                    if (updatedPin.length == MAX_PIN_LENGTH) {
-                        if (createPinScreenData?.pin == null) {
-                            _uiState.update {
-                                it.copy(
-                                    pin = ""
-                                )
-                            }
-                            _eventChannel.send(
-                                CreatePinEvent.NavigateToConfirmPinScreen(
-                                    CreatePinScreenData(
-                                        username = createPinScreenData?.username ?: "",
-                                        pin = updatedPin
-                                    )
-                                )
-                            )
-                        } else if (updatedPin.equals(createPinScreenData?.pin, true)) {
-                            createPinScreenData?.let {
-                                _eventChannel.send(
-                                    CreatePinEvent.NavigateToPreferencesScreen(
-                                        screenData = PreferencesScreenData(
-                                            username = it.username,
-                                            pin = it.pin
-                                        )
-                                    )
-                                )
-                            }
-                            resetState()
-                        } else {
-                            _uiState.update {
-                                it.copy(
-                                    pin = ""
-                                )
-                            }
-                            _eventChannel.send(CreatePinEvent.PinsDoNotMatch)
-                        }
-                    }
-                }
+            if (updatedPin.length == MAX_PIN_LENGTH) {
+                processFullPin(updatedPin)
             }
         }
     }
 
-    private fun resetState() {
-        _uiState.update {
-            it.copy(
-                pin = ""
-            )
+    private fun deleteDigit() {
+        val updatedPin = createPinUseCases.deleteDigitUseCase(_uiState.value.pin)
+        _uiState.update { it.copy(pin = updatedPin) }
+    }
+
+    private fun processFullPin(updatedPin: String) {
+        when {
+            createPinScreenData?.pin.isNullOrEmpty() -> {
+                resetPin()
+                emitEvent(
+                    CreatePinEvent.NavigateToConfirmPinScreen(
+                        CreatePinScreenData(
+                            username = createPinScreenData?.username.orEmpty(),
+                            pin = updatedPin
+                        )
+                    )
+                )
+            }
+
+            createPinUseCases.validatePinMatchUseCase(updatedPin, createPinScreenData?.pin) -> {
+                emitEvent(
+                    CreatePinEvent.NavigateToPreferencesScreen(
+                        PreferencesScreenData(
+                            username = createPinScreenData?.username.orEmpty(),
+                            pin = updatedPin
+                        )
+                    )
+                )
+                resetPin()
+            }
+
+            else -> {
+                resetPin()
+                emitEvent(CreatePinEvent.PinsDoNotMatch)
+            }
         }
-        createPinScreenData = createPinScreenData?.copy(
-            pin = ""
-        )
+    }
+
+    private fun resetPin() {
+        _uiState.update { it.copy(pin = "") }
+    }
+
+    private fun emitEvent(event: CreatePinEvent) {
+        viewModelScope.launch { eventChannel.send(event) }
     }
 }

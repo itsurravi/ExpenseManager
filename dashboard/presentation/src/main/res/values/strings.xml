@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="account_balance">Account Balance</string>
+    <string name="most_popular_category">Most popular category</string>
+    <string name="largest_transaction">Largest transaction</string>
+    <string name="previous_week">Previous week</string>
+    <string name="no_transactions_to_show">No transactions to show</string>
+    <string name="latest_transactions">Latest Transactions</string>
+    <string name="show_all">Show all</string>
+    <string name="common_create_text">Create</string>
+    <string name="create_transaction">Create Transaction</string>
+    <string name="exported_successfully_to_downloads">Exported successfully to downloads</string>
+    <string name="export_failed">Export failed</string>
+    <string name="export_transactions_to_csv_format">Export transactions to CSV format</string>
+    <string name="export">Export</string>
+    <string name="export_range">Export Range</string>
+</resources>

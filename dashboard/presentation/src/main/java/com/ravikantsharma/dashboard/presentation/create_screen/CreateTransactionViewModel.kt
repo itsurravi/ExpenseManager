@@ -3,7 +3,7 @@ package com.ravikantsharma.dashboard.presentation.create_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ravikantsharma.core.domain.model.TransactionCategory
-import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCase
+import com.ravikantsharma.core.domain.preference.usecase.PreferenceUseCase
 import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
@@ -11,6 +11,7 @@ import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
+import com.ravikantsharma.dashboard.domain.usecases.create_transactions.CreateTransactionsUseCases
 import com.ravikantsharma.dashboard.presentation.mapper.toDecimalSeparatorUI
 import com.ravikantsharma.dashboard.presentation.mapper.toExpenseFormatUI
 import com.ravikantsharma.dashboard.presentation.mapper.toRecurringType
@@ -30,9 +31,10 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 class CreateTransactionViewModel(
-    private val sessionUseCase: SessionUseCases,
-    private val settingsPreferenceUseCase: SettingsPreferenceUseCase,
-    private val transactionsUseCases: TransactionUseCases,
+    private val sessionUseCases: SessionUseCases,
+    private val preferenceUseCase: PreferenceUseCase,
+    private val transactionUseCases: TransactionUseCases,
+    private val createTransactionsUseCases: CreateTransactionsUseCases,
     private val timeProvider: TimeProvider
 ) : ViewModel() {
 
@@ -47,9 +49,9 @@ class CreateTransactionViewModel(
     }
 
     private fun fetchUserPreferences() {
-        sessionUseCase.getSessionDataUseCase()
+        sessionUseCases.getSessionDataUseCase()
             .flatMapLatest { sessionData ->
-                settingsPreferenceUseCase.getPreferencesUseCase(sessionData.userId)
+                preferenceUseCase.getPreferencesUseCase(sessionData.userId)
             }
             .onEach { result ->
                 if (result is Result.Success) {
@@ -67,69 +69,16 @@ class CreateTransactionViewModel(
             .launchIn(viewModelScope)
     }
 
-    private fun initialUiState(): CreateTransactionViewState {
-        val transactionType = TransactionTypeUI.EXPENSE
-        return CreateTransactionViewState(
-            transactionType = transactionType,
-            transactionName = "",
-            transactionNameHint = getTransactionHint(transactionType),
-            amount = BigDecimal.ZERO,
-            noteHint = "Add Note",
-            note = "",
-            transactionCategoryType = TransactionCategoryTypeUI.OTHER,
-            showExpenseCategoryType = isExpenseCategoryTypeVisible(transactionType),
-            recurringType = RecurringTypeUI.ONE_TIME,
-            isCreateButtonEnabled = false,
-            currentTime = timeProvider.currentLocalDateTime
-        )
-    }
-
-    private fun getTransactionHint(type: TransactionTypeUI): String =
-        if (type == TransactionTypeUI.EXPENSE) "Receiver" else "Sender"
-
-    private fun isExpenseCategoryTypeVisible(type: TransactionTypeUI): Boolean =
-        type == TransactionTypeUI.EXPENSE
-
     fun onAction(action: CreateTransactionAction) {
         when (action) {
             is CreateTransactionAction.OnTransactionCategoryUpdated -> updateState {
-                copy(
-                    transactionCategoryType = action.category
-                )
+                copy(transactionCategoryType = action.category)
             }
-
             is CreateTransactionAction.OnFrequencyUpdated -> updateState { copy(recurringType = action.frequency) }
-            is CreateTransactionAction.OnTransactionTypeChanged -> updateState {
-                copy(
-                    transactionType = action.transactionType,
-                    transactionNameHint = getTransactionHint(action.transactionType),
-                    showExpenseCategoryType = isExpenseCategoryTypeVisible(action.transactionType)
-                )
-            }
-
-            is CreateTransactionAction.OnTransactionNameUpdated -> {
-                updateState {
-                    copy(
-                        transactionName = transactionsUseCases.validateTransactionNameUseCase(
-                            input = action.transactionName,
-                            previousValue = transactionName
-                        )
-                    )
-                }
-            }
-
+            is CreateTransactionAction.OnTransactionTypeChanged -> updateOnTransactionTypeChange(action)
+            is CreateTransactionAction.OnTransactionNameUpdated -> updateOnTransactionNameChange(action)
             is CreateTransactionAction.OnAmountUpdated -> updateState { copy(amount = action.amount) }
-            is CreateTransactionAction.OnNoteUpdated -> {
-                updateState {
-                    copy(
-                        note = transactionsUseCases.validateNoteUseCase(
-                            input = action.note,
-                            previousValue = note
-                        )
-                    )
-                }
-            }
-
+            is CreateTransactionAction.OnNoteUpdated -> updateOnNoteChange(action)
             CreateTransactionAction.OnCreateClicked -> handleCreateTransaction()
             CreateTransactionAction.OnBottomSheetCloseClicked -> {
                 resetScreen()
@@ -138,16 +87,52 @@ class CreateTransactionViewModel(
         }
     }
 
-    private fun updateState(update: CreateTransactionViewState.() -> CreateTransactionViewState) {
-        _uiState.update { current ->
-            val updated = current.update()
-            updated.copy(isCreateButtonEnabled = validateInput(updated))
+    private fun updateOnNoteChange(action: CreateTransactionAction.OnNoteUpdated) {
+        updateState {
+            copy(
+                note = transactionUseCases.validateNoteUseCase(
+                    input = action.note,
+                    previousValue = note
+                )
+            )
         }
     }
 
-    private fun validateInput(state: CreateTransactionViewState): Boolean {
-        return state.transactionName.isNotBlank() && state.transactionName.length in 3..14 &&
-                state.amount > BigDecimal.ZERO
+    private fun updateOnTransactionNameChange(action: CreateTransactionAction.OnTransactionNameUpdated) {
+        updateState {
+            copy(
+                transactionName = transactionUseCases.validateTransactionNameUseCase(
+                    input = action.transactionName,
+                    previousValue = transactionName
+                )
+            )
+        }
+    }
+
+    private fun updateOnTransactionTypeChange(action: CreateTransactionAction.OnTransactionTypeChanged) {
+        updateState {
+            copy(
+                transactionType = action.transactionType,
+                transactionNameHint = createTransactionsUseCases.getTransactionHintUseCase(
+                    action.transactionType.toTransactionType()
+                ),
+                showExpenseCategoryType = createTransactionsUseCases.isExpenseCategoryVisibleUseCase(
+                    action.transactionType.toTransactionType()
+                )
+            )
+        }
+    }
+
+    private fun updateState(update: CreateTransactionViewState.() -> CreateTransactionViewState) {
+        _uiState.update { current ->
+            val updated = current.update()
+            updated.copy(
+                isCreateButtonEnabled = createTransactionsUseCases.isValidInputUseCase(
+                    transactionName = updated.transactionName,
+                    amount = updated.amount
+                )
+            )
+        }
     }
 
     private fun sendEvent(event: CreateTransactionEvent) {
@@ -159,35 +144,19 @@ class CreateTransactionViewModel(
     private fun handleCreateTransaction() {
         viewModelScope.launch {
             val uiState = _uiState.value
-            uiState.userId?.let {
-                val recurringType = uiState.recurringType.toRecurringType()
-                val nextRecurringDate = transactionsUseCases.getNextRecurringDateUseCase(
-                    recurringType = recurringType
-                )
-                val transaction = Transaction(
-                    transactionId = null,
-                    userId = uiState.userId,
+            uiState.userId?.let { userId ->
+                val transaction = createTransactionsUseCases.buildTransactionUseCase(
+                    userId = userId,
                     transactionType = uiState.transactionType.toTransactionType(),
-                    transactionName = uiState.transactionName.trim(),
-                    amount = if (_uiState.value.transactionType == TransactionTypeUI.INCOME) {
-                        uiState.amount
-                    } else {
-                        uiState.amount.negate()
-                    },
-                    note = uiState.note.trim(),
-                    transactionCategory = if (uiState.transactionType == TransactionTypeUI.INCOME) {
-                        TransactionCategory.INCOME
-                    } else {
-                        uiState.transactionCategoryType.toTransactionCategory()
-                    },
-                    transactionDate = timeProvider.currentLocalDateTime,
-                    recurringStartDate = timeProvider.currentLocalDateTime,
-                    recurringTransactionId = null,
-                    recurringType = recurringType,
-                    nextRecurringDate = nextRecurringDate,
+                    transactionName = uiState.transactionName,
+                    amount = uiState.amount,
+                    note = uiState.note,
+                    transactionCategoryType = uiState.transactionCategoryType.toTransactionCategory(),
+                    recurringType = uiState.recurringType.toRecurringType(),
+                    currentTime = timeProvider.currentLocalDateTime
                 )
 
-                val result = transactionsUseCases.insertTransactionUseCase(transaction)
+                val result = transactionUseCases.insertTransactionUseCase(transaction)
                 if (result is Result.Success) {
                     eventChannel.send(CreateTransactionEvent.CloseBottomSheet)
                     resetScreen()
@@ -197,20 +166,29 @@ class CreateTransactionViewModel(
     }
 
     private fun resetScreen() {
-        val transactionType = TransactionTypeUI.EXPENSE
         _uiState.update {
-            it.copy(
-                transactionType = transactionType,
-                transactionName = "",
-                transactionNameHint = getTransactionHint(transactionType),
-                amount = BigDecimal.ZERO,
-                noteHint = "Add Note",
-                note = "",
-                transactionCategoryType = TransactionCategoryTypeUI.OTHER,
-                showExpenseCategoryType = isExpenseCategoryTypeVisible(transactionType),
-                recurringType = RecurringTypeUI.ONE_TIME,
-                isCreateButtonEnabled = false
-            )
+            initialUiState()
         }
+    }
+
+    private fun initialUiState(): CreateTransactionViewState {
+        val transactionTypeUI = TransactionTypeUI.EXPENSE
+        return CreateTransactionViewState(
+            transactionType = transactionTypeUI,
+            transactionName = "",
+            transactionNameHint = createTransactionsUseCases.getTransactionHintUseCase(
+                transactionTypeUI.toTransactionType()
+            ),
+            amount = BigDecimal.ZERO,
+            noteHint = "Add Note",
+            note = "",
+            transactionCategoryType = TransactionCategoryTypeUI.OTHER,
+            showExpenseCategoryType = createTransactionsUseCases.isExpenseCategoryVisibleUseCase(
+                transactionTypeUI.toTransactionType()
+            ),
+            recurringType = RecurringTypeUI.ONE_TIME,
+            isCreateButtonEnabled = false,
+            currentTime = timeProvider.currentLocalDateTime
+        )
     }
 }
