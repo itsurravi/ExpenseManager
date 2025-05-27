@@ -24,11 +24,13 @@ import com.ravikantsharma.core.domain.transactions.usecases.GetAccountBalanceUse
 import com.ravikantsharma.core.domain.transactions.usecases.GetDueRecurringTransactionsUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetLargestTransactionUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetMostPopularExpenseCategoryUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.GetNextRecurringDateUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetPreviousWeekTotalUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetRecurringTransactionSeriesUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsForUserUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.GetTransactionsGroupedByDateUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.InsertTransactionUseCase
+import com.ravikantsharma.core.domain.transactions.usecases.ProcessRecurringTransactionsUseCase
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -48,19 +50,33 @@ val coreDataModule = module {
 
     singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
 
-    factory { GetUserInfoUseCase(get(), get()) }
+    factory { GetUserInfoUseCase(get()) }
     single { UserInfoUseCases(get()) }
 
     factory { InsertTransactionUseCase(get()) }
     factory { GetTransactionsForUserUseCase(get()) }
-    factory { GetRecurringTransactionSeriesUseCase(get()) }
     factory { GetDueRecurringTransactionsUseCase(get()) }
     factory { GetAccountBalanceUseCase(get()) }
     factory { GetMostPopularExpenseCategoryUseCase(get()) }
     factory { GetLargestTransactionUseCase(get()) }
     factory { GetPreviousWeekTotalUseCase(get()) }
     factory { GetTransactionsGroupedByDateUseCase() }
-    single { TransactionUseCases(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    factory { GetNextRecurringDateUseCase() }
+    factory { ProcessRecurringTransactionsUseCase(get(), get(), get()) }
+    single {
+        TransactionUseCases(
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get()
+        )
+    }
     singleOf(::TransactionRepositoryImpl).bind<TransactionRepository>()
 
     singleOf(::ExportRepositoryImpl).bind<ExportRepository>()

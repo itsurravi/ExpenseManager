@@ -3,7 +3,6 @@ package com.ravikantsharma.auth.presentation.user_preference
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ravikantsharma.auth.domain.usecase.EncryptionUseCases
 import com.ravikantsharma.auth.domain.usecase.OnboardingPreferenceUseCases
 import com.ravikantsharma.auth.domain.usecase.RegisterUseCases
 import com.ravikantsharma.core.domain.auth.model.UserInfo
@@ -32,7 +31,6 @@ class OnboardingPreferencesViewModel(
     savedStateHandle: SavedStateHandle,
     private val onboardingPreferenceUseCases: OnboardingPreferenceUseCases,
     private val registerUseCases: RegisterUseCases,
-    private val encryptionUseCases: EncryptionUseCases,
     private val sessionUseCase: SessionUseCases,
     private val settingsPreferenceUseCase: SettingsPreferenceUseCase
 ) : ViewModel() {
@@ -85,11 +83,9 @@ class OnboardingPreferencesViewModel(
     }
 
     private suspend fun handleOnStartClicked() {
-        val (encryptedPin, iv) = encryptionUseCases.encryptPinUseCase(screenData?.pin.orEmpty())
         val userInfo = UserInfo(
             username = screenData?.username.orEmpty(),
-            encryptedPin = encryptedPin,
-            iv = iv
+            pin = screenData?.pin.orEmpty()
         )
 
         val userIdResult = withContext(Dispatchers.IO) {

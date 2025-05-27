@@ -18,6 +18,12 @@ object CalendarUtils {
     val currentEstDate: LocalDate
         get() = LocalDate.now(zoneId)
 
+    val currentEstTimeAtStartOfDay: LocalDateTime
+        get() = currentEstDate.atStartOfDay()
+
+    val currentEstTimeAtEndOfDay: LocalDateTime
+        get() = currentEstDate.atTime(23, 59, 59, 999999999)
+
     fun toEpochMillis(localDateTime: LocalDateTime): Long {
         return localDateTime.atZone(zoneId).toInstant().toEpochMilli()
     }
@@ -41,6 +47,19 @@ object CalendarUtils {
             .with(LocalTime.MAX)
 
         return startOfPreviousWeek to endOfPreviousWeek
+    }
+
+    fun getCurrentDayOfWeek(): String {
+        return currentEstDate.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }
+    }
+
+    fun getCurrentDayOfMonth(): String {
+        return currentEstDate.dayOfMonth.toString()
+    }
+
+    fun getCurrentMonthAndDay(): String {
+        val formatter = DateTimeFormatter.ofPattern("MMM d")
+        return currentEstDate.format(formatter)
     }
 }
 

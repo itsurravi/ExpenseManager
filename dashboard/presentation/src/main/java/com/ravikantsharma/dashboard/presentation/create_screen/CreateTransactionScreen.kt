@@ -44,6 +44,7 @@ import com.ravikantsharma.core.presentation.designsystem.model.TransactionTypeUI
 import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import com.ravikantsharma.ui.UpdateStatusBarAppearance
+import com.ravikantsharma.ui.utils.getFormattedTitle
 import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
 
@@ -213,7 +214,7 @@ private fun CreateTransactionScreen(
             showMenuIcon = false,
             options = RecurringTypeUI.entries.toTypedArray(),
             currencyDisplay = { it.symbol },
-            currencyTitleDisplay = { it.title },
+            currencyTitleDisplay = { it.getFormattedTitle() },
             onItemSelected = {
                 onAction(CreateTransactionAction.OnFrequencyUpdated(it))
             }

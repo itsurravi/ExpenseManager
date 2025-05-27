@@ -28,13 +28,13 @@ data class TransactionEntity(
     val transactionId: Long,
     val userId: Long,
     val transactionType: TransactionType,
-    val transactionName: String,
+    val transactionNameEncrypted: String,
     val amount: BigDecimal,
-    val note: String?,
+    val noteEncrypted: String?,
     val transactionCategory: TransactionCategory,
     val transactionDate: LocalDateTime,
+    val recurringStartDate: LocalDateTime,
     val recurringTransactionId: Long?,
     val recurringType: RecurringType,
     val nextRecurringDate: LocalDateTime?,
-    val endDate: LocalDateTime?
 )

@@ -114,7 +114,10 @@ class CreateTransactionViewModel(
             is CreateTransactionAction.OnAmountUpdated -> updateState { copy(amount = action.amount) }
             is CreateTransactionAction.OnNoteUpdated -> updateState { copy(note = action.note) }
             CreateTransactionAction.OnCreateClicked -> handleCreateTransaction()
-            CreateTransactionAction.OnBottomSheetCloseClicked -> sendEvent(CreateTransactionEvent.CloseBottomSheet)
+            CreateTransactionAction.OnBottomSheetCloseClicked -> {
+                resetScreen()
+                sendEvent(CreateTransactionEvent.CloseBottomSheet)
+            }
         }
     }
 
@@ -140,6 +143,10 @@ class CreateTransactionViewModel(
         viewModelScope.launch {
             val uiState = _uiState.value
             uiState.userId?.let {
+                val recurringType = uiState.recurringType.toRecurringType()
+                val nextRecurringDate = transactionsUseCases.getNextRecurringDateUseCase(
+                    recurringType = recurringType
+                )
                 val transaction = Transaction(
                     transactionId = null,
                     userId = uiState.userId,
@@ -157,10 +164,10 @@ class CreateTransactionViewModel(
                         uiState.transactionCategoryType.toTransactionCategory()
                     },
                     transactionDate = CalendarUtils.currentEstTime,
+                    recurringStartDate = CalendarUtils.currentEstTime,
                     recurringTransactionId = null,
-                    recurringType = uiState.recurringType.toRecurringType(),
-                    nextRecurringDate = null,
-                    endDate = null
+                    recurringType = recurringType,
+                    nextRecurringDate = nextRecurringDate,
                 )
 
                 val result = transactionsUseCases.insertTransactionUseCase(transaction)

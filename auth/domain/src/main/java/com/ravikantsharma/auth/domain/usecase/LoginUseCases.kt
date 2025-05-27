@@ -21,16 +21,12 @@ class IsUsernameValidUseCase {
 }
 
 class InitiateLoginUseCase(
-    private val userInfoRepository: UserInfoRepository,
-    private val encryptionService: EncryptionService
+    private val userInfoRepository: UserInfoRepository
 ) {
     suspend operator fun invoke(username: String, enteredPin: String): Result<Long, DataError> {
         return when(val userResult = userInfoRepository.getUser(username)) {
             is Result.Success -> {
-                val storedPin = encryptionService.decrypt(
-                    encryptedData = userResult.data.encryptedPin,
-                    iv = userResult.data.iv
-                )
+                val storedPin = userResult.data.pin
                 if (enteredPin == storedPin) {
                     Result.Success(userResult.data.userId ?: 0L)
                 } else {
