@@ -7,7 +7,6 @@ import com.ravikantsharma.core.domain.preference.usecase.SettingsPreferenceUseCa
 import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
-import com.ravikantsharma.core.domain.utils.CalendarUtils
 import com.ravikantsharma.core.domain.utils.Result
 import com.ravikantsharma.core.presentation.designsystem.model.RecurringTypeUI
 import com.ravikantsharma.core.presentation.designsystem.model.TransactionCategoryTypeUI
@@ -130,6 +129,7 @@ class CreateTransactionViewModel(
                     )
                 }
             }
+
             CreateTransactionAction.OnCreateClicked -> handleCreateTransaction()
             CreateTransactionAction.OnBottomSheetCloseClicked -> {
                 resetScreen()
