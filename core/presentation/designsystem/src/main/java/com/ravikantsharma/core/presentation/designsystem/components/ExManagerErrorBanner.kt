@@ -20,9 +20,7 @@ fun ExManagerErrorBanner(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.error
-            ),
+            .background(color = MaterialTheme.colorScheme.error),
         horizontalArrangement = Arrangement.Center
     ) {
         Text(

@@ -45,6 +45,7 @@ fun NavigationRoot(
         ) {
             authGraph(
                 navController = navController,
+                shouldNavigateToLogin = (authNavigationDestination as? AuthNavigationDestination.AuthScreen)?.shouldNavigateToLogin,
                 onNavigateToDashboardScreen = {
                     navController.navigateToDashboardScreen {
                         popUpTo<AuthBaseRoute> { inclusive = true }
@@ -66,7 +67,7 @@ fun NavigationRoot(
                 navController = navController,
                 onVerificationSuccess = {
                     onSessionVerified()
-                    navController.popBackStack()
+                    navController.navigateUp()
                 },
                 onLogout = {
                     onLogout()
@@ -85,8 +86,7 @@ fun NavigationRoot(
 private fun getStartDestination(authNavigationDestination: AuthNavigationDestination) =
     when (authNavigationDestination) {
         is AuthNavigationDestination.DashboardScreen -> DashboardBaseRoute
+        is AuthNavigationDestination.AuthScreen -> AuthBaseRoute
         AuthNavigationDestination.None -> AuthBaseRoute
-        AuthNavigationDestination.LoginScreen -> AuthBaseRoute
         AuthNavigationDestination.PinScreen -> SessionBaseRoute
-        AuthNavigationDestination.RegisterScreen -> RegisterRoute
     }

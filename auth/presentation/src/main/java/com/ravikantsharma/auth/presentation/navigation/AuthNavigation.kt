@@ -28,10 +28,15 @@ import kotlin.reflect.typeOf
 
 fun NavGraphBuilder.authGraph(
     navController: NavHostController,
+    shouldNavigateToLogin: Boolean?,
     onNavigateToDashboardScreen: () -> Unit
 ) {
     navigation<AuthBaseRoute>(
-        startDestination = LoginRoute
+        startDestination = if (shouldNavigateToLogin == true) {
+            LoginRoute
+        } else {
+            RegisterRoute
+        }
     ) {
         composable<LoginRoute> {
             LoginScreenRoot(
@@ -95,7 +100,7 @@ fun NavGraphBuilder.authGraph(
         ) {
             ConfirmPinScreenRoot(
                 onBackClick = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 },
                 onNavigateToPreferencesScreen = {
                     navController.navigateToPreferencesScreen(it) {
@@ -112,7 +117,7 @@ fun NavGraphBuilder.authGraph(
         ) {
             OnboardingPreferencesScreenRoot(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 },
                 onNavigateToDashboardScreen = onNavigateToDashboardScreen
             )

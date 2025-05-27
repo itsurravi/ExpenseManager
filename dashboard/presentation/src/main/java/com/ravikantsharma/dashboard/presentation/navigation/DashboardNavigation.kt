@@ -37,7 +37,7 @@ fun NavGraphBuilder.dashboardNavGraph(
         composable<AllTransactionsScreenRoute> {
             AllTransactionsScreenRoot(
                 onNavigateBack = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }
             )
         }

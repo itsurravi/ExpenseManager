@@ -3,6 +3,7 @@ package com.ravikantsharma.dashboard.domain.usecases.create_transactions
 import com.ravikantsharma.core.domain.model.RecurringType
 import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.model.TransactionType
+import com.ravikantsharma.core.domain.time.TimeProvider
 import com.ravikantsharma.core.domain.transactions.model.Transaction
 import com.ravikantsharma.core.domain.transactions.usecases.TransactionUseCases
 import java.math.BigDecimal
@@ -34,7 +35,11 @@ class IsValidInputUseCase {
     }
 }
 
-class BuildTransactionUseCase(private val transactionUseCases: TransactionUseCases) {
+class BuildTransactionUseCase(
+    private val transactionUseCases: TransactionUseCases,
+    private val currentTimeProvider: TimeProvider
+
+) {
     operator fun invoke(
         userId: Long,
         transactionType: TransactionType,
@@ -42,8 +47,7 @@ class BuildTransactionUseCase(private val transactionUseCases: TransactionUseCas
         amount: BigDecimal,
         note: String,
         transactionCategoryType: TransactionCategory,
-        recurringType: RecurringType,
-        currentTime: LocalDateTime
+        recurringType: RecurringType
     ): Transaction {
         val nextRecurringDate =
             transactionUseCases.getNextRecurringDateUseCase(recurringType = recurringType)
@@ -68,8 +72,8 @@ class BuildTransactionUseCase(private val transactionUseCases: TransactionUseCas
             amount = finalAmount,
             note = note.trim(),
             transactionCategory = transactionCategory,
-            transactionDate = currentTime,
-            recurringStartDate = currentTime,
+            transactionDate = currentTimeProvider.currentLocalDateTime,
+            recurringStartDate = currentTimeProvider.currentLocalDateTime,
             recurringTransactionId = null,
             recurringType = recurringType,
             nextRecurringDate = nextRecurringDate

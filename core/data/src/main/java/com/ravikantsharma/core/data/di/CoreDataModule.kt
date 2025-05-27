@@ -11,6 +11,7 @@ import com.ravikantsharma.core.data.security.KeyManager
 import com.ravikantsharma.core.data.time.SystemTimeProvider
 import com.ravikantsharma.core.data.time.TrustedTimeProvider
 import com.ravikantsharma.core.domain.auth.repository.UserInfoRepository
+import com.ravikantsharma.core.domain.auth.usecases.AreUsersPresentUseCase
 import com.ravikantsharma.core.domain.auth.usecases.GetUserInfoUseCase
 import com.ravikantsharma.core.domain.auth.usecases.UserInfoUseCases
 import com.ravikantsharma.core.domain.export.repository.ExportRepository
@@ -71,7 +72,8 @@ val coreDataModule = module {
     singleOf(::UserInfoRepositoryImpl).bind<UserInfoRepository>()
 
     factory { GetUserInfoUseCase(get()) }
-    single { UserInfoUseCases(get()) }
+    factory { AreUsersPresentUseCase(get()) }
+    single { UserInfoUseCases(get(), get()) }
 
     factory { InsertTransactionUseCase(get()) }
     factory { GetTransactionsForUserUseCase(get()) }

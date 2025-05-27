@@ -70,6 +70,7 @@ fun TransactionTextField(
     textStyle: TextStyle = MaterialTheme.typography.displayMedium
 ) {
     val formattedValue = try {
+        // Format to 2 decimal places, take absolute value, and remove decimal point
         value.abs().setScale(2, RoundingMode.HALF_UP).toString().replace(".", "")
     } catch (e: Exception) {
         "0"
@@ -148,23 +149,31 @@ fun TransactionTextField(
                                 withStyle(spanStyle(signColor)) {
                                     append("(")
                                     append(currencySymbol)
+                                    append("\u200A")
                                 }
                                 withStyle(spanStyle(amountColor)) { append(formattedNumber) }
                                 cursorPosition = length
-                                withStyle(spanStyle(signColor)) { append(")") }
+                                withStyle(spanStyle(signColor)) {
+                                    append("\u200A")
+                                    append(")")
+                                }
                             }
                             // Negative with minus sign: -$100.00
                             isExpense && expenseFormat == ExpenseFormatUI.MINUS_SIGN -> {
                                 withStyle(spanStyle(signColor)) {
                                     append("-")
                                     append(currencySymbol)
+                                    append("\u200A")
                                 }
                                 withStyle(spanStyle(amountColor)) { append(formattedNumber) }
                                 cursorPosition = length
                             }
                             // Positive: $100.00
                             else -> {
-                                withStyle(spanStyle(signColor)) { append(currencySymbol) }
+                                withStyle(spanStyle(signColor)) {
+                                    append(currencySymbol)
+                                    append("\u200A")
+                                }
                                 withStyle(spanStyle(amountColor)) { append(formattedNumber) }
                                 cursorPosition = length
                             }
