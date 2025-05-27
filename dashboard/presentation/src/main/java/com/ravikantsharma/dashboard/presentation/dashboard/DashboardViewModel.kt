@@ -1,7 +1,9 @@
 package com.ravikantsharma.dashboard.presentation.dashboard
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.ravikantsharma.core.domain.formatting.NumberFormatter
 import com.ravikantsharma.core.domain.model.TransactionCategory
 import com.ravikantsharma.core.domain.preference.model.UserPreferences
@@ -16,11 +18,12 @@ import com.ravikantsharma.dashboard.presentation.mapper.toTransactionCategoryUI
 import com.ravikantsharma.dashboard.presentation.mapper.toUIItem
 import com.ravikantsharma.session_management.domain.model.SessionData
 import com.ravikantsharma.session_management.domain.usecases.SessionUseCases
+import com.ravikantsharma.ui.navigation.DashboardScreenRoute
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -29,6 +32,7 @@ import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 class DashboardViewModel(
+    savedStateHandle: SavedStateHandle,
     private val sessionUseCases: SessionUseCases,
     private val sessionPreferenceUseCase: SettingsPreferenceUseCase,
     private val transactionUseCases: TransactionUseCases
@@ -42,77 +46,81 @@ class DashboardViewModel(
 
     private var preference: UserPreferences? = null
 
+    private val isLaunchedFromWidget =
+        savedStateHandle.toRoute<DashboardScreenRoute>().isLaunchedFromWidget
+
     init {
         fetchTransactions()
     }
 
     private fun fetchTransactions() {
-        combine(
-            sessionUseCases.getSessionDataUseCase(),
-            sessionUseCases.getSessionDataUseCase().flatMapLatest { sessionData ->
-                sessionPreferenceUseCase.getPreferencesUseCase(sessionData.userId)
-            },
-            sessionUseCases.getSessionDataUseCase().flatMapLatest { sessionData ->
-                transactionUseCases.getTransactionsForUserUseCase(sessionData.userId, limit = FETCH_TRANSACTIONS_LIMIT)
-            },
-            sessionUseCases.getSessionDataUseCase().flatMapLatest { sessionData ->
-                transactionUseCases.getAccountBalanceUseCase(sessionData.userId)
-            },
-            sessionUseCases.getSessionDataUseCase().flatMapLatest { sessionData ->
-                transactionUseCases.getMostPopularExpenseCategoryUseCase(sessionData.userId)
-            },
-            sessionUseCases.getSessionDataUseCase().flatMapLatest { sessionData ->
-                transactionUseCases.getLargestTransactionUseCase(sessionData.userId)
-            },
-            sessionUseCases.getSessionDataUseCase().flatMapLatest { sessionData ->
-                transactionUseCases.getPreviousWeekTotalUseCase(sessionData.userId)
-            }
-        ) { array: Array<Any?> ->
-            CombinedResult(
-                array[0] as SessionData,
-                array[1] as Result<UserPreferences, DataError>,
-                array[2] as Result<List<Transaction>, DataError>,
-                array[3] as Result<BigDecimal, DataError>,
-                array[4] as Result<TransactionCategory?, DataError>,
-                array[5] as Result<Transaction?, DataError>,
-                array[6] as Result<BigDecimal, DataError>,
+        viewModelScope.launch {
+            val sessionData = sessionUseCases.getSessionDataUseCase().first()
+            val preferenceFlow = sessionPreferenceUseCase.getPreferencesUseCase(sessionData.userId)
+            val transactionFlow = transactionUseCases.getTransactionsForUserUseCase(
+                userId = sessionData.userId,
+                limit = FETCH_TRANSACTIONS_LIMIT
             )
-        }.onEach { (
-                       sessionData: SessionData,
-                       preferenceResult: Result<UserPreferences, DataError>,
-                       transactionResult: Result<List<Transaction>, DataError>,
-                       balanceResult: Result<BigDecimal, DataError>,
-                       popularCategoryResult: Result<TransactionCategory?, DataError>,
-                       largestTransactionResult: Result<Transaction?, DataError>,
-                       previousWeekTotalResult: Result<BigDecimal, DataError>
-                   ) ->
-            if (preferenceResult is Result.Success &&
-                transactionResult is Result.Success &&
-                balanceResult is Result.Success &&
-                popularCategoryResult is Result.Success &&
-                largestTransactionResult is Result.Success &&
-                previousWeekTotalResult is Result.Success
-            ) {
-                preference = preferenceResult.data
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        preference = preferenceResult.data,
-                        username = sessionData.userName,
-                        accountBalance = NumberFormatter.formatAmount(
-                            balanceResult.data,
-                            preference
-                        ),
-                        mostPopularCategory = popularCategoryResult.data?.toTransactionCategoryUI(),
-                        largestTransaction = largestTransactionResult.data.toLargestTransactionItem(),
-                        previousWeekTotal = NumberFormatter.formatAmount(
-                            previousWeekTotalResult.data,
-                            preference
-                        ),
-                        transactions = groupTransactionsByDate(transactionResult.data)
-                    )
+            val actionBalanceFlow = transactionUseCases.getAccountBalanceUseCase(sessionData.userId)
+            val popularCategoryFlow = transactionUseCases.getMostPopularExpenseCategoryUseCase(sessionData.userId)
+            val largestTransactionFlow = transactionUseCases.getLargestTransactionUseCase(sessionData.userId)
+            val previousWeekTotalFlow = transactionUseCases.getPreviousWeekTotalUseCase(sessionData.userId)
+
+            combine(
+                preferenceFlow,
+                transactionFlow,
+                actionBalanceFlow,
+                popularCategoryFlow,
+                largestTransactionFlow,
+                previousWeekTotalFlow
+            ) { array: Array<Any?> ->
+                CombinedResult(
+                    sessionData,
+                    array[0] as Result<UserPreferences, DataError>,
+                    array[1] as Result<List<Transaction>, DataError>,
+                    array[2] as Result<BigDecimal, DataError>,
+                    array[3] as Result<TransactionCategory?, DataError>,
+                    array[4] as Result<Transaction?, DataError>,
+                    array[5] as Result<BigDecimal, DataError>,
+                )
+            }.onEach { (
+                           sessionData: SessionData,
+                           preferenceResult: Result<UserPreferences, DataError>,
+                           transactionResult: Result<List<Transaction>, DataError>,
+                           balanceResult: Result<BigDecimal, DataError>,
+                           popularCategoryResult: Result<TransactionCategory?, DataError>,
+                           largestTransactionResult: Result<Transaction?, DataError>,
+                           previousWeekTotalResult: Result<BigDecimal, DataError>
+                       ) ->
+                if (preferenceResult is Result.Success &&
+                    transactionResult is Result.Success &&
+                    balanceResult is Result.Success &&
+                    popularCategoryResult is Result.Success &&
+                    largestTransactionResult is Result.Success &&
+                    previousWeekTotalResult is Result.Success
+                ) {
+                    preference = preferenceResult.data
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            preference = preferenceResult.data,
+                            username = sessionData.userName,
+                            accountBalance = NumberFormatter.formatAmount(
+                                balanceResult.data,
+                                preference
+                            ),
+                            mostPopularCategory = popularCategoryResult.data?.toTransactionCategoryUI(),
+                            largestTransaction = largestTransactionResult.data.toLargestTransactionItem(),
+                            previousWeekTotal = NumberFormatter.formatAmount(
+                                previousWeekTotalResult.data,
+                                preference
+                            ),
+                            transactions = groupTransactionsByDate(transactionResult.data),
+                            showCreateTransactionSheet = isLaunchedFromWidget
+                        )
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+        }
     }
 
     fun onAction(action: DashboardAction) {
@@ -137,6 +145,7 @@ class DashboardViewModel(
                     )
                 }
             }
+
             is DashboardAction.UpdateExportBottomSheet -> {
                 _uiState.update {
                     it.copy(

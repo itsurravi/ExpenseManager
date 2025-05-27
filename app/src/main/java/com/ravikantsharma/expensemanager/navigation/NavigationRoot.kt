@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.ravikantsharma.auth.presentation.navigation.authGraph
 import com.ravikantsharma.dashboard.presentation.navigation.dashboardNavGraph
+import com.ravikantsharma.expensemanager.AuthNavigationDestination
 import com.ravikantsharma.session_management.presentation.navigation.sessionNavGraph
 import com.ravikantsharma.settings.presentation.navigation.settingsNavGraph
 import com.ravikantsharma.ui.AppNavRoute
@@ -14,9 +15,11 @@ import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.LocalAuthNavigationHandler
 import com.ravikantsharma.ui.NavigationRequestHandler
 import com.ravikantsharma.ui.navigation.AuthBaseRoute
+import com.ravikantsharma.ui.navigation.DashboardBaseRoute
+import com.ravikantsharma.ui.navigation.RegisterRoute
+import com.ravikantsharma.ui.navigation.SessionBaseRoute
 import com.ravikantsharma.ui.navigation.SettingsHomeScreenRoute
 import com.ravikantsharma.ui.navigation.navigateToDashboardScreen
-import com.ravikantsharma.ui.navigation.navigateToSettingsHomeScreen
 
 @Composable
 fun NavigationRoot(
@@ -24,6 +27,7 @@ fun NavigationRoot(
     navigationRequestHandler: NavigationRequestHandler,
     modifier: Modifier = Modifier,
     onSessionVerified: () -> Unit = {},
+    authNavigationDestination: AuthNavigationDestination,
     onLogout: () -> Unit = {},
 ) {
     CompositionLocalProvider(
@@ -36,7 +40,7 @@ fun NavigationRoot(
     ) {
         NavHost(
             navController = navController,
-            startDestination = AuthBaseRoute,
+            startDestination = getStartDestination(authNavigationDestination),
             modifier = modifier,
         ) {
             authGraph(
@@ -49,6 +53,7 @@ fun NavigationRoot(
             )
             dashboardNavGraph(
                 navController = navController,
+                isLaunchedFromWidget = (authNavigationDestination as? AuthNavigationDestination.DashboardScreen)?.isLaunchedFromWidget == true,
                 onNavigateToSettings = {
                     navigationRequestHandler.navigateWithAuthCheck(
                         AppNavRoute(
@@ -76,3 +81,12 @@ fun NavigationRoot(
         }
     }
 }
+
+private fun getStartDestination(authNavigationDestination: AuthNavigationDestination) =
+    when (authNavigationDestination) {
+        is AuthNavigationDestination.DashboardScreen -> DashboardBaseRoute
+        AuthNavigationDestination.None -> AuthBaseRoute
+        AuthNavigationDestination.LoginScreen -> AuthBaseRoute
+        AuthNavigationDestination.PinScreen -> SessionBaseRoute
+        AuthNavigationDestination.RegisterScreen -> RegisterRoute
+    }

@@ -38,9 +38,11 @@ import com.ravikantsharma.core.presentation.designsystem.components.CategorySele
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
+import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import org.koin.androidx.compose.koinViewModel
 import java.math.BigDecimal
+import kotlin.invoke
 
 @Composable
 fun SettingsPreferenceScreenRoot(
@@ -48,6 +50,7 @@ fun SettingsPreferenceScreenRoot(
     viewModel: SettingsPreferenceViewModel = koinViewModel(),
     onNavigateBack: () -> Unit
 ) {
+    val authActionHandler = LocalAuthActionHandler.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -64,7 +67,17 @@ fun SettingsPreferenceScreenRoot(
     SettingsPreferencesScreen(
         modifier = modifier,
         uiState = uiState,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when (action) {
+                SettingsPreferencesAction.OnSaveClicked -> {
+                    authActionHandler?.invoke {
+                        viewModel.onAction(action)
+                    }
+                }
+
+                else -> viewModel.onAction(action)
+            }
+        }
     )
 }
 

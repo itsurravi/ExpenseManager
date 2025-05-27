@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
@@ -24,39 +25,53 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition {
+            mainViewModel.uiState.value.isCheckingAuth
+        }
+
         setContent {
             ExpenseManagerTheme {
                 val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
-                val navController = rememberNavController()
-                LaunchedEffect(uiState.showPinPrompt) {
-                    if (uiState.showPinPrompt) {
-                        navController.navigate(SessionBaseRoute)
-                    }
-                }
-
-                uiState.pendingRoute?.let { route ->
-                    if (!uiState.isSessionExpired && uiState.isUserLoggedIn) {
-                        navController.navigateToRoute(route)
-                        mainViewModel.mainViewModelClearPendingRoute()
-                    }
-                }
-
-                NavigationRoot(
-                    navController = navController,
-                    navigationRequestHandler = mainViewModel,
-                    onSessionVerified = {
-                        mainViewModel.startSession()
-                        uiState.pendingActionAfterAuth?.invoke()
-                        mainViewModel.clearPendingActionAfterAuth()
-                    },
-                    onLogout = {
-                        navController.navigateToLoginRoute {
-                            popUpTo<AuthBaseRoute>()
+                if (!uiState.isCheckingAuth) {
+                    val navController = rememberNavController()
+                    LaunchedEffect(uiState.showPinPrompt) {
+                        if (uiState.showPinPrompt) {
+                            navController.navigate(SessionBaseRoute)
                         }
                     }
-                )
+
+                    uiState.pendingRoute?.let { route ->
+                        if (!uiState.isSessionExpired && uiState.isUserLoggedIn) {
+                            navController.navigateToRoute(route)
+                            mainViewModel.mainViewModelClearPendingRoute()
+                        }
+                    }
+
+                    NavigationRoot(
+                        navController = navController,
+                        navigationRequestHandler = mainViewModel,
+                        onSessionVerified = {
+                            mainViewModel.startSession()
+                            uiState.pendingActionAfterAuth?.invoke()
+                            mainViewModel.onPinVerified()
+                            mainViewModel.clearPendingActionAfterAuth()
+                        },
+                        onLogout = {
+                            navController.navigateToLoginRoute {
+                                popUpTo<AuthBaseRoute>()
+                            }
+                        },
+                        authNavigationDestination = uiState.authNavigationDestination
+                    )
+                }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.onAppResumed()
     }
 
     override fun onDestroy() {

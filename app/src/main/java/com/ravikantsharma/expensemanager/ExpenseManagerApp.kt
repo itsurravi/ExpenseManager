@@ -6,6 +6,7 @@ import com.ravikantsharma.auth.presentation.di.authViewModelModule
 import com.ravikantsharma.core.data.di.coreDataModule
 import com.ravikantsharma.core.database.di.databaseModule
 import com.ravikantsharma.dashboard.presentation.di.dashboardPresentationModule
+import com.ravikantsharma.expensemanager.di.appModule
 import com.ravikantsharma.session_management.data.di.sessionModule
 import com.ravikantsharma.session_management.presentation.di.sessionPresentationModule
 import com.ravikantsharma.settings.presentation.di.settingsPresentationModule
@@ -30,6 +31,7 @@ class ExpenseManagerApp : Application() {
             androidLogger()
             androidContext(this@ExpenseManagerApp)
             modules(
+                appModule,
                 authViewModelModule,
                 authDataModule,
                 coreDataModule,

@@ -29,6 +29,7 @@ import com.ravikantsharma.core.presentation.designsystem.CloseIcon
 import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.components.CategorySelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
+import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import org.koin.androidx.compose.koinViewModel
 
@@ -38,6 +39,7 @@ fun ExportTransactionsScreenRoot(
     onDismiss: () -> Unit,
     viewModel: ExportTransactionsViewModel = koinViewModel()
 ) {
+    val authActionHandler = LocalAuthActionHandler.current
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -58,7 +60,17 @@ fun ExportTransactionsScreenRoot(
     ExportTransactionsScreen(
         modifier = modifier,
         uiState = uiState,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when (action) {
+                ExportTransactionsAction.OnExportClicked -> {
+                    authActionHandler?.invoke {
+                        viewModel.onAction(action)
+                    }
+                }
+
+                else -> viewModel.onAction(action)
+            }
+        }
     )
 }
 

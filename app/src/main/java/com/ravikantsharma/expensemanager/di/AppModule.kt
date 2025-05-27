@@ -13,7 +13,7 @@ val appModule = module {
         (androidApplication() as ExpenseManagerApp).applicationScope
     }
 
-    viewModel { MainViewModel(get()) }
+    viewModel { MainViewModel(savedStateHandle = get(), sessionUseCases = get()) }
 
     factory<NavigationRequestHandler> { get<MainViewModel>() }
 }

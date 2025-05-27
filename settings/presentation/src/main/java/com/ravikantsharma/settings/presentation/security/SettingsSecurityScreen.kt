@@ -29,8 +29,10 @@ import com.ravikantsharma.core.presentation.designsystem.ExpenseManagerTheme
 import com.ravikantsharma.core.presentation.designsystem.components.ExManagerTopBar
 import com.ravikantsharma.core.presentation.designsystem.components.SegmentedSelector
 import com.ravikantsharma.core.presentation.designsystem.components.buttons.ExManagerButton
+import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import org.koin.androidx.compose.koinViewModel
+import kotlin.invoke
 
 @Composable
 fun SettingsSecurityScreenRoot(
@@ -38,6 +40,7 @@ fun SettingsSecurityScreenRoot(
     onNavigateBack: () -> Unit,
     viewModel: SettingsSecurityViewModel = koinViewModel(),
 ) {
+    val authActionHandler = LocalAuthActionHandler.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -57,7 +60,17 @@ fun SettingsSecurityScreenRoot(
     SettingsSecurityScreen(
         modifier = modifier,
         uiState = uiState,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when (action) {
+                SettingsSecurityAction.OnSaveClicked -> {
+                    authActionHandler?.invoke {
+                        viewModel.onAction(action)
+                    }
+                }
+
+                else -> viewModel.onAction(action)
+            }
+        }
     )
 }
 

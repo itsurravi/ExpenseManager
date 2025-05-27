@@ -14,10 +14,11 @@ import com.ravikantsharma.ui.navigation.DashboardScreenRoute
 
 fun NavGraphBuilder.dashboardNavGraph(
     navController: NavController,
+    isLaunchedFromWidget: Boolean,
     onNavigateToSettings: () -> Unit
 ) {
     navigation<DashboardBaseRoute>(
-        startDestination = DashboardScreenRoute
+        startDestination = DashboardScreenRoute(isLaunchedFromWidget)
     ) {
         composable<DashboardScreenRoute> {
             val authNavigationHandler = LocalAuthNavigationHandler.current

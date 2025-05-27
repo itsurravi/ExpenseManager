@@ -47,6 +47,7 @@ import com.ravikantsharma.dashboard.presentation.create_screen.CreateTransaction
 import com.ravikantsharma.dashboard.presentation.dashboard.TransactionGroupUIItem
 import com.ravikantsharma.dashboard.presentation.dashboard.TransactionUIItem
 import com.ravikantsharma.dashboard.presentation.export.ExportTransactionsScreenRoot
+import com.ravikantsharma.ui.LocalAuthActionHandler
 import com.ravikantsharma.ui.ObserveAsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -62,6 +63,7 @@ fun AllTransactionsScreenRoot(
     viewModel: AllTransactionsViewModel = koinViewModel(),
     onNavigateBack: () -> Unit
 ) {
+    val authActionHandler = LocalAuthActionHandler.current
     val scope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val createBottomSheetState = rememberModalBottomSheetState(
@@ -83,7 +85,31 @@ fun AllTransactionsScreenRoot(
         createBottomSheetState = createBottomSheetState,
         exportBottomSheetState = exportBottomSheetState,
         scope = scope,
-        onAction = viewModel::onAction
+        onAction = { action ->
+            when (action) {
+                is AllTransactionsAction.UpdateCreateBottomSheet -> {
+                    if (action.showSheet) {
+                        authActionHandler?.invoke {
+                            viewModel.onAction(action)
+                        }
+                    } else {
+                        viewModel.onAction(action)
+                    }
+                }
+
+                is AllTransactionsAction.UpdateExportBottomSheet -> {
+                    if (action.showSheet) {
+                        authActionHandler?.invoke {
+                            viewModel.onAction(action)
+                        }
+                    } else {
+                        viewModel.onAction(action)
+                    }
+                }
+
+                else -> viewModel.onAction(action)
+            }
+        }
     )
 }
 
