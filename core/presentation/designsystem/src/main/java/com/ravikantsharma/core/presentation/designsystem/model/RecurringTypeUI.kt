@@ -5,5 +5,5 @@ enum class RecurringTypeUI(val symbol: String, val title: String) {
     DAILY("\uD83D\uDD04", "Daily"),
     WEEKLY("\uD83D\uDD04", "Weekly on %s"),
     MONTHLY("\uD83D\uDD04", "Monthly on the %s"),
-    YEARLY("\uD83D\uDD04", "Yearly on Feb %s")
+    YEARLY("\uD83D\uDD04", "Yearly on %s")
 }

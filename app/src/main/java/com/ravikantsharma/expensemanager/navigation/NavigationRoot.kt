@@ -1,5 +1,8 @@
 package com.ravikantsharma.expensemanager.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -16,7 +19,6 @@ import com.ravikantsharma.ui.LocalAuthNavigationHandler
 import com.ravikantsharma.ui.NavigationRequestHandler
 import com.ravikantsharma.ui.navigation.AuthBaseRoute
 import com.ravikantsharma.ui.navigation.DashboardBaseRoute
-import com.ravikantsharma.ui.navigation.RegisterRoute
 import com.ravikantsharma.ui.navigation.SessionBaseRoute
 import com.ravikantsharma.ui.navigation.SettingsHomeScreenRoute
 import com.ravikantsharma.ui.navigation.navigateToDashboardScreen
@@ -42,6 +44,18 @@ fun NavigationRoot(
             navController = navController,
             startDestination = getStartDestination(authNavigationDestination),
             modifier = modifier,
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(durationMillis = 500),
+                    initialOffsetX = { it }
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(durationMillis = 500),
+                    targetOffsetX = { -it }
+                )
+            }
         ) {
             authGraph(
                 navController = navController,

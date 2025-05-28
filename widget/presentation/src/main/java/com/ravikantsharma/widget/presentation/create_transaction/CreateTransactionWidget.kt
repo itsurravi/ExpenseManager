@@ -84,7 +84,7 @@ private fun CreateTransactionWidgetContent() {
 
 private fun createMainActivityIntent(context: Context): Intent {
     return Intent().apply {
-        setClassName(context.packageName, "com.hrishi.spendless.MainActivity")
+        setClassName(context.packageName, "com.ravikantsharma.expensemanager.MainActivity")
         putExtra(CreateTransactionWidget.INTENT_SOURCE_KEY, CreateTransactionWidget.SOURCE)
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     }

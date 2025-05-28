@@ -7,6 +7,7 @@ import com.ravikantsharma.auth.data.di.authDataModule
 import com.ravikantsharma.auth.presentation.di.authViewModelModule
 import com.ravikantsharma.core.data.di.coreDataModule
 import com.ravikantsharma.core.database.di.databaseModule
+import com.ravikantsharma.dashboard.data.di.dashboardModule
 import com.ravikantsharma.dashboard.presentation.di.dashboardPresentationModule
 import com.ravikantsharma.expensemanager.di.appModule
 import com.ravikantsharma.session_management.data.di.sessionModule
@@ -40,6 +41,7 @@ class ExpenseManagerApp : Application() {
                 coreDataModule,
                 databaseModule,
                 sessionModule,
+                dashboardModule,
                 dashboardPresentationModule,
                 sessionPresentationModule,
                 settingsPresentationModule
