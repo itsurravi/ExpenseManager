@@ -64,7 +64,7 @@ fun ExManagerHeadlineTextField(
             onValueChange = onValueChange,
             enabled = enabled,
             maxLines = 1,
-            textStyle = MaterialTheme.typography.displayMedium.copy(
+            textStyle = MaterialTheme.typography.headlineMedium.copy(
                 textAlign = TextAlign.Center
             ),
             keyboardOptions = KeyboardOptions(
@@ -110,7 +110,7 @@ private fun HeadlineTextFieldContent(
         if (value.isEmpty() && !isFocused) {
             Text(
                 text = hint.lowercase(java.util.Locale.getDefault()),
-                style = MaterialTheme.typography.displayMedium,
+                style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(
                     alpha = if (enabled) 0.38f else 0.25f
                 ),
@@ -146,7 +146,7 @@ private fun PreviewExManagerHeadlineTextField() {
                 )
 
                 ExManagerHeadlineTextField(
-                    value = "James Bond",
+                    value = "Ethan Hunt",
                     onValueChange = {},
                     hint = "Username",
                     modifier = Modifier.fillMaxWidth(),

@@ -13,11 +13,11 @@
     <string name="login_username">Username</string>
     <string name="login_pin">PIN</string>
     <string name="login_log_in">Log in</string>
-    <string name="login_new_to_spend_less">New to SpendLess?</string>
+    <string name="login_new_to_spend_less">New to Expense Manager?</string>
     <string name="login_error_username_or_pin_is_incorrect">Username or PIN is incorrect</string>
 
     <!-- Registration Screen Resources-->
-    <string name="register_headline">Welcome to SpendLess! \n How can we address you?</string>
+    <string name="register_headline">Welcome to Expense Manager! \n How can we address you?</string>
     <string name="register_create_unique_username">Create unique username</string>
     <string name="register_already_have_an_account">Already have an account?</string>
 
@@ -29,7 +29,7 @@
     <string name="confirm_pin_error_pins_do_not_match">PINs don\’t match. Try again</string>
 
     <!-- Onboarding Preferences Screen-->
-    <string name="onboarding_preferences_headline">Set SpendLess\nto your preferences</string>
+    <string name="onboarding_preferences_headline">Set Expense Manager\nto your preferences</string>
     <string name="onboarding_preferences_sub_headline">You can change it at any time in Settings</string>
     <string name="onboarding_preferences_money_sent_this_month">spend this month</string>
     <string name="onboarding_preferences_expenses_format_title">Expenses format</string>

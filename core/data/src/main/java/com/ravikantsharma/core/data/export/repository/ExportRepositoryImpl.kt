@@ -30,7 +30,7 @@ class ExportRepositoryImpl(
 ) : ExportRepository {
 
     companion object {
-        private const val FILE_NAME = "Spendless_transactions.csv"
+        private const val FILE_NAME = "Expense_Manager_Transactions.csv"
         private const val MIME_TYPE = "text/csv"
         private val CSV_HEADERS = listOf(
             "Transaction Type",
